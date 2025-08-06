@@ -1,0 +1,537 @@
+/* 패키지 페이지 전용 스타일 */
+.packages-header {
+    margin-top: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.packages-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.packages-header p {
+    font-size: 1.3rem;
+    opacity: 0.9;
+}
+
+/* 인기 패키지 섹션 */
+.featured-packages {
+    padding: 80px 0;
+    background: #f8fafc;
+}
+
+.featured-packages h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+    color: #2d3748;
+}
+
+.packages-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.package-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.package-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+}
+
+.package-card.featured {
+    border-color: #ff6b6b;
+}
+
+.package-card.premium {
+    border-color: #667eea;
+    transform: scale(1.05);
+}
+
+.package-card.enterprise {
+    border-color: #ffd93d;
+}
+
+.package-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.package-card.premium .package-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.package-card.enterprise .package-badge {
+    background: linear-gradient(135deg, #ffd93d 0%, #ff8b30 100%);
+    color: #2d3748;
+}
+
+.package-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 25px;
+    text-align: center;
+}
+
+.package-card.featured .package-header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+}
+
+.package-card.enterprise .package-header {
+    background: linear-gradient(135deg, #ffd93d 0%, #ff8b30 100%);
+    color: #2d3748;
+}
+
+.package-header h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.package-subtitle {
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.package-content {
+    padding: 30px 25px;
+}
+
+.package-services {
+    margin-bottom: 30px;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.service-item:last-child {
+    border-bottom: none;
+}
+
+.service-item i {
+    width: 25px;
+    text-align: center;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.service-item span {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.package-pricing {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.original-price {
+    color: #a0aec0;
+    text-decoration: line-through;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.package-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.discount-badge {
+    background: #48bb78;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.package-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.package-card.featured .package-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+    color: white;
+}
+
+.package-card.premium .package-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.package-card.enterprise .package-btn {
+    background: linear-gradient(135deg, #ffd93d 0%, #ff8b30 100%);
+    color: #2d3748;
+}
+
+.package-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* 맞춤형 패키지 섹션 */
+.custom-packages {
+    padding: 80px 0;
+    background: white;
+}
+
+.custom-packages h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #2d3748;
+}
+
+.custom-packages > .container > p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #718096;
+    margin-bottom: 50px;
+}
+
+.custom-package-builder {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-selector {
+    background: #f8fafc;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+.service-selector h3 {
+    color: #2d3748;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+.service-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.category-section h4 {
+    color: #4a5568;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.category-section h4 i {
+    font-size: 1.5rem;
+    color: #667eea;
+}
+
+.service-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 35px;
+}
+
+.service-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.service-option:hover {
+    background: #edf2f7;
+}
+
+.service-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.service-option input[type="checkbox"]:checked + span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.service-option:has(input:checked) {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.package-summary {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.package-summary h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.selected-services {
+    margin-bottom: 25px;
+    min-height: 200px;
+}
+
+.empty-state {
+    color: #a0aec0;
+    text-align: center;
+    padding: 40px 20px;
+    font-style: italic;
+}
+
+.selected-service {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.selected-service:last-child {
+    border-bottom: none;
+}
+
+.service-name {
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.service-price {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.pricing-summary {
+    border-top: 2px solid #e2e8f0;
+    padding-top: 20px;
+    margin-bottom: 20px;
+}
+
+.pricing-summary > div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.subtotal, .discount {
+    color: #718096;
+}
+
+.discount {
+    color: #48bb78;
+}
+
+.total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+}
+
+.custom-package-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.custom-package-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.custom-package-btn:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 할인 혜택 안내 */
+.discount-info {
+    padding: 80px 0;
+    background: #f8fafc;
+}
+
+.discount-info h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+    color: #2d3748;
+}
+
+.discount-tiers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.discount-tier {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.discount-tier:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.tier-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.discount-tier h3 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.discount-tier p {
+    color: #667eea;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1024px) {
+    .custom-package-builder {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    
+    .package-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .packages-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .packages-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .package-card.premium {
+        transform: none;
+    }
+    
+    .service-selector {
+        padding: 20px;
+    }
+    
+    .package-summary {
+        padding: 20px;
+    }
+    
+    .discount-tiers {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .packages-header {
+        padding: 60px 0;
+    }
+    
+    .packages-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .package-content {
+        padding: 20px;
+    }
+    
+    .package-price {
+        font-size: 2rem;
+    }
+    
+    .service-options {
+        margin-left: 0;
+    }
+    
+    .discount-tiers {
+        grid-template-columns: 1fr;
+    }
+}

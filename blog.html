@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마케팅 블로그 - Social Marketing Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="blog.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html"><h2>Social Marketing Pro</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="#how-to-order">주문방법</a></li>
+                <li><a href="blog.html" class="active">마케팅 블로그</a></li>
+                <li><a href="#keyword">키워드노출</a></li>
+                <li><a href="#" class="login-btn">로그인</a></li>
+                <li><a href="#" class="signup-btn">회원가입</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 블로그 헤더 -->
+    <section class="blog-header">
+        <div class="container">
+            <h1>마케팅 인사이트</h1>
+            <p>SNS 마케팅 전문가들이 공유하는 최신 트렌드와 노하우</p>
+        </div>
+    </section>
+
+    <!-- 블로그 메인 콘텐츠 -->
+    <main class="blog-main">
+        <div class="container">
+            <div class="blog-layout">
+                <!-- 블로그 포스트 목록 -->
+                <section class="blog-posts">
+                    <div class="blog-filters">
+                        <button class="filter-btn active" data-category="all">전체</button>
+                        <button class="filter-btn" data-category="instagram">Instagram</button>
+                        <button class="filter-btn" data-category="youtube">YouTube</button>
+                        <button class="filter-btn" data-category="facebook">Facebook</button>
+                        <button class="filter-btn" data-category="tiktok">TikTok</button>
+                        <button class="filter-btn" data-category="strategy">전략</button>
+                        <button class="filter-btn" data-category="trends">트렌드</button>
+                    </div>
+
+                    <div class="posts-grid" id="postsGrid">
+                        <!-- 블로그 포스트들 -->
+                        <article class="post-card" data-category="instagram strategy">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">Instagram 전략</span>
+                                    <span class="date">2024.01.15</span>
+                                </div>
+                                <h2>인스타그램 알고리즘 완전 정복 가이드</h2>
+                                <p>2024년 최신 인스타그램 알고리즘의 변화와 이를 활용한 효과적인 마케팅 전략을 상세히 분석해보겠습니다.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 1,234</span>
+                                    <span><i class="fas fa-heart"></i> 89</span>
+                                    <span><i class="fas fa-comment"></i> 23</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('instagram-algorithm-guide')">더 읽기</button>
+                            </div>
+                        </article>
+
+                        <article class="post-card" data-category="youtube strategy">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fab fa-youtube"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">YouTube 전략</span>
+                                    <span class="date">2024.01.12</span>
+                                </div>
+                                <h2>유튜브 쇼츠로 구독자 10배 늘리는 방법</h2>
+                                <p>짧은 영상의 힘! 유튜브 쇼츠를 활용해서 단기간에 구독자를 폭발적으로 늘릴 수 있는 실전 노하우를 공개합니다.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 2,567</span>
+                                    <span><i class="fas fa-heart"></i> 156</span>
+                                    <span><i class="fas fa-comment"></i> 45</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('youtube-shorts-strategy')">더 읽기</button>
+                            </div>
+                        </article>
+
+                        <article class="post-card" data-category="tiktok trends">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fab fa-tiktok"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">TikTok 트렌드</span>
+                                    <span class="date">2024.01.10</span>
+                                </div>
+                                <h2>틱톡 바이럴 콘텐츠의 5가지 황금 법칙</h2>
+                                <p>틱톡에서 바이럴을 만들어내는 콘텐츠들의 공통점과 성공 법칙을 분석하여 여러분의 콘텐츠에 적용할 수 있는 방법을 알려드립니다.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 3,421</span>
+                                    <span><i class="fas fa-heart"></i> 234</span>
+                                    <span><i class="fas fa-comment"></i> 67</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('tiktok-viral-content')">더 읽기</button>
+                            </div>
+                        </article>
+
+                        <article class="post-card" data-category="facebook strategy">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fab fa-facebook"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">Facebook 전략</span>
+                                    <span class="date">2024.01.08</span>
+                                </div>
+                                <h2>페이스북 비즈니스 페이지 최적화 완벽 가이드</h2>
+                                <p>페이스북 비즈니스 페이지를 제대로 활용하여 고객과의 소통을 늘리고 브랜드 인지도를 높이는 전략을 단계별로 설명합니다.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 1,876</span>
+                                    <span><i class="fas fa-heart"></i> 98</span>
+                                    <span class="far fa-comment"></i> 34</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('facebook-business-optimization')">더 읽기</button>
+                            </div>
+                        </article>
+
+                        <article class="post-card" data-category="trends strategy">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">마케팅 트렌드</span>
+                                    <span class="date">2024.01.05</span>
+                                </div>
+                                <h2>2024년 SNS 마케팅 트렌드 예측</h2>
+                                <p>올해 주목해야 할 SNS 마케팅 트렌드와 변화하는 소비자 행동 패턴을 분석하여 성공적인 마케팅 전략을 수립해보세요.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 4,532</span>
+                                    <span><i class="fas fa-heart"></i> 289</span>
+                                    <span><i class="fas fa-comment"></i> 78</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('2024-marketing-trends')">더 읽기</button>
+                            </div>
+                        </article>
+
+                        <article class="post-card" data-category="instagram trends">
+                            <div class="post-image">
+                                <div class="post-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <div class="post-meta">
+                                    <span class="category">Instagram 콘텐츠</span>
+                                    <span class="date">2024.01.03</span>
+                                </div>
+                                <h2>인스타그램 릴스 조회수 폭발시키는 8가지 팁</h2>
+                                <p>인스타그램 릴스의 조회수를 높이고 더 많은 사람들에게 도달할 수 있는 실전 팁들을 경험을 바탕으로 정리했습니다.</p>
+                                <div class="post-stats">
+                                    <span><i class="fas fa-eye"></i> 2,198</span>
+                                    <span><i class="fas fa-heart"></i> 167</span>
+                                    <span><i class="fas fa-comment"></i> 42</span>
+                                </div>
+                                <button class="read-more-btn" onclick="openPost('instagram-reels-tips')">더 읽기</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination">
+                        <button class="page-btn" disabled>이전</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="page-btn">다음</button>
+                    </div>
+                </section>
+
+                <!-- 사이드바 -->
+                <aside class="blog-sidebar">
+                    <!-- 인기 포스트 -->
+                    <div class="sidebar-widget">
+                        <h3>인기 포스트</h3>
+                        <div class="popular-posts">
+                            <div class="popular-post">
+                                <div class="popular-post-icon">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div class="popular-post-content">
+                                    <h4>인스타그램 해시태그 전략</h4>
+                                    <span class="popular-post-views">5,234 조회</span>
+                                </div>
+                            </div>
+                            <div class="popular-post">
+                                <div class="popular-post-icon">
+                                    <i class="fab fa-youtube"></i>
+                                </div>
+                                <div class="popular-post-content">
+                                    <h4>유튜브 썸네일 디자인 가이드</h4>
+                                    <span class="popular-post-views">4,891 조회</span>
+                                </div>
+                            </div>
+                            <div class="popular-post">
+                                <div class="popular-post-icon">
+                                    <i class="fab fa-tiktok"></i>
+                                </div>
+                                <div class="popular-post-content">
+                                    <h4>틱톡 콘텐츠 기획법</h4>
+                                    <span class="popular-post-views">3,567 조회</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 -->
+                    <div class="sidebar-widget">
+                        <h3>카테고리</h3>
+                        <div class="categories">
+                            <a href="#" class="category-link">Instagram 마케팅 <span>(23)</span></a>
+                            <a href="#" class="category-link">YouTube 전략 <span>(18)</span></a>
+                            <a href="#" class="category-link">TikTok 트렌드 <span>(15)</span></a>
+                            <a href="#" class="category-link">Facebook 광고 <span>(12)</span></a>
+                            <a href="#" class="category-link">마케팅 분석 <span>(9)</span></a>
+                            <a href="#" class="category-link">SEO 최적화 <span>(7)</span></a>
+                        </div>
+                    </div>
+
+                    <!-- 뉴스레터 구독 -->
+                    <div class="sidebar-widget">
+                        <h3>뉴스레터 구독</h3>
+                        <p>최신 마케팅 인사이트를 이메일로 받아보세요</p>
+                        <form class="newsletter-form">
+                            <input type="email" placeholder="이메일 주소" required>
+                            <button type="submit">구독하기</button>
+                        </form>
+                    </div>
+
+                    <!-- 태그 클라우드 -->
+                    <div class="sidebar-widget">
+                        <h3>인기 태그</h3>
+                        <div class="tag-cloud">
+                            <span class="tag">인스타그램</span>
+                            <span class="tag">유튜브</span>
+                            <span class="tag">바이럴</span>
+                            <span class="tag">알고리즘</span>
+                            <span class="tag">해시태그</span>
+                            <span class="tag">콘텐츠</span>
+                            <span class="tag">마케팅</span>
+                            <span class="tag">브랜딩</span>
+                            <span class="tag">트렌드</span>
+                            <span class="tag">분석</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- 블로그 포스트 모달 -->
+    <div id="postModal" class="modal">
+        <div class="modal-content post-modal-content">
+            <span class="close" onclick="closePost()">&times;</span>
+            <div id="postContent">
+                <!-- 포스트 내용이 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Social Marketing Pro</h3>
+                    <p>전문적인 SNS 마케팅 솔루션을 제공합니다</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#">SNS 마케팅</a></li>
+                        <li><a href="#">키워드 노출</a></li>
+                        <li><a href="#">SEO 서비스</a></li>
+                        <li><a href="#">상담 서비스</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">문의하기</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Social Marketing Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="blog.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

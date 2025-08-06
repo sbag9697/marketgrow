@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 페이지 디버그</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .service-item {
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .service-item:hover {
+            background-color: #f5f5f5;
+            border-color: #4CAF50;
+        }
+        .service-item.selected {
+            background-color: #e8f5e9;
+            border-color: #4CAF50;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #console {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 2px 0;
+        }
+        .log-error {
+            color: red;
+        }
+        .log-success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>주문 페이지 디버그</h1>
+    
+    <div class="debug-section">
+        <h2>1. 플랫폼 선택</h2>
+        <button onclick="testPlatform('instagram')">인스타그램</button>
+        <button onclick="testPlatform('youtube')">유튜브</button>
+        <button onclick="testPlatform('tiktok')">틱톡</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>2. 서비스 목록</h2>
+        <div id="serviceList"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>3. 선택된 서비스</h2>
+        <div id="selectedService">아직 선택되지 않음</div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>콘솔 로그</h2>
+        <div id="console"></div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:5001/api';
+        let selectedService = null;
+        
+        function log(message, type = 'info') {
+            const consoleDiv = document.getElementById('console');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry log-' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleDiv.appendChild(entry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        async function testPlatform(platform) {
+            log(`플랫폼 '${platform}' 선택됨`);
+            
+            try {
+                log(`API 호출: ${API_BASE_URL}/services`);
+                const response = await fetch(`${API_BASE_URL}/services`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`전체 서비스 ${data.data.services.length}개 로드됨`, 'success');
+                    
+                    // 플랫폼별 필터링
+                    const filteredServices = data.data.services.filter(s => s.platform === platform);
+                    log(`'${platform}' 플랫폼 서비스 ${filteredServices.length}개 필터링됨`);
+                    
+                    displayServices(filteredServices);
+                } else {
+                    log(`API 오류: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`네트워크 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        function displayServices(services) {
+            const serviceList = document.getElementById('serviceList');
+            
+            if (services.length === 0) {
+                serviceList.innerHTML = '<p>서비스가 없습니다.</p>';
+                return;
+            }
+            
+            serviceList.innerHTML = services.map((service, index) => `
+                <div class="service-item" onclick="testSelectService('${service._id}', ${index})">
+                    <h4>${service.name}</h4>
+                    <p>${service.description}</p>
+                    <p>ID: ${service._id}</p>
+                    <p>가격: ₩${service.pricing[0].price.toLocaleString()} / ${service.pricing[0].quantity}개</p>
+                </div>
+            `).join('');
+            
+            log(`서비스 목록 표시 완료`);
+        }
+        
+        async function testSelectService(serviceId, index) {
+            log(`서비스 선택 시도: ID=${serviceId}, Index=${index}`);
+            
+            // UI 업데이트
+            document.querySelectorAll('.service-item').forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+            
+            try {
+                log(`API 호출: ${API_BASE_URL}/services/${serviceId}`);
+                const response = await fetch(`${API_BASE_URL}/services/${serviceId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    selectedService = data.data.service || data.data;
+                    log(`서비스 상세 정보 로드 성공`, 'success');
+                    
+                    document.getElementById('selectedService').innerHTML = `
+                        <h3>${selectedService.name}</h3>
+                        <p>ID: ${selectedService._id}</p>
+                        <p>플랫폼: ${selectedService.platform}</p>
+                        <p>카테고리: ${selectedService.category}</p>
+                        <p>최소: ${selectedService.minQuantity}개 / 최대: ${selectedService.maxQuantity}개</p>
+                        <pre>${JSON.stringify(selectedService, null, 2)}</pre>
+                    `;
+                } else {
+                    log(`API 오류: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`네트워크 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 전역 함수로 노출
+        window.testPlatform = testPlatform;
+        window.testSelectService = testSelectService;
+        
+        // 페이지 로드 시 초기화
+        log('디버그 페이지 로드됨');
+    </script>
+</body>
+</html>

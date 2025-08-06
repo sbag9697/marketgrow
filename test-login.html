@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 테스트</title>
+</head>
+<body>
+    <h1>로그인 테스트 페이지</h1>
+    <div id="result"></div>
+    
+    <script>
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                console.log('로그인 시도 중...');
+                resultDiv.innerHTML = '<p>로그인 시도 중...</p>';
+                
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        login: 'admin@marketgrow.com',
+                        password: 'admin123!@#'
+                    })
+                });
+                
+                console.log('응답 상태:', response.status);
+                console.log('응답 헤더:', response.headers);
+                
+                const data = await response.json();
+                console.log('응답 데이터:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h2 style="color: green;">로그인 성공!</h2>
+                        <p>사용자: ${data.data.user.email}</p>
+                        <p>역할: ${data.data.user.role}</p>
+                        <p>토큰: ${data.data.token.substring(0, 50)}...</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2 style="color: red;">로그인 실패</h2>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('오류 발생:', error);
+                resultDiv.innerHTML = `
+                    <h2 style="color: red;">오류 발생</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // 페이지 로드 시 자동 실행
+        testLogin();
+    </script>
+</body>
+</html>

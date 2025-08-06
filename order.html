@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 주문하기 - SNS 마케팅 서비스 주문">
+    <title>주문하기 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="order.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Order Page Content -->
+    <div class="order-page">
+        <div class="container">
+            <!-- 주문 헤더 -->
+            <div class="order-header">
+                <div class="breadcrumb">
+                    <a href="index.html">홈</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="services.html">서비스목록</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>주문하기</span>
+                </div>
+                <h1>서비스 주문하기</h1>
+                <p>원하는 서비스를 선택하고 맞춤형 마케팅을 시작하세요</p>
+            </div>
+
+            <!-- 주문 진행 단계 -->
+            <div class="order-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">서비스 선택</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">옵션 설정</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">결제</div>
+                </div>
+            </div>
+
+            <!-- 주문 콘텐츠 -->
+            <div class="order-content">
+                <!-- 단계 1: 서비스 선택 -->
+                <div class="order-step-content" id="step1">
+                    <div class="step-title">
+                        <h2>1. 서비스를 선택해주세요</h2>
+                        <p>플랫폼과 서비스 유형을 선택하세요</p>
+                    </div>
+
+                    <!-- 플랫폼 선택 -->
+                    <div class="platform-selection">
+                        <h3>플랫폼 선택</h3>
+                        <div class="platform-grid" id="platformGrid">
+                            <!-- 플랫폼 카드들이 동적으로 로드됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 서비스 목록 -->
+                    <div class="service-selection" id="serviceSelection" style="display: none;">
+                        <h3>서비스 선택</h3>
+                        <div class="service-list" id="serviceList">
+                            <!-- 서비스 목록이 동적으로 로드됩니다 -->
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button class="next-btn" id="step1NextBtn" onclick="goToStep(2)" disabled>
+                            다음 단계
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 단계 2: 옵션 설정 -->
+                <div class="order-step-content" id="step2" style="display: none;">
+                    <div class="step-title">
+                        <h2>2. 주문 옵션을 설정해주세요</h2>
+                        <p>선택한 서비스의 세부 옵션을 설정하세요</p>
+                    </div>
+
+                    <div class="order-form">
+                        <div class="form-section">
+                            <h3>선택된 서비스</h3>
+                            <div class="selected-service" id="selectedServiceInfo">
+                                <!-- 선택된 서비스 정보가 표시됩니다 -->
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>기본 정보</h3>
+                            <div class="form-group">
+                                <label for="targetUrl">대상 URL <span class="required">*</span></label>
+                                <input type="url" id="targetUrl" placeholder="https://instagram.com/username" required>
+                                <div class="form-help">마케팅을 진행할 계정이나 게시물의 URL을 입력하세요</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="quantity">수량 <span class="required">*</span></label>
+                                <div class="quantity-input">
+                                    <button type="button" onclick="changeQuantity(-1)">-</button>
+                                    <input type="number" id="quantity" value="100" min="1" required>
+                                    <button type="button" onclick="changeQuantity(1)">+</button>
+                                </div>
+                                <div class="form-help">원하는 수량을 입력하세요 (최소: <span id="minQuantity">1</span>, 최대: <span id="maxQuantity">10000</span>)</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="speed">진행 속도</label>
+                                <select id="speed">
+                                    <option value="normal">보통 (24-48시간)</option>
+                                    <option value="fast">빠름 (12-24시간)</option>
+                                    <option value="slow">천천히 (2-7일)</option>
+                                </select>
+                                <div class="form-help">서비스 진행 속도를 선택하세요</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>추가 옵션</h3>
+                            <div class="option-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="guaranteeOption">
+                                    <span class="checkmark"></span>
+                                    품질 보장 (+20%)
+                                </label>
+                                <div class="option-description">30일 보장 기간을 제공합니다</div>
+                            </div>
+
+                            <div class="option-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="priorityOption">
+                                    <span class="checkmark"></span>
+                                    우선 처리 (+10%)
+                                </label>
+                                <div class="option-description">다른 주문보다 우선적으로 처리됩니다</div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>특별 요청사항</h3>
+                            <div class="form-group">
+                                <label for="notes">추가 요청사항</label>
+                                <textarea id="notes" placeholder="특별한 요청사항이 있으시면 입력해주세요" rows="4"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button class="prev-btn" onclick="goToStep(1)">
+                            <i class="fas fa-arrow-left"></i>
+                            이전 단계
+                        </button>
+                        <button class="next-btn" onclick="goToStep(3)">
+                            다음 단계
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 단계 3: 결제 -->
+                <div class="order-step-content" id="step3" style="display: none;">
+                    <div class="step-title">
+                        <h2>3. 결제를 진행해주세요</h2>
+                        <p>주문 내용을 확인하고 결제를 완료하세요</p>
+                    </div>
+
+                    <div class="checkout-container">
+                        <!-- 주문 요약 -->
+                        <div class="order-summary">
+                            <h3>주문 요약</h3>
+                            <div class="summary-content" id="orderSummary">
+                                <!-- 주문 요약이 표시됩니다 -->
+                            </div>
+                        </div>
+
+                        <!-- 결제 방법 -->
+                        <div class="payment-methods">
+                            <h3>결제 방법</h3>
+                            <div class="payment-options">
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="card" checked>
+                                    <div class="payment-info">
+                                        <i class="fas fa-credit-card"></i>
+                                        <span>신용카드/체크카드</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="bank">
+                                    <div class="payment-info">
+                                        <i class="fas fa-university"></i>
+                                        <span>무통장입금</span>
+                                    </div>
+                                </label>
+                                <label class="payment-option">
+                                    <input type="radio" name="paymentMethod" value="paypal">
+                                    <div class="payment-info">
+                                        <i class="fab fa-paypal"></i>
+                                        <span>PayPal</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 약관 동의 -->
+                        <div class="terms-agreement">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agreeTerms" required>
+                                <span class="checkmark"></span>
+                                <a href="#" onclick="showTerms()">이용약관</a> 및 <a href="#" onclick="showPrivacy()">개인정보처리방침</a>에 동의합니다
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="step-actions">
+                        <button class="prev-btn" onclick="goToStep(2)">
+                            <i class="fas fa-arrow-left"></i>
+                            이전 단계
+                        </button>
+                        <button class="order-btn" id="orderBtn" onclick="submitOrder()">
+                            <i class="fas fa-credit-card"></i>
+                            주문하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 토스페이먼츠 SDK -->
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    
+    <script src="js/config.js?v=4"></script>
+    <script src="js/api.js?v=4"></script>
+    <script src="js/notification.js?v=4"></script>
+    <script src="js/loading.js?v=4"></script>
+    <script src="js/auth.js?v=4"></script>
+    <script src="js/payment.js?v=4"></script>
+    <script src="js/order-page.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="24시간 SNS 마케팅 서비스 - 인스타그램, 유튜브, 페이스북, 틱톡, 트위터, 텔레그램, 스레드, 웹사이트 마케팅">
+    <title>SNS 마케팅 서비스 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2>MarketGrow</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="login.html">로그인</a></li>
+                <li><a href="signup.html">가입하기</a></li>
+                <li><a href="order-method.html">주문방법</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="blog.html">마케팅 블로그</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>24시간 SNS 마케팅 서비스</h1>
+                    <p class="hero-subtitle">SEO 최적화 • 알고리즘 분석 • 전문가 관리</p>
+                    <p class="hero-description">
+                        인스타그램, 유튜브, 페이스북, 틱톡, 트위터, 텔레그램, 스레드까지<br>
+                        모든 SNS 플랫폼에서 당신의 브랜드를 성장시켜드립니다.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">10,000+</div>
+                            <div class="stat-label">성공 사례</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">서비스 운영</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">고객 만족도</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Login Form -->
+                <div class="login-card" id="loginCard">
+                    <h3>로그인</h3>
+                    <form class="login-form" id="heroLoginForm">
+                        <div class="form-group">
+                            <input type="text" name="username" placeholder="아이디 또는 이메일" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" placeholder="비밀번호" required>
+                        </div>
+                        <button type="submit" class="login-btn">로그인</button>
+                        <div class="form-links">
+                            <a href="signup.html">회원가입</a>
+                            <a href="#" class="forgot-password" onclick="showForgotPassword()">비밀번호 찾기</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- User Info Card (로그인된 경우 표시) -->
+                <div class="user-card" id="userCard" style="display: none;">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4 id="userName">사용자님</h4>
+                        <p id="userLevel">Bronze 회원</p>
+                    </div>
+                    <button class="dashboard-btn" onclick="location.href='dashboard.html'">
+                        <i class="fas fa-tachometer-alt"></i>
+                        대시보드
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        로그아웃
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="services">
+        <div class="container">
+            <h2>SNS 마케팅 서비스</h2>
+            <div class="services-grid" id="servicesGrid">
+                <!-- 서비스 카드들이 동적으로 로드됩니다 -->
+                <div class="service-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>서비스 목록을 불러오는 중...</p>
+                </div>
+            </div>
+            
+            <!-- 원본 서비스 카드 (참고용) -->
+            <div style="display:none;">
+                <div class="service-card instagram">
+                    <div class="service-icon">
+                        <i class="fab fa-instagram"></i>
+                    </div>
+                    <h3>인스타그램</h3>
+                    <p>팔로워, 좋아요, 댓글<br>스토리 조회수 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card youtube">
+                    <div class="service-icon">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                    <h3>유튜브</h3>
+                    <p>구독자, 조회수, 좋아요<br>댓글 및 공유 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card facebook">
+                    <div class="service-icon">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <h3>페이스북</h3>
+                    <p>페이지 좋아요, 게시물<br>참여도 및 공유 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card tiktok">
+                    <div class="service-icon">
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                    <h3>틱톡</h3>
+                    <p>팔로워, 조회수, 좋아요<br>댓글 및 공유 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card twitter">
+                    <div class="service-icon">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <h3>트위터</h3>
+                    <p>팔로워, 리트윗, 좋아요<br>댓글 및 멘션 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card telegram">
+                    <div class="service-icon">
+                        <i class="fab fa-telegram-plane"></i>
+                    </div>
+                    <h3>텔레그램</h3>
+                    <p>채널 구독자, 조회수<br>반응 및 공유 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card threads">
+                    <div class="service-icon">
+                        <i class="fas fa-at"></i>
+                    </div>
+                    <h3>스레드</h3>
+                    <p>팔로워, 좋아요, 댓글<br>리포스트 및 인용 증가</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+
+                <div class="service-card website">
+                    <div class="service-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>웹사이트 마케팅</h3>
+                    <p>SEO 최적화, 트래픽<br>전환율 및 순위 향상</p>
+                    <button class="service-btn">시작하기</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>왜 MarketGrow를 선택해야 할까요?</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>24시간 자동 서비스</h3>
+                    <p>언제든지 원하는 시간에 서비스를 시작하고 실시간으로 결과를 확인하세요</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>SEO 최적화</h3>
+                    <p>검색 엔진 최적화를 통해 자연스러운 노출과 지속적인 성장을 보장합니다</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>알고리즘 분석</h3>
+                    <p>각 플랫폼의 알고리즘을 분석하여 최적의 성장 전략을 제공합니다</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>100% 안전 보장</h3>
+                    <p>플랫폼 정책을 준수하며 계정 안전을 최우선으로 서비스를 제공합니다</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <h2>자주 묻는 질문</h2>
+            <div class="faq-accordion">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>서비스는 얼마나 빨리 시작되나요?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>결제 완료 후 즉시 서비스가 시작되며, 1-2시간 내에 첫 번째 결과를 확인하실 수 있습니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>계정이 정지될 위험은 없나요?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>저희는 각 플랫폼의 가이드라인을 철저히 준수하며, 자연스러운 속도로 서비스를 제공하여 계정 안전을 보장합니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>결제 방법은 어떻게 되나요?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>신용카드, 체크카드, 무통장입금, 페이팔 등 다양한 결제 방법을 지원합니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>환불이 가능한가요?</h4>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>서비스 시작 전이라면 100% 환불이 가능하며, 서비스 진행 중에도 남은 수량에 대해 부분 환불이 가능합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact">
+        <div class="container">
+            <h2>문의하기</h2>
+            <p>궁금한 점이 있으시면 언제든지 연락해주세요</p>
+            <div class="contact-methods">
+                <a href="#" class="contact-item kakao">
+                    <i class="fas fa-comment"></i>
+                    <span>카카오톡 문의</span>
+                </a>
+                <a href="#" class="contact-item instagram">
+                    <i class="fab fa-instagram"></i>
+                    <span>인스타그램 DM</span>
+                </a>
+                <a href="#" class="contact-item telegram">
+                    <i class="fab fa-telegram-plane"></i>
+                    <span>텔레그램 문의</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

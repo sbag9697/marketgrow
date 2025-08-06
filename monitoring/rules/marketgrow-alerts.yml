@@ -1,0 +1,170 @@
+# MarketGrow 알림 규칙
+
+groups:
+  - name: marketgrow-application
+    rules:
+      # 애플리케이션 다운
+      - alert: MarketGrowAppDown
+        expr: up{job="marketgrow-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "MarketGrow 애플리케이션이 다운되었습니다"
+          description: "MarketGrow 애플리케이션 인스턴스 {{ $labels.instance }}가 30초 동안 응답하지 않습니다."
+
+      # 높은 메모리 사용률
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 메모리 사용률 감지"
+          description: "메모리 사용률이 {{ $value }}% 입니다. (80% 임계값 초과)"
+
+      # 높은 CPU 사용률
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 CPU 사용률 감지"
+          description: "CPU 사용률이 {{ $value }}% 입니다. (80% 임계값 초과)"
+
+      # 디스크 공간 부족
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 20
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "디스크 공간 부족"
+          description: "루트 파티션의 사용 가능한 공간이 {{ $value }}% 미만입니다."
+
+      # 높은 응답 시간
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="marketgrow-app"}[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 응답 시간 감지"
+          description: "95%ile 응답 시간이 {{ $value }}초입니다. (2초 임계값 초과)"
+
+      # 높은 에러율
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{job="marketgrow-app",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="marketgrow-app"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "높은 에러율 감지"
+          description: "5분간 에러율이 {{ $value | humanizePercentage }}입니다. (5% 임계값 초과)"
+
+  - name: database
+    rules:
+      # MongoDB 다운
+      - alert: MongoDBDown
+        expr: up{job="mongodb"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "MongoDB가 다운되었습니다"
+          description: "MongoDB 인스턴스 {{ $labels.instance }}가 30초 동안 응답하지 않습니다."
+
+      # Redis 다운
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis가 다운되었습니다"
+          description: "Redis 인스턴스 {{ $labels.instance }}가 30초 동안 응답하지 않습니다."
+
+      # MongoDB 연결 수 높음
+      - alert: MongoDBHighConnections
+        expr: mongodb_connections{state="current"} > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MongoDB 연결 수가 높습니다"
+          description: "현재 MongoDB 연결 수가 {{ $value }}개입니다. (100개 임계값 초과)"
+
+      # Redis 메모리 사용률 높음
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis 메모리 사용률이 높습니다"
+          description: "Redis 메모리 사용률이 {{ $value }}%입니다. (80% 임계값 초과)"
+
+  - name: infrastructure
+    rules:
+      # Docker 컨테이너 다운
+      - alert: ContainerDown
+        expr: up{job="cadvisor"} == 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Docker 컨테이너가 다운되었습니다"
+          description: "컨테이너 {{ $labels.container_name }}이 다운되었습니다."
+
+      # Nginx 다운
+      - alert: NginxDown
+        expr: up{job="nginx"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nginx가 다운되었습니다"
+          description: "Nginx 인스턴스 {{ $labels.instance }}가 30초 동안 응답하지 않습니다."
+
+      # SSL 인증서 만료 임박
+      - alert: SSLCertificateExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL 인증서 만료 임박"
+          description: "SSL 인증서가 {{ $value }}일 후에 만료됩니다."
+
+  - name: business-metrics
+    rules:
+      # 주문 실패율 높음
+      - alert: HighOrderFailureRate
+        expr: sum(rate(orders_total{status="failed"}[5m])) / sum(rate(orders_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "주문 실패율이 높습니다"
+          description: "5분간 주문 실패율이 {{ $value | humanizePercentage }}입니다."
+
+      # 결제 실패율 높음
+      - alert: HighPaymentFailureRate
+        expr: sum(rate(payments_total{status="failed"}[5m])) / sum(rate(payments_total[5m])) > 0.03
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "결제 실패율이 높습니다"
+          description: "5분간 결제 실패율이 {{ $value | humanizePercentage }}입니다."
+
+      # 사용자 로그인 실패율 높음
+      - alert: HighLoginFailureRate
+        expr: sum(rate(auth_attempts_total{status="failed"}[5m])) / sum(rate(auth_attempts_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "로그인 실패율이 높습니다"
+          description: "5분간 로그인 실패율이 {{ $value | humanizePercentage }}입니다. 보안 위협 가능성을 확인하세요."

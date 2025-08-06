@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # 개발용 MarketGrow 애플리케이션
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: marketgrow-app-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # 프론트엔드 개발 서버
+      - "3001:3001"  # 백엔드 API 서버
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/marketgrow_dev
+      - JWT_SECRET=dev-jwt-secret-key
+      - JWT_REFRESH_SECRET=dev-refresh-secret-key
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/server/node_modules
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - marketgrow-dev-network
+    command: >
+      sh -c "npm run dev & 
+             cd server && npm run dev &
+             wait"
+
+  # 개발용 MongoDB
+  mongo:
+    image: mongo:6.0-rc
+    container_name: marketgrow-mongo-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=marketgrow_dev
+    volumes:
+      - mongo-dev-data:/data/db
+    networks:
+      - marketgrow-dev-network
+
+  # 개발용 Redis
+  redis:
+    image: redis:7-alpine
+    container_name: marketgrow-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - marketgrow-dev-network
+
+  # MongoDB Express (데이터베이스 관리 UI)
+  mongo-express:
+    image: mongo-express
+    container_name: marketgrow-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    depends_on:
+      - mongo
+    networks:
+      - marketgrow-dev-network
+
+  # Redis Commander (Redis 관리 UI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: marketgrow-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - marketgrow-dev-network
+
+volumes:
+  mongo-dev-data:
+    driver: local
+  redis-dev-data:
+    driver: local
+
+networks:
+  marketgrow-dev-network:
+    driver: bridge

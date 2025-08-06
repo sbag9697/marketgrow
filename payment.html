@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="결제 페이지 - Social Marketing Pro">
+    <title>결제 - Social Marketing Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html"><h2>Social Marketing Pro</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="packages.html">패키지 딜</a></li>
+                <li><a href="blog.html">마케팅 블로그</a></li>
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="#" class="login-btn">로그인</a></li>
+                <li><a href="#" class="signup-btn">회원가입</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 결제 섹션 -->
+    <section class="payment-section">
+        <div class="container">
+            <div class="payment-container">
+                <!-- 주문 정보 -->
+                <div class="order-summary">
+                    <h2>주문 정보</h2>
+                    <div class="order-item">
+                        <div class="service-info">
+                            <h3 id="orderServiceName">서비스명</h3>
+                            <p id="orderQuantity">수량: 1,000개</p>
+                            <p id="orderUrl">대상 URL: https://example.com</p>
+                        </div>
+                        <div class="service-price">
+                            <span id="orderTotalPrice">₩50,000</span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-total">
+                        <div class="total-row">
+                            <span>서비스 금액</span>
+                            <span id="serviceAmount">₩50,000</span>
+                        </div>
+                        <div class="total-row">
+                            <span>VAT (10%)</span>
+                            <span id="vatAmount">₩5,000</span>
+                        </div>
+                        <div class="total-row final-total">
+                            <span>총 결제금액</span>
+                            <span id="finalAmount">₩55,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제 위젯 -->
+                <div class="payment-widget">
+                    <h2>결제 수단</h2>
+                    <div id="payment-method"></div>
+                    <div id="agreement"></div>
+                    <button id="payment-request-button" class="payment-btn">
+                        <i class="fas fa-credit-card"></i>
+                        결제하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 로딩 모달 -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content loading-content">
+            <div class="loading-spinner"></div>
+            <h3>결제 처리 중입니다...</h3>
+            <p>잠시만 기다려주세요.</p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="payment.js"></script>
+</body>
+</html>

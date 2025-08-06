@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 로그인 - SNS 마케팅 서비스 이용을 위한 로그인">
+    <title>로그인 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="auth.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="login.html" class="active">로그인</a></li>
+                <li><a href="signup.html">가입하기</a></li>
+                <li><a href="order-method.html">주문방법</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="blog.html">마케팅 블로그</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>로그인</h1>
+                        <p>MarketGrow 계정으로 로그인하세요</p>
+                    </div>
+
+                    <form class="auth-form" id="loginForm">
+                        <div class="form-group">
+                            <label for="username">아이디 또는 이메일</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="username" name="username" placeholder="아이디 또는 이메일을 입력하세요" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">비밀번호</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword()">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="checkbox-group">
+                                <input type="checkbox" id="remember" name="remember">
+                                <span class="checkmark"></span>
+                                로그인 상태 유지
+                            </label>
+                            <a href="#" class="forgot-link" onclick="showForgotPassword()">비밀번호를 잊으셨나요?</a>
+                        </div>
+
+                        <button type="submit" class="auth-btn primary">
+                            <i class="fas fa-sign-in-alt"></i>
+                            로그인
+                        </button>
+
+                        <div class="divider">
+                            <span>또는</span>
+                        </div>
+
+                        <div class="social-login">
+                            <button type="button" class="social-btn kakao" onclick="loginWithKakao()">
+                                <i class="fas fa-comment"></i>
+                                카카오톡으로 로그인
+                            </button>
+                            <button type="button" class="social-btn google" onclick="loginWithGoogle()">
+                                <i class="fab fa-google"></i>
+                                구글로 로그인
+                            </button>
+                            <button type="button" class="social-btn naver" onclick="loginWithNaver()">
+                                <i class="fas fa-n"></i>
+                                네이버로 로그인
+                            </button>
+                        </div>
+
+                        <div class="auth-footer">
+                            <p>아직 계정이 없으신가요? <a href="signup.html">회원가입</a></p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Login Benefits -->
+                <div class="benefits-card">
+                    <h3>로그인하면 이런 혜택이!</h3>
+                    <ul class="benefits-list">
+                        <li>
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <h4>실시간 성과 분석</h4>
+                                <p>주문한 서비스의 진행 상황을 실시간으로 확인</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-history"></i>
+                            <div>
+                                <h4>주문 내역 관리</h4>
+                                <p>과거 주문 내역과 결제 정보를 한 눈에 확인</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-coins"></i>
+                            <div>
+                                <h4>적립금 혜택</h4>
+                                <p>주문 시마다 적립금 지급 및 할인 혜택</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-bell"></i>
+                            <div>
+                                <h4>알림 서비스</h4>
+                                <p>서비스 완료, 프로모션 등 중요한 소식을 알림</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-crown"></i>
+                            <div>
+                                <h4>VIP 회원 혜택</h4>
+                                <p>등급별 할인율과 전용 고객지원 서비스</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="quick-links">
+        <div class="container">
+            <h3>빠른 링크</h3>
+            <div class="links-grid">
+                <a href="services.html" class="quick-link">
+                    <i class="fas fa-list"></i>
+                    <span>서비스 목록</span>
+                </a>
+                <a href="order-method.html" class="quick-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>주문 방법</span>
+                </a>
+                <a href="blog.html" class="quick-link">
+                    <i class="fas fa-blog"></i>
+                    <span>마케팅 블로그</span>
+                </a>
+                <a href="#" class="quick-link" onclick="showSupport()">
+                    <i class="fas fa-headset"></i>
+                    <span>고객 지원</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/notification.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

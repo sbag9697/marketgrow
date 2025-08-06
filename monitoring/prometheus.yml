@@ -1,0 +1,75 @@
+# Prometheus 설정
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 5s
+
+  # Node Exporter - 시스템 메트릭
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 5s
+
+  # cAdvisor - 컨테이너 메트릭
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 5s
+
+  # MarketGrow 애플리케이션
+  - job_name: 'marketgrow-app'
+    static_configs:
+      - targets: ['app:3001']
+    metrics_path: /api/metrics
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Redis 메트릭
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 10s
+
+  # MongoDB 메트릭
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 10s
+
+  # Nginx 메트릭
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+    scrape_interval: 10s
+
+  # Docker 컨테이너 헬스체크
+  - job_name: 'docker-health'
+    static_configs:
+      - targets: ['app:3001', 'mongo:27017', 'redis:6379']
+    metrics_path: /health
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+# 원격 저장소 설정 (선택사항)
+# remote_write:
+#   - url: "https://your-remote-prometheus-url/api/v1/write"
+#     basic_auth:
+#       username: "your-username"
+#       password: "your-password"

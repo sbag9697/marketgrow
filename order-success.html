@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 주문 완료 - 주문이 성공적으로 완료되었습니다">
+    <title>주문 완료 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="order-success.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Order Success Content -->
+    <div class="order-success-page">
+        <div class="container">
+            <!-- 성공 헤더 -->
+            <div class="success-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>주문이 완료되었습니다!</h1>
+                <p>주문해주셔서 감사합니다. 곧 서비스가 시작됩니다.</p>
+            </div>
+
+            <!-- 주문 정보 카드 -->
+            <div class="order-info-card">
+                <div class="card-header">
+                    <h2>주문 정보</h2>
+                    <div class="order-status">
+                        <span class="status-badge processing">처리 중</span>
+                    </div>
+                </div>
+
+                <div class="order-details" id="orderDetails">
+                    <!-- 주문 상세 정보가 동적으로 로드됩니다 -->
+                    <div class="loading-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>주문 정보를 불러오는 중...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 진행 상황 -->
+            <div class="progress-card">
+                <div class="card-header">
+                    <h2>진행 상황</h2>
+                </div>
+                
+                <div class="progress-timeline">
+                    <div class="timeline-item completed">
+                        <div class="timeline-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>주문 접수</h4>
+                            <p>주문이 성공적으로 접수되었습니다</p>
+                            <small id="orderTime">방금 전</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item current">
+                        <div class="timeline-icon">
+                            <i class="fas fa-cog fa-spin"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>서비스 준비</h4>
+                            <p>서비스 시작을 위한 준비 중입니다</p>
+                            <small>진행 중</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>서비스 시작</h4>
+                            <p>실제 서비스가 시작됩니다</p>
+                            <small>대기 중</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-flag-checkered"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>서비스 완료</h4>
+                            <p>모든 서비스가 완료됩니다</p>
+                            <small>대기 중</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 빠른 액션 -->
+            <div class="quick-actions-card">
+                <div class="card-header">
+                    <h2>빠른 액션</h2>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn dashboard" onclick="location.href='dashboard.html'">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>대시보드로 이동</span>
+                    </button>
+                    
+                    <button class="action-btn order-detail" onclick="viewOrderDetail()">
+                        <i class="fas fa-eye"></i>
+                        <span>주문 상세보기</span>
+                    </button>
+                    
+                    <button class="action-btn new-order" onclick="location.href='services.html'">
+                        <i class="fas fa-plus"></i>
+                        <span>새 주문하기</span>
+                    </button>
+                    
+                    <button class="action-btn support" onclick="contactSupport()">
+                        <i class="fas fa-headset"></i>
+                        <span>고객지원</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 알림 설정 -->
+            <div class="notification-card">
+                <div class="card-header">
+                    <h2>알림 설정</h2>
+                </div>
+                
+                <div class="notification-options">
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>이메일 알림</h4>
+                            <p>주문 진행 상황을 이메일로 받아보세요</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotification" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>SMS 알림</h4>
+                            <p>중요한 업데이트를 SMS로 받아보세요</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="smsNotification">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>푸시 알림</h4>
+                            <p>브라우저 푸시 알림을 받아보세요</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pushNotification">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 추천 서비스 -->
+            <div class="recommended-services">
+                <div class="card-header">
+                    <h2>추천 서비스</h2>
+                    <p>이런 서비스는 어떠세요?</p>
+                </div>
+                
+                <div class="recommended-grid" id="recommendedServices">
+                    <!-- 추천 서비스가 동적으로 로드됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/order-success.js"></script>
+</body>
+</html>

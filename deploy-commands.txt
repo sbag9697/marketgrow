@@ -1,0 +1,106 @@
+=== MarketGrow 배포 명령어 모음 ===
+
+1. GitHub 저장소 생성 및 푸시
+   git init
+   git add .
+   git commit -m "Initial commit - MarketGrow"
+   git branch -M main
+   git remote add origin https://github.com/YOUR_USERNAME/marketgrow.git
+   git push -u origin main
+
+2. Backend 배포 (Heroku)
+   
+   # Heroku CLI 설치 후
+   cd backend
+   heroku create marketgrow-backend
+   
+   # 환경 변수 설정 (아래 값들을 실제 값으로 변경)
+   heroku config:set NODE_ENV=production
+   heroku config:set MONGODB_URI="mongodb+srv://USERNAME:PASSWORD@cluster.mongodb.net/marketgrow"
+   heroku config:set JWT_SECRET="your-very-long-random-string-here"
+   heroku config:set ADMIN_EMAIL="admin@marketgrow.com"
+   heroku config:set ADMIN_PASSWORD="SecurePassword123!"
+   heroku config:set SMM_PANEL_API_KEY="your-smm-panel-api-key"
+   heroku config:set SMM_PANEL_API_URL="https://smmturk.org/api/v2"
+   heroku config:set PRICE_MARGIN=90
+   heroku config:set TOSSPAYMENTS_SECRET_KEY="your-toss-secret-key"
+   heroku config:set TOSSPAYMENTS_CLIENT_KEY="your-toss-client-key"
+   heroku config:set CORS_ORIGIN="https://marketgrow.netlify.app"
+   
+   # 배포
+   git add .
+   git commit -m "Deploy backend"
+   git push heroku main
+   
+   # 로그 확인
+   heroku logs --tail
+
+3. Frontend 배포 (Netlify)
+   
+   # 방법 1: Netlify CLI
+   npm install -g netlify-cli
+   netlify login
+   netlify init
+   netlify deploy --prod
+   
+   # 방법 2: GitHub 연동
+   1. https://app.netlify.com 접속
+   2. "New site from Git" 클릭
+   3. GitHub 연동 및 레포지토리 선택
+   4. Build settings:
+      - Build command: node build-netlify.js
+      - Publish directory: dist
+   5. Environment variables:
+      - BACKEND_URL: https://marketgrow-backend.herokuapp.com
+      - TOSSPAYMENTS_CLIENT_KEY: your-client-key
+
+4. 도메인 설정 (Netlify)
+   
+   # Netlify 대시보드에서
+   1. Domain settings > Add custom domain
+   2. 도메인 입력 (예: marketgrow.com)
+   3. DNS 설정:
+      - A 레코드: 75.2.60.5
+      - CNAME: www -> marketgrow.netlify.app
+   4. HTTPS 자동 활성화
+
+5. 배포 후 테스트
+   
+   # Backend 테스트
+   curl https://marketgrow-backend.herokuapp.com/api/health
+   
+   # Frontend 테스트
+   https://marketgrow.netlify.app
+   
+   # 관리자 로그인
+   Email: admin@marketgrow.com
+   Password: (설정한 비밀번호)
+
+6. 모니터링 설정
+   
+   # Heroku 모니터링
+   heroku addons:create papertrail
+   
+   # Netlify Analytics (유료)
+   또는 Google Analytics 추가
+
+7. 백업 설정
+   
+   # MongoDB Atlas 자동 백업
+   1. Atlas 대시보드 > Backup
+   2. Enable Backup 활성화
+   3. 백업 주기 설정
+
+8. 문제 해결
+   
+   # Heroku 재시작
+   heroku restart
+   
+   # 환경 변수 확인
+   heroku config
+   
+   # 로그 확인
+   heroku logs --tail -n 200
+   
+   # MongoDB 연결 테스트
+   heroku run node -e "require('mongoose').connect(process.env.MONGODB_URI).then(() => console.log('Connected')).catch(err => console.error(err))"

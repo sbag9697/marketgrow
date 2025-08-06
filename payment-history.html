@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 결제 내역 - 결제 이력 및 관리">
+    <title>결제 내역 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment-history.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="payment-history.html" class="active"><i class="fas fa-credit-card"></i> 결제 내역</a>
+                        <a href="notification-settings.html"><i class="fas fa-bell"></i> 알림 설정</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payment History Content -->
+    <div class="payment-history-page">
+        <div class="container">
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="index.html">홈</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="dashboard.html">대시보드</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>결제 내역</span>
+                </div>
+                <h1>결제 내역</h1>
+                <p>모든 결제 내역과 상태를 확인하고 관리하세요</p>
+            </div>
+
+            <!-- 결제 통계 -->
+            <div class="payment-stats">
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completedPayments">0</h3>
+                        <p>완료된 결제</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalAmount">₩0</h3>
+                        <p>총 결제 금액</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingPayments">0</h3>
+                        <p>대기 중인 결제</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon failed">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="failedPayments">0</h3>
+                        <p>실패한 결제</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 필터 및 검색 -->
+            <div class="filter-section">
+                <div class="filter-card">
+                    <div class="filter-group">
+                        <label for="statusFilter">결제 상태</label>
+                        <select id="statusFilter" onchange="applyFilters()">
+                            <option value="">전체</option>
+                            <option value="completed">완료</option>
+                            <option value="pending">대기중</option>
+                            <option value="failed">실패</option>
+                            <option value="cancelled">취소</option>
+                            <option value="refunded">환불</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="methodFilter">결제 방법</label>
+                        <select id="methodFilter" onchange="applyFilters()">
+                            <option value="">전체</option>
+                            <option value="card">카드</option>
+                            <option value="bank">무통장입금</option>
+                            <option value="paypal">PayPal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="dateRange">기간</label>
+                        <select id="dateRange" onchange="applyFilters()">
+                            <option value="all">전체 기간</option>
+                            <option value="today">오늘</option>
+                            <option value="week">최근 7일</option>
+                            <option value="month">최근 30일</option>
+                            <option value="3months">최근 3개월</option>
+                            <option value="year">올해</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="searchInput">검색</label>
+                        <div class="search-input">
+                            <input type="text" id="searchInput" placeholder="결제번호, 주문번호 검색" onkeyup="handleSearch(event)">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button class="filter-btn" onclick="applyFilters()">
+                            <i class="fas fa-filter"></i>
+                            필터 적용
+                        </button>
+                        <button class="reset-btn" onclick="resetFilters()">
+                            <i class="fas fa-undo"></i>
+                            초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결제 내역 목록 -->
+            <div class="payment-list-card">
+                <div class="card-header">
+                    <h2>결제 내역</h2>
+                    <div class="header-actions">
+                        <button class="export-btn" onclick="exportPaymentHistory()">
+                            <i class="fas fa-download"></i>
+                            내보내기
+                        </button>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="list" onclick="switchView('list')">
+                                <i class="fas fa-list"></i>
+                            </button>
+                            <button class="view-btn" data-view="grid" onclick="switchView('grid')">
+                                <i class="fas fa-th"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-list" id="paymentList">
+                    <!-- 결제 내역이 동적으로 로드됩니다 -->
+                    <div class="loading-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>결제 내역을 불러오는 중...</p>
+                    </div>
+                </div>
+                
+                <!-- 페이지네이션 -->
+                <div class="pagination" id="pagination">
+                    <!-- 페이지네이션이 동적으로 생성됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 결제 상세 모달 -->
+    <div id="paymentDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>결제 상세 정보</h3>
+                <button class="close-btn" onclick="closePaymentDetailModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="paymentDetailContent">
+                <!-- 결제 상세 정보가 동적으로 로드됩니다 -->
+            </div>
+            <div class="modal-footer">
+                <button class="secondary-btn" onclick="closePaymentDetailModal()">닫기</button>
+                <button class="primary-btn" id="receiptBtn" onclick="printPaymentReceipt()">영수증 출력</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/payment-history.js"></script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 알림 설정 - 이메일 및 SMS 알림 관리">
+    <title>알림 설정 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="notification-settings.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="payment-history.html"><i class="fas fa-credit-card"></i> 결제 내역</a>
+                        <a href="notification-settings.html" class="active"><i class="fas fa-bell"></i> 알림 설정</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notification Settings Content -->
+    <div class="notification-settings-page">
+        <div class="container">
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="dashboard.html">대시보드</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>알림 설정</span>
+                </div>
+                <h1><i class="fas fa-bell"></i> 알림 설정</h1>
+                <p>이메일과 SMS 알림을 관리하여 중요한 업데이트를 놓치지 마세요</p>
+            </div>
+
+            <!-- 알림 설정 카드 -->
+            <div class="settings-grid">
+                <!-- 이메일 알림 설정 -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="header-info">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h3>이메일 알림</h3>
+                                <p>주문, 결제, 마케팅 정보를 이메일로 받아보세요</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="emailNotifications" onchange="toggleEmailNotifications()">
+                            <label for="emailNotifications"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="email-settings-content" id="emailSettingsContent">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>주문 확인</h4>
+                                <p>새 주문이 접수될 때 알림을 받습니다</p>
+                            </div>
+                            <div class="setting-toggle">
+                                <input type="checkbox" id="emailOrderConfirmation" checked>
+                                <label for="emailOrderConfirmation"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>결제 알림</h4>
+                                <p>결제 성공/실패 시 알림을 받습니다</p>
+                            </div>
+                            <div class="setting-toggle">
+                                <input type="checkbox" id="emailPaymentNotifications" checked>
+                                <label for="emailPaymentNotifications"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>주문 상태 업데이트</h4>
+                                <p>주문 진행 상황이 변경될 때 알림을 받습니다</p>
+                            </div>
+                            <div class="setting-toggle">
+                                <input type="checkbox" id="emailOrderUpdates" checked>
+                                <label for="emailOrderUpdates"></label>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h4>마케팅 정보</h4>
+                                <p>새로운 서비스, 이벤트, 할인 정보를 받습니다</p>
+                            </div>
+                            <div class="setting-toggle">
+                                <input type="checkbox" id="emailMarketingNotifications">
+                                <label for="emailMarketingNotifications"></label>
+                            </div>
+                        </div>
+
+                        <div class="test-notification">
+                            <button class="test-btn" onclick="sendTestEmail()">
+                                <i class="fas fa-paper-plane"></i>
+                                테스트 이메일 발송
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMS 알림 설정 -->
+                <div class="settings-card">
+                    <div class="card-header">
+                        <div class="header-info">
+                            <i class="fas fa-sms"></i>
+                            <div>
+                                <h3>SMS 알림</h3>
+                                <p>중요한 업데이트를 SMS로 즉시 받아보세요</p>
+                            </div>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="smsNotifications" onchange="toggleSMSNotifications()">
+                            <label for="smsNotifications"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="sms-settings-content" id="smsSettingsContent">
+                        <div class="phone-verification">
+                            <div class="phone-input-group">
+                                <label for="phoneNumber">휴대폰 번호</label>
+                                <div class="phone-input">
+                                    <input type="tel" id="phoneNumber" placeholder="010-0000-0000" maxlength="13">
+                                    <button class="verify-btn" onclick="verifyPhoneNumber()">
+                                        <i class="fas fa-check"></i>
+                                        인증
+                                    </button>
+                                </div>
+                                <div class="verification-status" id="verificationStatus">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    휴대폰 번호 인증이 필요합니다
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="sms-options" id="smsOptions" style="display: none;">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>결제 완료</h4>
+                                    <p>결제가 성공적으로 완료될 때 SMS를 받습니다</p>
+                                </div>
+                                <div class="setting-toggle">
+                                    <input type="checkbox" id="smsPaymentSuccess" checked>
+                                    <label for="smsPaymentSuccess"></label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>주문 완료</h4>
+                                    <p>서비스 제공이 완료될 때 SMS를 받습니다</p>
+                                </div>
+                                <div class="setting-toggle">
+                                    <input type="checkbox" id="smsOrderComplete" checked>
+                                    <label for="smsOrderComplete"></label>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>긴급 알림</h4>
+                                    <p>중요한 계정 보안 관련 알림을 받습니다</p>
+                                </div>
+                                <div class="setting-toggle">
+                                    <input type="checkbox" id="smsUrgentNotifications" checked>
+                                    <label for="smsUrgentNotifications"></label>
+                                </div>
+                            </div>
+
+                            <div class="test-notification">
+                                <button class="test-btn" onclick="sendTestSMS()">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    테스트 SMS 발송
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 알림 히스토리 -->
+                <div class="settings-card full-width">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> 최근 알림 내역</h3>
+                        <button class="clear-btn" onclick="clearNotificationHistory()">
+                            <i class="fas fa-trash"></i>
+                            내역 삭제
+                        </button>
+                    </div>
+                    
+                    <div class="notification-history" id="notificationHistory">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>알림 내역을 불러오는 중...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 저장 버튼 -->
+            <div class="save-settings">
+                <button class="save-btn" onclick="saveNotificationSettings()">
+                    <i class="fas fa-save"></i>
+                    설정 저장
+                </button>
+                <button class="reset-btn" onclick="resetToDefaults()">
+                    <i class="fas fa-undo"></i>
+                    기본값으로 복원
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 휴대폰 인증 모달 -->
+    <div id="phoneVerificationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>휴대폰 번호 인증</h3>
+                <button class="close-btn" onclick="closePhoneVerificationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="verification-step" id="verificationStep1">
+                    <p>입력하신 휴대폰 번호로 인증번호를 발송하겠습니다.</p>
+                    <div class="phone-display">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span id="phoneNumberDisplay"></span>
+                    </div>
+                    <button class="primary-btn" onclick="sendVerificationCode()">
+                        <i class="fas fa-paper-plane"></i>
+                        인증번호 발송
+                    </button>
+                </div>
+                
+                <div class="verification-step" id="verificationStep2" style="display: none;">
+                    <p>발송된 인증번호를 입력해주세요.</p>
+                    <div class="verification-input">
+                        <input type="text" id="verificationCode" placeholder="인증번호 6자리" maxlength="6">
+                        <div class="timer" id="verificationTimer">03:00</div>
+                    </div>
+                    <div class="verification-actions">
+                        <button class="secondary-btn" onclick="resendVerificationCode()">
+                            <i class="fas fa-redo"></i>
+                            재발송
+                        </button>
+                        <button class="primary-btn" onclick="confirmVerificationCode()">
+                            <i class="fas fa-check"></i>
+                            인증 확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/notification-service.js"></script>
+    <script src="js/notification-settings.js"></script>
+</body>
+</html>

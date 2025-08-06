@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 대시보드 - 주문 관리, 결제 내역, 통계 확인">
+    <title>대시보드 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="active">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="payment-history.html"><i class="fas fa-credit-card"></i> 결제 내역</a>
+                        <a href="notification-settings.html"><i class="fas fa-bell"></i> 알림 설정</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="user-welcome">
+                    <h1>안녕하세요, <span id="welcomeUserName">사용자</span>님!</h1>
+                    <p>오늘도 성공적인 마케팅을 위해 함께해요 🚀</p>
+                </div>
+                <div class="user-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="userMembershipLevel">Bronze</h3>
+                            <p>회원 등급</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="userPoints">0</h3>
+                            <p>보유 포인트</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div class="stat-label">총 주문</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12%</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSpent">₩0</div>
+                    <div class="stat-label">총 사용금액</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+8%</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeOrders">0</div>
+                    <div class="stat-label">진행중인 주문</div>
+                    <div class="stat-change neutral">
+                        <i class="fas fa-minus"></i>
+                        <span>0%</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completedOrders">0</div>
+                    <div class="stat-label">완료된 주문</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+15%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content Grid -->
+            <div class="dashboard-grid">
+                <!-- Recent Orders -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> 최근 주문</h3>
+                        <a href="#" onclick="showAllOrders()" class="view-all">전체보기</a>
+                    </div>
+                    <div class="card-content">
+                        <div id="recentOrdersList" class="orders-list">
+                            <div class="loading-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>주문 목록을 불러오는 중...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> 빠른 주문</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="quick-actions">
+                            <button class="action-btn instagram" onclick="quickOrder('instagram')">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램</span>
+                            </button>
+                            <button class="action-btn youtube" onclick="quickOrder('youtube')">
+                                <i class="fab fa-youtube"></i>
+                                <span>유튜브</span>
+                            </button>
+                            <button class="action-btn tiktok" onclick="quickOrder('tiktok')">
+                                <i class="fab fa-tiktok"></i>
+                                <span>틱톡</span>
+                            </button>
+                            <button class="action-btn facebook" onclick="quickOrder('facebook')">
+                                <i class="fab fa-facebook-f"></i>
+                                <span>페이스북</span>
+                            </button>
+                        </div>
+                        <button class="browse-all-btn" onclick="location.href='services.html'">
+                            <i class="fas fa-search"></i>
+                            모든 서비스 둘러보기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-circle"></i> 계정 정보</h3>
+                        <button class="edit-btn" onclick="showProfile()">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <div class="card-content">
+                        <div class="account-info">
+                            <div class="info-item">
+                                <label>이메일</label>
+                                <span id="userEmail">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>가입일</label>
+                                <span id="userJoinDate">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>추천 코드</label>
+                                <span id="userReferralCode">-</span>
+                                <button class="copy-btn" onclick="copyReferralCode()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bell"></i> 알림</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="notifications-list">
+                            <div class="notification-item">
+                                <div class="notification-icon success">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h4>서비스 이용 가이드</h4>
+                                    <p>MarketGrow 서비스 이용 방법을 확인해보세요.</p>
+                                    <small>오늘</small>
+                                </div>
+                            </div>
+                            <div class="notification-item">
+                                <div class="notification-icon info">
+                                    <i class="fas fa-gift"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <h4>회원가입 축하</h4>
+                                    <p>MarketGrow에 가입해주셔서 감사합니다!</p>
+                                    <small>가입일</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

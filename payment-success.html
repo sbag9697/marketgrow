@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 결제 성공 - 결제가 성공적으로 완료되었습니다">
+    <title>결제 성공 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="payment-result.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="video-keywords.html">영상키워드노출</a></li>
+                <li><a href="live-keywords.html">라이브키워드노출</a></li>
+                <li class="user-menu">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showProfile()"><i class="fas fa-user-edit"></i> 내 정보</a>
+                        <a href="payment-history.html"><i class="fas fa-credit-card"></i> 결제 내역</a>
+                        <a href="#" onclick="showSettings()"><i class="fas fa-cog"></i> 설정</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                    </div>
+                </li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payment Success Content -->
+    <div class="payment-result-page">
+        <div class="container">
+            <!-- 결제 성공 헤더 -->
+            <div class="result-header success">
+                <div class="result-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>결제가 완료되었습니다!</h1>
+                <p>안전하게 결제가 처리되었습니다. 곧 서비스가 시작됩니다.</p>
+            </div>
+
+            <!-- 결제 정보 카드 -->
+            <div class="payment-info-card">
+                <div class="card-header">
+                    <h2>결제 정보</h2>
+                    <div class="payment-status">
+                        <span class="status-badge success">결제 완료</span>
+                    </div>
+                </div>
+
+                <div class="payment-details" id="paymentDetails">
+                    <!-- 결제 상세 정보가 동적으로 로드됩니다 -->
+                    <div class="loading-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>결제 정보를 확인하는 중...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결제 영수증 -->
+            <div class="receipt-card">
+                <div class="card-header">
+                    <h2>결제 영수증</h2>
+                    <button class="print-btn" onclick="printReceipt()">
+                        <i class="fas fa-print"></i>
+                        영수증 출력
+                    </button>
+                </div>
+                
+                <div class="receipt-content" id="receiptContent">
+                    <!-- 영수증 내용이 동적으로 로드됩니다 -->
+                </div>
+            </div>
+
+            <!-- 다음 단계 안내 -->
+            <div class="next-steps-card">
+                <div class="card-header">
+                    <h2>다음 단계</h2>
+                </div>
+                
+                <div class="steps-content">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <h4>주문 확인</h4>
+                            <p>결제 완료 후 주문이 자동으로 생성됩니다</p>
+                        </div>
+                        <div class="step-status completed">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <h4>서비스 준비</h4>
+                            <p>전문팀이 서비스 시작을 준비합니다</p>
+                        </div>
+                        <div class="step-status current">
+                            <i class="fas fa-cog fa-spin"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <h4>서비스 시작</h4>
+                            <p>실제 마케팅 서비스가 시작됩니다</p>
+                        </div>
+                        <div class="step-status pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼들 -->
+            <div class="action-buttons">
+                <button class="action-btn primary" onclick="goToDashboard()">
+                    <i class="fas fa-tachometer-alt"></i>
+                    대시보드로 이동
+                </button>
+                
+                <button class="action-btn secondary" onclick="goToServices()">
+                    <i class="fas fa-plus"></i>
+                    새 주문하기
+                </button>
+                
+                <button class="action-btn secondary" onclick="contactSupport()">
+                    <i class="fas fa-headset"></i>
+                    고객지원
+                </button>
+            </div>
+
+            <!-- 알림 설정 -->
+            <div class="notification-settings">
+                <div class="card-header">
+                    <h2>알림 받기</h2>
+                </div>
+                
+                <div class="notification-options">
+                    <label class="notification-item">
+                        <input type="checkbox" id="emailNotification" checked>
+                        <span class="checkbox-custom"></span>
+                        <div class="notification-text">
+                            <h4>이메일 알림</h4>
+                            <p>주문 진행 상황을 이메일로 받아보세요</p>
+                        </div>
+                    </label>
+                    
+                    <label class="notification-item">
+                        <input type="checkbox" id="smsNotification">
+                        <span class="checkbox-custom"></span>
+                        <div class="notification-text">
+                            <h4>SMS 알림</h4>
+                            <p>중요한 업데이트를 SMS로 받아보세요</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="services.html">전체 서비스</a></li>
+                        <li><a href="order-method.html">주문 방법</a></li>
+                        <li><a href="blog.html">마케팅 블로그</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">자주 묻는 질문</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/payment-success.js"></script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+/* 결제 페이지 전용 스타일 */
+
+/* 결제 섹션 */
+.payment-section {
+    margin-top: 80px;
+    padding: 80px 0;
+    background: #f8fafc;
+    min-height: calc(100vh - 80px);
+}
+
+.payment-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* 주문 요약 */
+.order-summary {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.order-summary h2 {
+    color: #2d3748;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 15px;
+}
+
+.order-item {
+    padding: 20px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.service-info h3 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.service-info p {
+    color: #718096;
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.service-price {
+    text-align: right;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.order-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: #4a5568;
+}
+
+.final-total {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+/* 결제 위젯 */
+.payment-widget {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    height: fit-content;
+}
+
+.payment-widget h2 {
+    color: #2d3748;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 15px;
+}
+
+#payment-method {
+    margin-bottom: 20px;
+}
+
+#agreement {
+    margin-bottom: 25px;
+}
+
+.payment-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.payment-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+}
+
+.payment-btn:disabled {
+    background: #cbd5e0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 결제 결과 페이지 */
+.payment-result-section {
+    margin-top: 80px;
+    padding: 80px 0;
+    background: #f8fafc;
+    min-height: calc(100vh - 80px);
+}
+
+.result-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.result-icon {
+    font-size: 5rem;
+    margin-bottom: 30px;
+}
+
+.result-container.success .result-icon {
+    color: #48bb78;
+}
+
+.result-container.failure .result-icon {
+    color: #f56565;
+}
+
+.result-container h1 {
+    color: #2d3748;
+    margin-bottom: 15px;
+    font-size: 2.2rem;
+}
+
+.result-message {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+}
+
+/* 결제 정보 */
+.payment-info, .error-info {
+    background: #f8fafc;
+    padding: 30px;
+    border-radius: 10px;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.info-row .label {
+    color: #718096;
+    font-weight: 500;
+}
+
+.info-row .value {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+/* 안내 박스 */
+.notice-box {
+    background: #ebf8ff;
+    border: 1px solid #bee3f8;
+    border-radius: 10px;
+    padding: 25px;
+    margin: 30px 0;
+    text-align: left;
+}
+
+.notice-box h3 {
+    color: #2b6cb0;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notice-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.notice-box li {
+    color: #2d3748;
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.notice-box li:before {
+    content: "•";
+    color: #2b6cb0;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+/* 공통 오류 섹션 */
+.common-errors {
+    text-align: left;
+    margin: 30px 0;
+}
+
+.common-errors h3 {
+    color: #2d3748;
+    margin-bottom: 20px;
+}
+
+.error-item {
+    background: #fef5e7;
+    border-left: 4px solid #f6ad55;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0 5px 5px 0;
+}
+
+.error-item strong {
+    color: #c05621;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.error-item p {
+    color: #744210;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* 액션 버튼 */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+/* 로딩 모달 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.loading-content {
+    background: white;
+    margin: 15% auto;
+    padding: 40px;
+    border-radius: 15px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-content h3 {
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.loading-content p {
+    color: #718096;
+    margin: 0;
+}
+
+/* 포인트 알림 */
+.points-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .payment-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 0 20px;
+    }
+    
+    .order-summary, .payment-widget {
+        padding: 20px;
+    }
+    
+    .result-container {
+        margin: 0 20px;
+        padding: 30px 20px;
+    }
+    
+    .result-container h1 {
+        font-size: 1.8rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-primary, .btn-secondary {
+        justify-content: center;
+    }
+}

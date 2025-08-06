@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>패키지 딜 - Social Marketing Pro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="packages.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html"><h2>Social Marketing Pro</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="packages.html" class="active">패키지 딜</a></li>
+                <li><a href="blog.html">마케팅 블로그</a></li>
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="#" class="login-btn">로그인</a></li>
+                <li><a href="#" class="signup-btn">회원가입</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 패키지 헤더 -->
+    <section class="packages-header">
+        <div class="container">
+            <h1>🎁 패키지 딜 & 할인 혜택</h1>
+            <p>여러 서비스를 함께 주문하고 최대 40% 할인 혜택을 받으세요!</p>
+        </div>
+    </section>
+
+    <!-- 인기 패키지 -->
+    <section class="featured-packages">
+        <div class="container">
+            <h2>🔥 인기 패키지</h2>
+            <div class="packages-grid">
+                <!-- 스타터 패키지 -->
+                <div class="package-card featured">
+                    <div class="package-badge">인기</div>
+                    <div class="package-header">
+                        <h3>🚀 스타터 패키지</h3>
+                        <p class="package-subtitle">SNS 마케팅 입문자를 위한 기본 패키지</p>
+                    </div>
+                    <div class="package-content">
+                        <div class="package-services">
+                            <div class="service-item">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램 팔로워 1,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램 좋아요 2,000개</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-youtube"></i>
+                                <span>유튜브 구독자 500명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-tiktok"></i>
+                                <span>틱톡 팔로워 1,500명</span>
+                            </div>
+                        </div>
+                        <div class="package-pricing">
+                            <div class="original-price">개별구매: ₩4,900</div>
+                            <div class="package-price">₩2,990</div>
+                            <div class="discount-badge">39% 할인</div>
+                        </div>
+                        <button class="package-btn" onclick="orderPackage('starter')">
+                            <i class="fas fa-shopping-cart"></i>
+                            패키지 주문하기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 프로 패키지 -->
+                <div class="package-card premium">
+                    <div class="package-badge">추천</div>
+                    <div class="package-header">
+                        <h3>💎 프로 패키지</h3>
+                        <p class="package-subtitle">본격적인 성장을 원하는 크리에이터를 위한</p>
+                    </div>
+                    <div class="package-content">
+                        <div class="package-services">
+                            <div class="service-item">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램 팔로워 5,000명 (한국)</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램 좋아요 10,000개</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-youtube"></i>
+                                <span>유튜브 구독자 2,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-youtube"></i>
+                                <span>유튜브 조회수 50,000회</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-tiktok"></i>
+                                <span>틱톡 팔로워 7,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-gift"></i>
+                                <span>30일 자동 좋아요 서비스 (보너스)</span>
+                            </div>
+                        </div>
+                        <div class="package-pricing">
+                            <div class="original-price">개별구매: ₩55,500</div>
+                            <div class="package-price">₩34,900</div>
+                            <div class="discount-badge">37% 할인</div>
+                        </div>
+                        <button class="package-btn" onclick="orderPackage('pro')">
+                            <i class="fas fa-crown"></i>
+                            프로 패키지 주문
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 엔터프라이즈 패키지 -->
+                <div class="package-card enterprise">
+                    <div class="package-badge">최고급</div>
+                    <div class="package-header">
+                        <h3>🏆 엔터프라이즈</h3>
+                        <p class="package-subtitle">비즈니스 및 브랜드를 위한 프리미엄 솔루션</p>
+                    </div>
+                    <div class="package-content">
+                        <div class="package-services">
+                            <div class="service-item">
+                                <i class="fab fa-instagram"></i>
+                                <span>인스타그램 팔로워 20,000명 (프리미엄)</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-youtube"></i>
+                                <span>유튜브 구독자 10,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-facebook"></i>
+                                <span>페이스북 페이지 좋아요 15,000개</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-linkedin"></i>
+                                <span>링크드인 팔로워 5,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fab fa-twitter"></i>
+                                <span>트위터 팔로워 10,000명</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-headset"></i>
+                                <span>전담 매니저 배정 (1개월)</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-chart-line"></i>
+                                <span>상세 분석 리포트 제공</span>
+                            </div>
+                        </div>
+                        <div class="package-pricing">
+                            <div class="original-price">개별구매: ₩178,000</div>
+                            <div class="package-price">₩119,000</div>
+                            <div class="discount-badge">33% 할인</div>
+                        </div>
+                        <button class="package-btn" onclick="orderPackage('enterprise')">
+                            <i class="fas fa-rocket"></i>
+                            엔터프라이즈 주문
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 맞춤형 패키지 -->
+    <section class="custom-packages">
+        <div class="container">
+            <h2>🎯 맞춤형 패키지</h2>
+            <p>원하는 서비스들을 직접 선택해서 나만의 패키지를 만드세요</p>
+            
+            <div class="custom-package-builder">
+                <div class="service-selector">
+                    <h3>서비스 선택</h3>
+                    <div class="service-categories">
+                        <div class="category-section">
+                            <h4><i class="fab fa-instagram"></i> Instagram</h4>
+                            <div class="service-options">
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="instagram-followers" data-price="800">
+                                    <span>팔로워 1,000명 - ₩800</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="instagram-likes" data-price="50">
+                                    <span>좋아요 1,000개 - ₩50</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="instagram-comments" data-price="800">
+                                    <span>댓글 100개 - ₩800</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="category-section">
+                            <h4><i class="fab fa-youtube"></i> YouTube</h4>
+                            <div class="service-options">
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="youtube-subscribers" data-price="1200">
+                                    <span>구독자 1,000명 - ₩1,200</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="youtube-views" data-price="800">
+                                    <span>조회수 1,000회 - ₩800</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="youtube-likes" data-price="120">
+                                    <span>좋아요 1,000개 - ₩120</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="category-section">
+                            <h4><i class="fab fa-tiktok"></i> TikTok</h4>
+                            <div class="service-options">
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="tiktok-followers" data-price="600">
+                                    <span>팔로워 1,000명 - ₩600</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="tiktok-likes" data-price="30">
+                                    <span>좋아요 1,000개 - ₩30</span>
+                                </label>
+                                <label class="service-option">
+                                    <input type="checkbox" data-service="tiktok-views" data-price="8">
+                                    <span>조회수 1,000회 - ₩8</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="package-summary">
+                    <h3>선택한 서비스</h3>
+                    <div id="selectedServices" class="selected-services">
+                        <p class="empty-state">서비스를 선택해주세요</p>
+                    </div>
+                    <div class="pricing-summary">
+                        <div class="subtotal">
+                            <span>소계:</span>
+                            <span id="subtotal">₩0</span>
+                        </div>
+                        <div class="discount">
+                            <span>할인 (<span id="discountRate">0</span>%):</span>
+                            <span id="discountAmount">-₩0</span>
+                        </div>
+                        <div class="total">
+                            <span>총 금액:</span>
+                            <span id="customTotal">₩0</span>
+                        </div>
+                    </div>
+                    <button class="custom-package-btn" onclick="orderCustomPackage()" disabled>
+                        <i class="fas fa-magic"></i>
+                        맞춤 패키지 주문
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 할인 혜택 안내 -->
+    <section class="discount-info">
+        <div class="container">
+            <h2>💰 할인 혜택 안내</h2>
+            <div class="discount-tiers">
+                <div class="discount-tier">
+                    <div class="tier-icon">🎯</div>
+                    <h3>2개 서비스</h3>
+                    <p>10% 할인</p>
+                </div>
+                <div class="discount-tier">
+                    <div class="tier-icon">🎪</div>
+                    <h3>3-4개 서비스</h3>
+                    <p>20% 할인</p>
+                </div>
+                <div class="discount-tier">
+                    <div class="tier-icon">🎁</div>
+                    <h3>5개 이상 서비스</h3>
+                    <p>30% 할인</p>
+                </div>
+                <div class="discount-tier">
+                    <div class="tier-icon">💎</div>
+                    <h3>10개 이상 서비스</h3>
+                    <p>40% 할인</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Social Marketing Pro</h3>
+                    <p>전문적인 SNS 마케팅 솔루션을 제공합니다</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#">SNS 마케팅</a></li>
+                        <li><a href="#">키워드 노출</a></li>
+                        <li><a href="#">SEO 서비스</a></li>
+                        <li><a href="#">상담 서비스</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">개인정보처리방침</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">문의하기</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Social Marketing Pro. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="auth.js"></script>
+    <script src="packages.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

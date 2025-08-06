@@ -1,0 +1,245 @@
+// 서비스 페이지 JavaScript
+document.addEventListener('DOMContentLoaded', async function() {
+    // 서비스 목록 로드
+    await loadServices();
+    
+    // 필터 초기화
+    initFilters();
+    
+    // 검색 기능 초기화
+    initSearch();
+});
+
+// 서비스 목록 로드
+async function loadServices() {
+    const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) return;
+    
+    // 로딩 상태 표시
+    servicesGrid.innerHTML = `
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>서비스를 불러오는 중...</p>
+        </div>
+    `;
+    
+    try {
+        const response = await api.getServices();
+        console.log('Services response:', response);
+        
+        if (response.success && response.data) {
+            const services = response.data.services || [];
+            
+            if (services.length === 0) {
+                servicesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>등록된 서비스가 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            displayServices(services);
+        } else {
+            throw new Error(response.message || '서비스 목록을 불러올 수 없습니다.');
+        }
+    } catch (error) {
+        console.error('서비스 로드 오류:', error);
+        servicesGrid.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>서비스 목록을 불러올 수 없습니다.</p>
+                <button class="retry-btn" onclick="loadServices()">다시 시도</button>
+            </div>
+        `;
+    }
+}
+
+// 서비스 목록 표시
+function displayServices(services) {
+    const servicesGrid = document.getElementById('servicesGrid');
+    
+    servicesGrid.innerHTML = services.map(service => `
+        <div class="service-card ${service.isPopular ? 'popular' : ''}" data-platform="${service.platform}" data-category="${service.category}">
+            ${service.isPopular ? '<div class="popular-badge">인기</div>' : ''}
+            <div class="service-header">
+                <i class="fab fa-${service.platform}"></i>
+                <h3>${service.name}</h3>
+            </div>
+            <div class="service-body">
+                <p class="service-description">${service.description}</p>
+                <div class="service-features">
+                    ${service.features.map(feature => `
+                        <span class="feature-tag">
+                            <i class="fas fa-check"></i> ${feature}
+                        </span>
+                    `).join('')}
+                </div>
+                <div class="service-pricing">
+                    <div class="price-info">
+                        <span class="price-label">가격</span>
+                        <span class="price-value">₩${service.pricing[0].price.toLocaleString()}</span>
+                        <span class="price-unit">/ ${service.pricing[0].quantity}개</span>
+                    </div>
+                    <div class="delivery-info">
+                        <i class="fas fa-clock"></i>
+                        <span>${service.deliveryTime.min}-${service.deliveryTime.max} ${getTimeUnit(service.deliveryTime.unit)}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="service-footer">
+                <button class="order-btn" onclick="orderService('${service._id}')">
+                    <i class="fas fa-shopping-cart"></i> 주문하기
+                </button>
+                <button class="detail-btn" onclick="viewServiceDetail('${service._id}')">
+                    상세보기
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 필터 초기화
+function initFilters() {
+    // 플랫폼 필터
+    const platformFilter = document.getElementById('platformFilter');
+    if (platformFilter) {
+        platformFilter.addEventListener('change', applyFilters);
+    }
+    
+    // 카테고리 필터
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', applyFilters);
+    }
+    
+    // 정렬 필터
+    const sortFilter = document.getElementById('sortFilter');
+    if (sortFilter) {
+        sortFilter.addEventListener('change', applyFilters);
+    }
+}
+
+// 필터 적용
+function applyFilters() {
+    const platform = document.getElementById('platformFilter')?.value || 'all';
+    const category = document.getElementById('categoryFilter')?.value || 'all';
+    const sort = document.getElementById('sortFilter')?.value || 'default';
+    
+    const cards = document.querySelectorAll('.service-card');
+    
+    cards.forEach(card => {
+        const cardPlatform = card.dataset.platform;
+        const cardCategory = card.dataset.category;
+        
+        const platformMatch = platform === 'all' || cardPlatform === platform;
+        const categoryMatch = category === 'all' || cardCategory === category;
+        
+        if (platformMatch && categoryMatch) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // 정렬 적용
+    if (sort !== 'default') {
+        sortServices(sort);
+    }
+}
+
+// 서비스 정렬
+function sortServices(sortType) {
+    const grid = document.getElementById('servicesGrid');
+    const cards = Array.from(grid.children);
+    
+    cards.sort((a, b) => {
+        switch (sortType) {
+            case 'price-low':
+                return getPriceFromCard(a) - getPriceFromCard(b);
+            case 'price-high':
+                return getPriceFromCard(b) - getPriceFromCard(a);
+            case 'popular':
+                return (b.classList.contains('popular') ? 1 : 0) - (a.classList.contains('popular') ? 1 : 0);
+            default:
+                return 0;
+        }
+    });
+    
+    // 정렬된 순서로 다시 추가
+    cards.forEach(card => grid.appendChild(card));
+}
+
+// 카드에서 가격 추출
+function getPriceFromCard(card) {
+    const priceText = card.querySelector('.price-value')?.textContent || '0';
+    return parseInt(priceText.replace(/[^0-9]/g, ''));
+}
+
+// 검색 기능 초기화
+function initSearch() {
+    const searchInput = document.getElementById('serviceSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filterServicesBySearch(searchTerm);
+        });
+    }
+}
+
+// 검색어로 서비스 필터링
+function filterServicesBySearch(searchTerm) {
+    const cards = document.querySelectorAll('.service-card');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+        const description = card.querySelector('.service-description')?.textContent.toLowerCase() || '';
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// 서비스 주문
+function orderService(serviceId) {
+    window.location.href = `order.html?service=${serviceId}`;
+}
+
+// 서비스 상세보기
+function viewServiceDetail(serviceId) {
+    // 서비스 상세 모달 표시 또는 페이지 이동
+    window.location.href = `service-detail.html?id=${serviceId}`;
+}
+
+// 시간 단위 변환
+function getTimeUnit(unit) {
+    const units = {
+        'hours': '시간',
+        'days': '일',
+        'minutes': '분'
+    };
+    return units[unit] || unit;
+}
+
+// 빠른 주문 버튼들
+function quickOrderInstagram() {
+    document.getElementById('platformFilter').value = 'instagram';
+    applyFilters();
+    document.getElementById('servicesGrid').scrollIntoView({ behavior: 'smooth' });
+}
+
+function quickOrderYoutube() {
+    document.getElementById('platformFilter').value = 'youtube';
+    applyFilters();
+    document.getElementById('servicesGrid').scrollIntoView({ behavior: 'smooth' });
+}
+
+function quickOrderTiktok() {
+    document.getElementById('platformFilter').value = 'tiktok';
+    applyFilters();
+    document.getElementById('servicesGrid').scrollIntoView({ behavior: 'smooth' });
+}
