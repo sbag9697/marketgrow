@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: marketgrow-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: MONGODB_URI
+        value: mongodb+srv://sbag9697:tlgus0611!@cluster0.17qmchk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: abd84b4a6864dc82378baa9363575ccff49e66662cbd4dc4705dcab67cbb2ed0
+      - key: ADMIN_EMAIL
+        value: admin@marketgrow.com
+      - key: ADMIN_PASSWORD
+        value: YihQwkFRFN8Fcbdl!@#
+      - key: SMM_PANEL_API_KEY
+        value: 3285e23e5c360ef8216179db7cb716f4
+      - key: SMM_PANEL_API_URL
+        value: https://smmturk.org/api/v2
+      - key: PRICE_MARGIN
+        value: 90
+      - key: TOSSPAYMENTS_SECRET_KEY
+        value: test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R
+      - key: TOSSPAYMENTS_CLIENT_KEY
+        value: test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq
+      - key: CORS_ORIGIN
+        value: http://localhost:3000,https://marketgrow.netlify.app

@@ -1,0 +1,12 @@
+NODE_ENV=production
+PORT=5001
+MONGODB_URI=mongodb+srv://sbag9697:tlgus0611!@cluster0.17qmchk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=abd84b4a6864dc82378baa9363575ccff49e66662cbd4dc4705dcab67cbb2ed0
+ADMIN_EMAIL=admin@marketgrow.com
+ADMIN_PASSWORD=YihQwkFRFN8Fcbdl!@#
+SMM_PANEL_API_KEY=3285e23e5c360ef8216179db7cb716f4
+SMM_PANEL_API_URL=https://smmturk.org/api/v2
+PRICE_MARGIN=90
+TOSSPAYMENTS_SECRET_KEY=test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R
+TOSSPAYMENTS_CLIENT_KEY=test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq
+CORS_ORIGIN=http://localhost:3000,https://marketgrow.netlify.app
