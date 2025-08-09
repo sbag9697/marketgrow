@@ -1,6 +1,6 @@
 [build]
-buildCommand = "cd backend && npm install --production"
+buildCommand = "npm run start:backend"
 
 [deploy]
-startCommand = "cd backend && node server.js"
+startCommand = "npm run start:backend"
 restartPolicyType = "always"
