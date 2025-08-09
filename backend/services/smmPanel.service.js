@@ -4,8 +4,9 @@ const crypto = require('crypto');
 class SMMPanelService {
     constructor() {
         // SMM 패널 API 설정
-        this.apiUrl = process.env.SMM_PANEL_API_URL || 'https://smmturk.org/api/v2';
-        this.apiKey = process.env.SMM_PANEL_API_KEY;
+        this.apiUrl = process.env.SMM_API_URL || 'https://smmturk.com/api/v2';
+        this.apiKey = process.env.SMM_API_KEY;
+        this.enabled = process.env.SMM_ENABLED === 'true';
         
         // 서비스 ID 매핑 (MarketGrow 서비스 -> SMM 패널 서비스)
         this.serviceMapping = {

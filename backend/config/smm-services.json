@@ -1,0 +1,117 @@
+{
+  "instagram": {
+    "followers": {
+      "smmId": 1001,
+      "name": "Instagram Followers - High Quality",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 1.2
+    },
+    "likes": {
+      "smmId": 1101,
+      "name": "Instagram Likes - Real",
+      "minOrder": 100,
+      "maxOrder": 50000,
+      "pricePerK": 0.8
+    },
+    "views": {
+      "smmId": 1201,
+      "name": "Instagram Views - Fast",
+      "minOrder": 1000,
+      "maxOrder": 100000,
+      "pricePerK": 0.5
+    },
+    "comments": {
+      "smmId": 1301,
+      "name": "Instagram Comments - Custom",
+      "minOrder": 10,
+      "maxOrder": 1000,
+      "pricePerK": 15
+    }
+  },
+  "youtube": {
+    "subscribers": {
+      "smmId": 2001,
+      "name": "YouTube Subscribers - Lifetime",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 2.5
+    },
+    "views": {
+      "smmId": 2101,
+      "name": "YouTube Views - High Retention",
+      "minOrder": 1000,
+      "maxOrder": 100000,
+      "pricePerK": 3.5
+    },
+    "likes": {
+      "smmId": 2201,
+      "name": "YouTube Likes - Real",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 2.0
+    }
+  },
+  "tiktok": {
+    "followers": {
+      "smmId": 3001,
+      "name": "TikTok Followers - Quality",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 1.5
+    },
+    "likes": {
+      "smmId": 3101,
+      "name": "TikTok Likes - Instant",
+      "minOrder": 100,
+      "maxOrder": 50000,
+      "pricePerK": 0.6
+    },
+    "views": {
+      "smmId": 3201,
+      "name": "TikTok Views - Fast",
+      "minOrder": 1000,
+      "maxOrder": 1000000,
+      "pricePerK": 0.3
+    }
+  },
+  "facebook": {
+    "pageLikes": {
+      "smmId": 4001,
+      "name": "Facebook Page Likes - Real",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 2.0
+    },
+    "postLikes": {
+      "smmId": 4101,
+      "name": "Facebook Post Likes",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 1.5
+    }
+  },
+  "twitter": {
+    "followers": {
+      "smmId": 5001,
+      "name": "Twitter Followers - Quality",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 2.2
+    },
+    "likes": {
+      "smmId": 5101,
+      "name": "Twitter Likes",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 1.8
+    },
+    "retweets": {
+      "smmId": 5201,
+      "name": "Twitter Retweets",
+      "minOrder": 100,
+      "maxOrder": 10000,
+      "pricePerK": 1.8
+    }
+  }
+}
