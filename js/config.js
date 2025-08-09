@@ -11,7 +11,7 @@ const API_CONFIG = {
 
 // 토스페이먼츠 설정
 const TOSS_CONFIG = {
-    CLIENT_KEY: 'test_ck_Z1aOwX7K8m6vNzPPOgRPyQxzvNPG',
+    CLIENT_KEY: 'test_ck_Z1aOwX7K8m6vNzPPOgRPyQxzvNPG', // 테스트 키 (실제 키로 교체 필요)
     SUCCESS_URL: window.location.origin + '/payment-success.html',
     FAIL_URL: window.location.origin + '/payment-fail.html'
 };
