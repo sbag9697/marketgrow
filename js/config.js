@@ -1,6 +1,8 @@
 // API 설정
 const API_CONFIG = {
-    BASE_URL: 'http://localhost:5001/api',
+    BASE_URL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:5001/api'
+        : 'https://marketgrow-production.up.railway.app/api',
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
