@@ -110,16 +110,72 @@ async function loadServices() {
     const servicesGrid = document.getElementById('servicesGrid');
     if (!servicesGrid) return;
 
-    try {
-        const response = await api.getServices({ isPopular: 'true' });
-        
-        if (response.success) {
-            renderServices(response.data.popularServices || response.data.services.slice(0, 8));
-        }
-    } catch (error) {
-        console.error('서비스 로드 오류:', error);
-        renderServicesError();
-    }
+    // Mock 데이터 사용
+    const mockServices = [
+        { platform: 'instagram', name: '인스타그램', count: 5 },
+        { platform: 'youtube', name: '유튜브', count: 5 },
+        { platform: 'facebook', name: '페이스북', count: 3 },
+        { platform: 'tiktok', name: '틱톡', count: 4 },
+        { platform: 'twitter', name: '트위터', count: 3 },
+        { platform: 'telegram', name: '텔레그램', count: 2 },
+        { platform: 'threads', name: '스레드', count: 1 },
+        { platform: 'website', name: '웹사이트 마케팅', count: 1 }
+    ];
+
+    renderStaticServices(mockServices);
+}
+
+// Static 서비스 렌더링
+function renderStaticServices(platforms) {
+    const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) return;
+
+    // 플랫폼별 아이콘 매핑
+    const platformIcons = {
+        instagram: 'fab fa-instagram',
+        youtube: 'fab fa-youtube',
+        facebook: 'fab fa-facebook-f',
+        tiktok: 'fab fa-tiktok',
+        twitter: 'fab fa-twitter',
+        telegram: 'fab fa-telegram-plane',
+        threads: 'fas fa-at',
+        website: 'fas fa-globe'
+    };
+
+    // 플랫폼별 설명 매핑
+    const platformDescriptions = {
+        instagram: '팔로워, 좋아요, 댓글<br>스토리 조회수 증가',
+        youtube: '구독자, 조회수, 좋아요<br>댓글 및 시청시간 증가',
+        facebook: '페이지 좋아요, 게시물<br>참여도 및 공유 증가',
+        tiktok: '팔로워, 조회수, 좋아요<br>댓글 및 공유 증가',
+        twitter: '팔로워, 리트윗, 좋아요<br>댓글 및 멘션 증가',
+        telegram: '채널 구독자, 조회수<br>반응 및 공유 증가',
+        threads: '팔로워, 좋아요, 댓글<br>리포스트 및 인용 증가',
+        website: 'SEO 최적화, 트래픽<br>전환율 및 순위 향상'
+    };
+
+    // 서비스 카드 HTML 생성
+    let servicesHTML = '';
+    
+    platforms.forEach(platform => {
+        const icon = platformIcons[platform.platform] || 'fas fa-globe';
+        const description = platformDescriptions[platform.platform] || '다양한 마케팅 서비스';
+
+        servicesHTML += `
+            <div class="service-card ${platform.platform}" onclick="goToServices('${platform.platform}')">
+                <div class="service-icon">
+                    <i class="${icon}"></i>
+                </div>
+                <h3>${platform.name}</h3>
+                <p>${description}</p>
+                <button class="service-btn" onclick="event.stopPropagation(); goToServices('${platform.platform}')">
+                    시작하기
+                </button>
+            </div>
+        `;
+    });
+
+    servicesGrid.innerHTML = servicesHTML;
 }
 
 // 서비스 카드 렌더링
