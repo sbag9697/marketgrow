@@ -124,11 +124,9 @@ async function handleHeroLogin(event) {
 
 // 서비스 목록 로드
 async function loadServices() {
-    console.log('Loading services...');
     const servicesGrid = document.getElementById('servicesGrid');
     
     if (!servicesGrid) {
-        console.error('servicesGrid element not found');
         return;
     }
 
@@ -144,17 +142,14 @@ async function loadServices() {
         { platform: 'website', name: '웹사이트 마케팅', count: 1 }
     ];
 
-    console.log('Rendering services:', mockServices);
     renderStaticServices(mockServices);
 }
 
 // Static 서비스 렌더링
 function renderStaticServices(platforms) {
-    console.log('renderStaticServices called with:', platforms);
     const servicesGrid = document.getElementById('servicesGrid');
     
     if (!servicesGrid) {
-        console.error('servicesGrid not found in renderStaticServices');
         return;
     }
 
@@ -203,9 +198,7 @@ function renderStaticServices(platforms) {
         `;
     });
 
-    console.log('Generated HTML:', servicesHTML);
     servicesGrid.innerHTML = servicesHTML;
-    console.log('Services rendered successfully');
 }
 
 // 서비스 카드 렌더링

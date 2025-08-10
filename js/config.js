@@ -13,10 +13,12 @@ const API_CONFIG = {
 };
 
 // 토스페이먼츠 설정
+// 환경변수에서 키를 가져오거나, 설정되지 않은 경우 빈 문자열 사용
 const TOSS_CONFIG = {
-    CLIENT_KEY: 'test_ck_Z1aOwX7K8m6vNzPPOgRPyQxzvNPG', // 테스트 키 (실제 키로 교체 필요)
+    CLIENT_KEY: window.TOSS_CLIENT_KEY || '', // 환경변수에서 가져옴
     SUCCESS_URL: window.location.origin + '/payment-success.html',
-    FAIL_URL: window.location.origin + '/payment-fail.html'
+    FAIL_URL: window.location.origin + '/payment-fail.html',
+    IS_TEST_MODE: true // 테스트 모드 플래그
 };
 
 // 로컬 스토리지 키 (통일된 키 사용)
