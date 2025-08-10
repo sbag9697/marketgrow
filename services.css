@@ -146,7 +146,7 @@
 }
 
 .price-range {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: #667eea;
     text-align: center;
@@ -154,6 +154,7 @@
     padding: 10px;
     background: rgba(102, 126, 234, 0.1);
     border-radius: 8px;
+    letter-spacing: -0.3px;
 }
 
 .order-btn {
