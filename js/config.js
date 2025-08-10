@@ -1,7 +1,9 @@
 // API 설정
 const API_CONFIG = {
-    // Netlify와 로컬 모두 Railway 백엔드 사용
-    BASE_URL: 'https://marketgrow-production.up.railway.app/api',
+    // 로컬 개발 시에는 localhost, 프로덕션에서는 Railway 사용
+    BASE_URL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:5001/api'
+        : 'https://marketgrow-production.up.railway.app/api',
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
