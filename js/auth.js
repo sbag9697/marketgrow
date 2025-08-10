@@ -591,6 +591,189 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// 회원가입 단계 이동
+function nextStep(step) {
+    const signupForm = document.getElementById('signupForm');
+    if (!signupForm) return;
+    
+    const currentSteps = signupForm.querySelectorAll('.form-step.active');
+    const targetStep = signupForm.querySelector(`[data-step="${step}"]`);
+    
+    // 현재 단계 숨기기
+    currentSteps.forEach(s => s.classList.remove('active'));
+    
+    // 새 단계 표시
+    if (targetStep) {
+        targetStep.classList.add('active');
+    }
+    
+    // 프로그레스 업데이트
+    const progressSteps = document.querySelectorAll('.signup-progress .step');
+    progressSteps.forEach((s, index) => {
+        if (index < step) {
+            s.classList.add('active');
+        } else {
+            s.classList.remove('active');
+        }
+    });
+}
+
+function prevStep(step) {
+    nextStep(step);
+}
+
+// 비밀번호 강도 체크
+function checkPasswordStrength(password) {
+    let strength = 0;
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.querySelector('.strength-text');
+    
+    if (!strengthBar || !strengthText) return strength;
+    
+    // 길이 체크
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    
+    // 소문자 체크
+    if (/[a-z]/.test(password)) strength++;
+    
+    // 대문자 체크
+    if (/[A-Z]/.test(password)) strength++;
+    
+    // 숫자 체크
+    if (/[0-9]/.test(password)) strength++;
+    
+    // 특수문자 체크
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+    
+    // 강도에 따른 표시
+    strengthBar.style.width = `${(strength / 6) * 100}%`;
+    
+    if (strength <= 2) {
+        strengthBar.style.background = '#dc3545';
+        strengthText.textContent = '비밀번호 강도: 약함';
+    } else if (strength <= 4) {
+        strengthBar.style.background = '#ffc107';
+        strengthText.textContent = '비밀번호 강도: 보통';
+    } else {
+        strengthBar.style.background = '#28a745';
+        strengthText.textContent = '비밀번호 강도: 강함';
+    }
+    
+    return strength;
+}
+
+// 비밀번호 토글 (회원가입용)
+function toggleSignupPassword() {
+    const passwordInput = document.getElementById('signupPassword');
+    const toggleBtn = passwordInput.parentElement.querySelector('.password-toggle i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleBtn.classList.remove('fa-eye');
+        toggleBtn.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleBtn.classList.remove('fa-eye-slash');
+        toggleBtn.classList.add('fa-eye');
+    }
+}
+
+// 비밀번호 입력 시 강도 체크
+document.addEventListener('DOMContentLoaded', function() {
+    const signupPasswordInput = document.getElementById('signupPassword');
+    if (signupPasswordInput) {
+        signupPasswordInput.addEventListener('input', function() {
+            checkPasswordStrength(this.value);
+            
+            // 비밀번호 확인 필드와 비교
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (confirmPassword && confirmPassword.value) {
+                checkPasswordMatch();
+            }
+        });
+    }
+    
+    // 비밀번호 확인 체크
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    }
+});
+
+// 비밀번호 일치 체크
+function checkPasswordMatch() {
+    const password = document.getElementById('signupPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const matchIndicator = document.querySelector('.password-match-indicator');
+    
+    if (!confirmPassword) {
+        if (matchIndicator) matchIndicator.innerHTML = '';
+        return false;
+    }
+    
+    if (password === confirmPassword) {
+        if (matchIndicator) {
+            matchIndicator.innerHTML = '<i class="fas fa-check-circle" style="color: #28a745;"></i>';
+        }
+        return true;
+    } else {
+        if (matchIndicator) {
+            matchIndicator.innerHTML = '<i class="fas fa-times-circle" style="color: #dc3545;"></i>';
+        }
+        return false;
+    }
+}
+
+// 약관 전체 동의
+function toggleAllTerms() {
+    const agreeAll = document.getElementById('agreeAll');
+    const allTerms = document.querySelectorAll('.terms-list input[type="checkbox"]');
+    
+    allTerms.forEach(checkbox => {
+        checkbox.checked = agreeAll.checked;
+    });
+}
+
+// 약관 보기
+function showTerms(type) {
+    let content = '';
+    
+    if (type === 'service') {
+        content = '서비스 이용약관 내용...';
+    } else if (type === 'privacy') {
+        content = '개인정보처리방침 내용...';
+    } else if (type === 'marketing') {
+        content = '마케팅 활용 동의 내용...';
+    }
+    
+    alert(content);
+}
+
+// 전화번호 인증
+function verifyPhone() {
+    const phoneInput = document.getElementById('phone');
+    const phone = phoneInput.value.trim();
+    
+    if (!phone) {
+        NotificationManager.error('전화번호를 입력해주세요.');
+        return;
+    }
+    
+    if (!isValidPhone(phone)) {
+        NotificationManager.error('올바른 전화번호 형식이 아닙니다.');
+        return;
+    }
+    
+    // 인증 UI 표시
+    const verifyGroup = document.getElementById('phoneVerifyGroup');
+    if (verifyGroup) {
+        verifyGroup.style.display = 'block';
+    }
+    
+    NotificationManager.info('전화번호 인증은 현재 준비 중입니다.');
+}
+
 // 유틸리티 함수들
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -627,3 +810,14 @@ window.addEventListener('click', function(event) {
         hideForgotPassword();
     }
 });
+
+// 전역 함수로 노출
+window.nextStep = nextStep;
+window.prevStep = prevStep;
+window.toggleSignupPassword = toggleSignupPassword;
+window.checkPasswordStrength = checkPasswordStrength;
+window.toggleAllTerms = toggleAllTerms;
+window.showTerms = showTerms;
+window.checkUsername = checkUsername;
+window.verifyEmail = verifyEmail;
+window.verifyPhone = verifyPhone;
