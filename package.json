@@ -68,7 +68,9 @@
   },
   "dependencies": {
     "@netlify/neon": "^0.1.0",
-    "core-js": "^3.33.0"
+    "bcryptjs": "^2.4.3",
+    "core-js": "^3.33.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "browserslist": [
     "> 1%",
