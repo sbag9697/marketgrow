@@ -57,6 +57,11 @@ async function handleLogin(event) {
         if (response.success && response.data) {
             NotificationManager.success('로그인 성공! 환영합니다.');
             
+            // 사용자 정보 저장
+            if (response.data.user) {
+                localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+            }
+            
             // 로그인 상태 유지 처리
             const rememberCheck = document.getElementById('remember');
             if (rememberCheck && rememberCheck.checked) {
@@ -193,6 +198,12 @@ function handleSignupForm() {
 async function handleSignup(event) {
     event.preventDefault();
     
+    // 이메일 인증 확인
+    if (!emailVerified) {
+        NotificationManager.error('이메일 인증을 완료해주세요.');
+        return;
+    }
+    
     const submitBtn = event.target.querySelector('button[type="submit"]');
     LoadingManager.show(submitBtn);
     
@@ -205,13 +216,19 @@ async function handleSignup(event) {
             name: formData.get('name'),
             phone: formData.get('phone'),
             businessType: formData.get('businessType'),
-            referralCode: formData.get('referralCode')
+            referralCode: formData.get('referralCode'),
+            isEmailVerified: emailVerified
         };
 
         const response = await api.register(userData);
         
         if (response.success) {
             NotificationManager.success('회원가입이 완료되었습니다! 환영합니다.');
+            
+            // 사용자 정보 저장
+            if (response.data && response.data.user) {
+                localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+            }
             
             // 대시보드로 이동
             setTimeout(() => {
@@ -320,18 +337,149 @@ function hideForgotPassword() {
     }
 }
 
-// 소셜 로그인 함수들 (임시 구현)
-function loginWithKakao() {
-    NotificationManager.info('카카오 로그인은 준비 중입니다.');
+// 이메일 인증 관련 함수들
+let emailVerified = false;
+let verificationTimer = null;
+
+// 이메일 인증 코드 발송
+async function verifyEmail() {
+    const emailInput = document.getElementById('email');
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        NotificationManager.error('이메일 주소를 입력해주세요.');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        NotificationManager.error('올바른 이메일 형식이 아닙니다.');
+        return;
+    }
+    
+    const verifyBtn = document.querySelector('.verify-btn');
+    LoadingManager.show(verifyBtn);
+    
+    try {
+        const response = await api.post('/email/send-verification', { 
+            email,
+            username: document.getElementById('signupUsername')?.value || ''
+        }, { auth: false });
+        
+        if (response.success) {
+            NotificationManager.success('인증 코드가 이메일로 발송되었습니다.');
+            
+            // 인증 코드 입력 필드 표시
+            const verifyGroup = document.getElementById('emailVerifyGroup');
+            if (verifyGroup) {
+                verifyGroup.style.display = 'block';
+                startVerificationTimer();
+            }
+            
+            // 버튼 텍스트 변경
+            verifyBtn.textContent = '재발송';
+        }
+    } catch (error) {
+        const message = error.response?.data?.message || '이메일 발송에 실패했습니다.';
+        NotificationManager.error(message);
+    } finally {
+        LoadingManager.hide(verifyBtn);
+    }
 }
 
-function loginWithGoogle() {
-    NotificationManager.info('구글 로그인은 준비 중입니다.');
+// 인증 타이머 시작
+function startVerificationTimer() {
+    let seconds = 300; // 5분
+    const timerElement = document.querySelector('.verify-timer');
+    
+    if (verificationTimer) {
+        clearInterval(verificationTimer);
+    }
+    
+    verificationTimer = setInterval(() => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        
+        if (seconds <= 0) {
+            clearInterval(verificationTimer);
+            timerElement.textContent = '만료됨';
+            NotificationManager.warning('인증 시간이 만료되었습니다. 다시 요청해주세요.');
+        }
+        
+        seconds--;
+    }, 1000);
 }
 
-function loginWithNaver() {
-    NotificationManager.info('네이버 로그인은 준비 중입니다.');
+// 이메일 인증 코드 확인
+async function verifyEmailCode() {
+    const emailInput = document.getElementById('email');
+    const codeInput = document.getElementById('emailCode');
+    
+    const email = emailInput.value.trim();
+    const code = codeInput.value.trim();
+    
+    if (!code || code.length !== 6) {
+        NotificationManager.error('6자리 인증 코드를 입력해주세요.');
+        return;
+    }
+    
+    try {
+        const response = await api.post('/email/verify-code', { 
+            email, 
+            code 
+        }, { auth: false });
+        
+        if (response.success) {
+            emailVerified = true;
+            NotificationManager.success('이메일 인증이 완료되었습니다.');
+            
+            // 인증 완료 표시
+            const verifyGroup = document.getElementById('emailVerifyGroup');
+            if (verifyGroup) {
+                verifyGroup.style.display = 'none';
+            }
+            
+            // 이메일 입력 필드 비활성화
+            emailInput.setAttribute('readonly', true);
+            
+            // 인증 버튼 숨기기
+            const verifyBtn = emailInput.parentElement.querySelector('.verify-btn');
+            if (verifyBtn) {
+                verifyBtn.style.display = 'none';
+            }
+            
+            // 체크 아이콘 표시
+            const inputGroup = emailInput.parentElement;
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'fas fa-check-circle text-success';
+            checkIcon.style.color = '#28a745';
+            checkIcon.style.position = 'absolute';
+            checkIcon.style.right = '10px';
+            checkIcon.style.top = '50%';
+            checkIcon.style.transform = 'translateY(-50%)';
+            inputGroup.appendChild(checkIcon);
+            
+            if (verificationTimer) {
+                clearInterval(verificationTimer);
+            }
+        }
+    } catch (error) {
+        const message = error.response?.data?.message || '인증 코드 확인에 실패했습니다.';
+        NotificationManager.error(message);
+    }
 }
+
+// 이메일 코드 입력 시 자동 확인
+document.addEventListener('DOMContentLoaded', function() {
+    const emailCodeInput = document.getElementById('emailCode');
+    if (emailCodeInput) {
+        emailCodeInput.addEventListener('input', function() {
+            if (this.value.length === 6) {
+                verifyEmailCode();
+            }
+        });
+    }
+});
 
 // 유틸리티 함수들
 function isValidEmail(email) {

@@ -28,12 +28,28 @@ class API {
             ...options
         };
 
+        console.log('API Request:', url, config);
+
         try {
             const response = await fetch(url, config);
-            const data = await response.json();
+            
+            // 응답이 JSON이 아닐 수 있음
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                console.error('Non-JSON response:', text);
+                throw new Error('서버 응답 형식 오류');
+            }
+
+            console.log('API Response:', data);
 
             if (!response.ok) {
-                throw new Error(data.message || '요청 처리 중 오류가 발생했습니다.');
+                const error = new Error(data.message || '요청 처리 중 오류가 발생했습니다.');
+                error.response = { data, status: response.status };
+                throw error;
             }
 
             return data;
@@ -272,21 +288,37 @@ const api = new API();
 
 // 에러 처리 유틸리티
 const handleApiError = (error, fallbackMessage = '오류가 발생했습니다.') => {
-    console.error('API 에러:', error);
+    console.error('API 에러 상세:', error);
     
-    // 사용자에게 표시할 메시지
-    let message = error.message || fallbackMessage;
-    
-    // 401 에러 (인증 실패) 처리
-    if (error.message && error.message.includes('로그인')) {
-        api.clearToken();
-        // 로그인 페이지로 리다이렉트할 수 있음
-        if (window.location.pathname !== '/login.html' && window.location.pathname !== '/') {
-            window.location.href = '/login.html';
+    // 에러 응답이 있는 경우
+    if (error.response) {
+        console.log('Error response status:', error.response.status);
+        console.log('Error response data:', error.response.data);
+        
+        if (error.response.data && error.response.data.message) {
+            return error.response.data.message;
+        }
+        
+        // 상태 코드별 메시지
+        switch (error.response.status) {
+            case 401:
+                api.clearToken();
+                return '인증 정보가 올바르지 않습니다.';
+            case 404:
+                return '요청한 리소스를 찾을 수 없습니다.';
+            case 500:
+                return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            default:
+                return error.message || fallbackMessage;
         }
     }
     
-    return message;
+    // 네트워크 에러 등
+    if (error.message) {
+        return error.message;
+    }
+    
+    return fallbackMessage;
 };
 
 // 로딩 상태 관리 유틸리티

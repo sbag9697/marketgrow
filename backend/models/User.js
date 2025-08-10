@@ -77,6 +77,8 @@ const userSchema = new mongoose.Schema({
     phoneVerificationExpire: Date,
     passwordResetToken: String,
     passwordResetExpire: Date,
+    resetPasswordToken: String,
+    resetPasswordExpiry: Date,
     referralCode: {
         type: String,
         unique: true,

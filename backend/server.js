@@ -19,6 +19,7 @@ const paymentRoutes = require('./routes/payment.routes');
 const keywordRoutes = require('./routes/keyword.routes');
 const adminRoutes = require('./routes/admin.routes');
 const consultationRoutes = require('./routes/consultation.routes');
+const emailRoutes = require('./routes/email.routes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -50,6 +51,7 @@ app.use(helmet());
 // CORS configuration
 const allowedOrigins = [
     'https://resplendent-heliotrope-e5c264.netlify.app',
+    'https://melodious-banoffee-c450ea.netlify.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -102,6 +104,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/oauth', oauthRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
