@@ -107,6 +107,15 @@ if (fs.existsSync(path.join(__dirname, '_headers'))) {
     fs.copyFileSync(path.join(__dirname, '_headers'), path.join(buildDir, '_headers'));
 }
 
+// 7-2. 기타 중요 파일 복사
+const importantFiles = ['robots.txt', 'sitemap.xml', 'sw.js'];
+importantFiles.forEach(file => {
+    if (fs.existsSync(path.join(__dirname, file))) {
+        fs.copyFileSync(path.join(__dirname, file), path.join(buildDir, file));
+        console.log(`📄 ${file} 복사 완료`);
+    }
+});
+
 // 8. 환경 변수 정보 파일 생성
 const envInfo = {
     buildDate: new Date().toISOString(),
