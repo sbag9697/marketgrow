@@ -11,7 +11,8 @@ async function checkUserStatus() {
     const loginCard = document.getElementById('loginCard');
     const userCard = document.getElementById('userCard');
 
-    if (api.token) {
+    // api 객체가 있고 토큰이 있는 경우만 체크
+    if (typeof api !== 'undefined' && api && api.token) {
         try {
             const response = await api.getProfile();
             if (response.success) {
@@ -21,7 +22,9 @@ async function checkUserStatus() {
             }
         } catch (error) {
             // 토큰이 유효하지 않음 - 토큰 제거
-            api.clearToken();
+            if (api && api.clearToken) {
+                api.clearToken();
+            }
         }
     }
 
@@ -79,6 +82,11 @@ async function handleHeroLogin(event) {
     submitBtn.disabled = true;
     
     try {
+        // api 객체 체크
+        if (typeof api === 'undefined' || !api || !api.login) {
+            throw new Error('로그인 서비스를 사용할 수 없습니다.');
+        }
+
         const formData = new FormData(event.target);
         const credentials = {
             login: formData.get('username'),
@@ -88,7 +96,9 @@ async function handleHeroLogin(event) {
         const response = await api.login(credentials);
         
         if (response.success) {
-            NotificationManager.success('로그인 성공! 환영합니다.');
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.success('로그인 성공! 환영합니다.');
+            }
             
             // 사용자 정보 업데이트
             showUserCard(response.data.user);
@@ -97,8 +107,15 @@ async function handleHeroLogin(event) {
             event.target.reset();
         }
     } catch (error) {
-        const message = handleApiError(error, '로그인 중 오류가 발생했습니다.');
-        NotificationManager.error(message);
+        let message = '로그인 중 오류가 발생했습니다.';
+        if (typeof handleApiError !== 'undefined') {
+            message = handleApiError(error, message);
+        }
+        if (typeof NotificationManager !== 'undefined') {
+            NotificationManager.error(message);
+        } else {
+            console.error(message);
+        }
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
@@ -107,8 +124,13 @@ async function handleHeroLogin(event) {
 
 // 서비스 목록 로드
 async function loadServices() {
+    console.log('Loading services...');
     const servicesGrid = document.getElementById('servicesGrid');
-    if (!servicesGrid) return;
+    
+    if (!servicesGrid) {
+        console.error('servicesGrid element not found');
+        return;
+    }
 
     // Mock 데이터 사용
     const mockServices = [
@@ -122,13 +144,19 @@ async function loadServices() {
         { platform: 'website', name: '웹사이트 마케팅', count: 1 }
     ];
 
+    console.log('Rendering services:', mockServices);
     renderStaticServices(mockServices);
 }
 
 // Static 서비스 렌더링
 function renderStaticServices(platforms) {
+    console.log('renderStaticServices called with:', platforms);
     const servicesGrid = document.getElementById('servicesGrid');
-    if (!servicesGrid) return;
+    
+    if (!servicesGrid) {
+        console.error('servicesGrid not found in renderStaticServices');
+        return;
+    }
 
     // 플랫폼별 아이콘 매핑
     const platformIcons = {
@@ -175,7 +203,9 @@ function renderStaticServices(platforms) {
         `;
     });
 
+    console.log('Generated HTML:', servicesHTML);
     servicesGrid.innerHTML = servicesHTML;
+    console.log('Services rendered successfully');
 }
 
 // 서비스 카드 렌더링
