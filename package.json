@@ -67,6 +67,7 @@
     "workbox-webpack-plugin": "^7.0.0"
   },
   "dependencies": {
+    "@netlify/neon": "^0.1.0",
     "core-js": "^3.33.0"
   },
   "browserslist": [
