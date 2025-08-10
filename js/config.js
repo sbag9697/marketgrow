@@ -7,7 +7,9 @@ const API_CONFIG = {
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
-    }
+    },
+    // Mock 모드 강제 활성화 (백엔드 서버 없이 테스트)
+    USE_MOCK: true
 };
 
 // 토스페이먼츠 설정

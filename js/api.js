@@ -340,8 +340,9 @@ const handleApiError = (error, fallbackMessage = '오류가 발생했습니다.'
     return fallbackMessage;
 };
 
-// 로딩 상태 관리 유틸리티
-const LoadingManager = {
+// 로딩 상태 관리 유틸리티 (중복 방지)
+if (!window.LoadingManager) {
+    window.LoadingManager = {
     show(element) {
         if (element) {
             element.disabled = true;
@@ -362,10 +363,12 @@ const LoadingManager = {
             }
         }
     }
-};
+    };
+}
 
-// 알림 표시 유틸리티
-const NotificationManager = {
+// 알림 표시 유틸리티 (중복 방지)
+if (!window.NotificationManager) {
+    window.NotificationManager = {
     show(message, type = 'info', duration = 5000) {
         // 기존 알림 제거
         const existingNotification = document.querySelector('.notification');
@@ -440,7 +443,8 @@ const NotificationManager = {
     info(message, duration) {
         this.show(message, 'info', duration);
     }
-};
+    };
+}
 
 // CSS 애니메이션 추가
 if (!document.querySelector('#notification-styles')) {

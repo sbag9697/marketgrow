@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock 모드 설정</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 400px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .enable {
+            background: #28a745;
+            color: white;
+        }
+        .enable:hover {
+            background: #218838;
+        }
+        .disable {
+            background: #dc3545;
+            color: white;
+        }
+        .disable:hover {
+            background: #c82333;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.enabled {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.disabled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            text-align: left;
+        }
+        .info h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .info ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Mock 모드 설정</h1>
+        
+        <div id="status" class="status"></div>
+        
+        <div>
+            <button class="enable" onclick="enableMock()">Mock 모드 활성화</button>
+            <button class="disable" onclick="disableMock()">Mock 모드 비활성화</button>
+        </div>
+        
+        <div class="info">
+            <h3>사용 안내</h3>
+            <ul>
+                <li><strong>Mock 모드</strong>: 백엔드 서버 없이 테스트</li>
+                <li><strong>인증번호</strong>: 123456 (고정)</li>
+                <li><strong>테스트 계정</strong>: 모든 값 허용</li>
+                <li>설정은 브라우저에 저장됩니다</li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button style="background: #667eea; color: white;" onclick="goToSignup()">
+                회원가입 페이지로 이동 →
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 현재 상태 확인
+        function checkStatus() {
+            const isEnabled = localStorage.getItem('useMockServer') === 'true';
+            const statusEl = document.getElementById('status');
+            
+            if (isEnabled) {
+                statusEl.className = 'status enabled';
+                statusEl.textContent = '✅ Mock 모드 활성화됨';
+            } else {
+                statusEl.className = 'status disabled';
+                statusEl.textContent = '❌ Mock 모드 비활성화됨';
+            }
+        }
+        
+        // Mock 모드 활성화
+        function enableMock() {
+            localStorage.setItem('useMockServer', 'true');
+            console.log('Mock 모드가 활성화되었습니다');
+            checkStatus();
+            alert('Mock 모드가 활성화되었습니다.\n인증번호: 123456');
+        }
+        
+        // Mock 모드 비활성화
+        function disableMock() {
+            localStorage.removeItem('useMockServer');
+            localStorage.removeItem('mockUsers');
+            console.log('Mock 모드가 비활성화되었습니다');
+            checkStatus();
+            alert('Mock 모드가 비활성화되었습니다.\n실제 서버 연결을 시도합니다.');
+        }
+        
+        // 회원가입 페이지로 이동
+        function goToSignup() {
+            window.location.href = 'signup.html';
+        }
+        
+        // 페이지 로드 시 상태 확인
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html>

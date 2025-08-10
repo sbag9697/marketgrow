@@ -59,6 +59,8 @@ const allowedOrigins = [
 if (process.env.NODE_ENV !== 'production') {
     allowedOrigins.push('http://localhost:3000');
     allowedOrigins.push('http://localhost:5000');
+    allowedOrigins.push('http://localhost:5001');
+    allowedOrigins.push('http://127.0.0.1:5001');
 }
 
 app.use(cors({

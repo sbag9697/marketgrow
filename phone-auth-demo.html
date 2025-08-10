@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전화번호 인증 데모</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        
+        .demo-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .demo-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .demo-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .status-badge.mock {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.live {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-group input.verified {
+            border-color: #28a745;
+            background-color: #f0fff4;
+        }
+        
+        .input-group input.error {
+            border-color: #dc3545;
+            animation: shake 0.5s;
+        }
+        
+        .input-group button {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .input-group button:hover:not(:disabled) {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .input-group button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .verify-timer {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #666;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        #phoneVerifyGroup {
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-box li {
+            padding: 5px 0;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .info-box li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result-box.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .result-box.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        /* 알림 스타일 */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>📱 전화번호 인증</h1>
+            <p>간편하고 안전한 전화번호 인증 시스템</p>
+            <span class="status-badge mock" id="statusBadge">Mock 모드</span>
+        </div>
+        
+        <div class="info-box">
+            <h3>테스트 안내</h3>
+            <ul>
+                <li>전화번호는 자동으로 하이픈이 추가됩니다</li>
+                <li>Mock 모드에서 인증번호는 <strong>123456</strong>입니다</li>
+                <li>인증 시간 제한: 5분</li>
+                <li>6자리 입력 시 자동으로 인증 확인됩니다</li>
+            </ul>
+        </div>
+        
+        <form onsubmit="return false;">
+            <div class="form-group">
+                <label for="phone">전화번호</label>
+                <div class="input-group">
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="010-0000-0000" 
+                        maxlength="13"
+                        autocomplete="tel"
+                    >
+                    <button type="button" onclick="verifyPhone(event)">
+                        인증
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-group" id="phoneVerifyGroup">
+                <label for="phoneCode">인증번호</label>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="phoneCode" 
+                        placeholder="6자리 인증번호" 
+                        maxlength="6"
+                        autocomplete="one-time-code"
+                    >
+                    <span class="verify-timer">05:00</span>
+                </div>
+            </div>
+        </form>
+        
+        <div id="resultBox" class="result-box"></div>
+        
+        <div class="controls">
+            <button type="button" class="btn-primary" onclick="checkStatus()">
+                <i class="fas fa-info-circle"></i> 상태 확인
+            </button>
+            <button type="button" class="btn-secondary" onclick="resetAuth()">
+                <i class="fas fa-redo"></i> 초기화
+            </button>
+            <button type="button" class="btn-success" onclick="toggleMode()">
+                <i class="fas fa-exchange-alt"></i> 모드 전환
+            </button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/mock-api.js"></script>
+    <script src="js/notification.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/phone-auth.js"></script>
+    
+    <script>
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            updateModeStatus();
+            
+            // 인증 완료 이벤트 리스너
+            window.addEventListener('phoneVerification', function(e) {
+                const resultBox = document.getElementById('resultBox');
+                if (e.detail.status === 'success') {
+                    resultBox.className = 'result-box success';
+                    resultBox.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>인증 완료!</strong><br>
+                        전화번호: ${phoneAuthManager.formatPhoneDisplay(e.detail.phone)}
+                    `;
+                } else if (e.detail.status === 'failed') {
+                    resultBox.className = 'result-box error';
+                    resultBox.innerHTML = `
+                        <i class="fas fa-times-circle"></i> 
+                        <strong>인증 실패</strong><br>
+                        인증번호를 다시 확인해주세요.
+                    `;
+                    setTimeout(() => {
+                        resultBox.style.display = 'none';
+                    }, 3000);
+                }
+            });
+        });
+        
+        // 모드 상태 업데이트
+        function updateModeStatus() {
+            const isMock = localStorage.getItem('useMockServer') === 'true';
+            const badge = document.getElementById('statusBadge');
+            
+            if (isMock) {
+                badge.className = 'status-badge mock';
+                badge.textContent = 'Mock 모드';
+            } else {
+                badge.className = 'status-badge live';
+                badge.textContent = 'Live 모드';
+            }
+        }
+        
+        // 상태 확인
+        function checkStatus() {
+            const status = {
+                'Mock 모드': localStorage.getItem('useMockServer') === 'true' ? '활성' : '비활성',
+                '인증 상태': phoneAuthManager.isVerified() ? '완료' : '미완료',
+                '남은 시간': phoneAuthManager.timeLeft > 0 ? 
+                    `${Math.floor(phoneAuthManager.timeLeft / 60)}분 ${phoneAuthManager.timeLeft % 60}초` : '없음',
+                '시도 횟수': `${phoneAuthManager.attemptCount} / ${phoneAuthManager.maxAttempts}`
+            };
+            
+            let message = '📊 현재 상태\n\n';
+            for (const [key, value] of Object.entries(status)) {
+                message += `${key}: ${value}\n`;
+            }
+            
+            alert(message);
+        }
+        
+        // 초기화
+        function resetAuth() {
+            if (confirm('모든 인증 정보를 초기화하시겠습니까?')) {
+                phoneAuthManager.reset();
+                document.getElementById('resultBox').style.display = 'none';
+                document.getElementById('phone').value = '';
+                document.getElementById('phoneCode').value = '';
+                NotificationManager.info('초기화되었습니다');
+            }
+        }
+        
+        // 모드 전환
+        function toggleMode() {
+            const isMock = localStorage.getItem('useMockServer') === 'true';
+            
+            if (isMock) {
+                localStorage.removeItem('useMockServer');
+                alert('Live 모드로 전환됩니다. (실제 서버 연결)');
+            } else {
+                localStorage.setItem('useMockServer', 'true');
+                alert('Mock 모드로 전환됩니다. (테스트 모드)');
+            }
+            
+            location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,99 @@
 // 서비스 페이지 JavaScript
+
+// Mock 서비스 데이터
+function getMockServices() {
+    return [
+        {
+            _id: '1',
+            name: '인스타그램 팔로워 늘리기',
+            platform: 'instagram',
+            category: 'followers',
+            description: '고품질 인스타그램 팔로워를 빠르고 안전하게 늘려드립니다',
+            features: ['실제 활성 사용자', '드롭 방지 보장', '24시간 고객지원'],
+            pricing: [{ quantity: 1000, price: 13500 }],
+            deliveryTime: { min: 1, max: 24, unit: 'hours' },
+            isPopular: true
+        },
+        {
+            _id: '2',
+            name: '인스타그램 좋아요 늘리기',
+            platform: 'instagram',
+            category: 'likes',
+            description: '게시물의 참여도를 높여 알고리즘 노출을 극대화하세요',
+            features: ['즉시 시작', '자연스러운 증가', '안전한 배송'],
+            pricing: [{ quantity: 1000, price: 450 }],
+            deliveryTime: { min: 1, max: 6, unit: 'hours' },
+            isPopular: true
+        },
+        {
+            _id: '3',
+            name: '유튜브 구독자 늘리기',
+            platform: 'youtube',
+            category: 'subscribers',
+            description: '실제 활성 계정으로 유튜브 구독자를 늘려드립니다',
+            features: ['실제 활성 계정', '점진적 안전 증가', '높은 유지율'],
+            pricing: [{ quantity: 1000, price: 10800 }],
+            deliveryTime: { min: 12, max: 48, unit: 'hours' },
+            isPopular: true
+        },
+        {
+            _id: '4',
+            name: '유튜브 조회수 늘리기',
+            platform: 'youtube',
+            category: 'views',
+            description: '영상의 초기 조회수를 확보하여 알고리즘 노출을 활성화하세요',
+            features: ['실제 시청자', '시청시간 최적화', '지역별 타겟팅'],
+            pricing: [{ quantity: 1000, price: 7200 }],
+            deliveryTime: { min: 1, max: 24, unit: 'hours' },
+            isPopular: false
+        },
+        {
+            _id: '5',
+            name: '틱톡 팔로워 늘리기',
+            platform: 'tiktok',
+            category: 'followers',
+            description: '전 세계 젊은 사용자층에게 어필하세요',
+            features: ['Z세대 타겟', '활성 계정', '빠른 성장'],
+            pricing: [{ quantity: 1000, price: 5400 }],
+            deliveryTime: { min: 1, max: 12, unit: 'hours' },
+            isPopular: true
+        },
+        {
+            _id: '6',
+            name: '틱톡 조회수 늘리기',
+            platform: 'tiktok',
+            category: 'views',
+            description: '영상의 바이럴 가능성을 높이고 FYP 진입을 도와드립니다',
+            features: ['알고리즘 최적화', '자연스러운 증가', '지역별 조정'],
+            pricing: [{ quantity: 1000, price: 72 }],
+            deliveryTime: { min: 1, max: 6, unit: 'hours' },
+            isPopular: false
+        },
+        {
+            _id: '7',
+            name: '페이스북 페이지 좋아요',
+            platform: 'facebook',
+            category: 'likes',
+            description: '페이스북 페이지의 신뢰도와 도달범위를 늘려드립니다',
+            features: ['실제 사용자', '타겟팅 가능', '안정적 증가'],
+            pricing: [{ quantity: 1000, price: 7200 }],
+            deliveryTime: { min: 12, max: 48, unit: 'hours' },
+            isPopular: false
+        },
+        {
+            _id: '8',
+            name: '트위터 팔로워 늘리기',
+            platform: 'twitter',
+            category: 'followers',
+            description: '트위터 영향력을 확대하고 메시지 도달범위를 늘리세요',
+            features: ['활성 계정', '관심사 타겟팅', '점진적 증가'],
+            pricing: [{ quantity: 1000, price: 7200 }],
+            deliveryTime: { min: 6, max: 24, unit: 'hours' },
+            isPopular: false
+        }
+    ];
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     // 서비스 목록 로드
     await loadServices();
@@ -23,37 +118,12 @@ async function loadServices() {
         </div>
     `;
     
-    try {
-        const response = await api.getServices();
-        console.log('Services response:', response);
-        
-        if (response.success && response.data) {
-            const services = response.data.services || [];
-            
-            if (services.length === 0) {
-                servicesGrid.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-box-open"></i>
-                        <p>등록된 서비스가 없습니다.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            displayServices(services);
-        } else {
-            throw new Error(response.message || '서비스 목록을 불러올 수 없습니다.');
-        }
-    } catch (error) {
-        console.error('서비스 로드 오류:', error);
-        servicesGrid.innerHTML = `
-            <div class="error-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>서비스 목록을 불러올 수 없습니다.</p>
-                <button class="retry-btn" onclick="loadServices()">다시 시도</button>
-            </div>
-        `;
-    }
+    // Mock 데이터 사용 (백엔드 없이 동작)
+    setTimeout(() => {
+        console.log('Mock 데이터를 사용합니다.');
+        const mockServices = getMockServices();
+        displayServices(mockServices);
+    }, 500); // 약간의 지연으로 로딩 효과
 }
 
 // 서비스 목록 표시

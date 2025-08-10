@@ -7,55 +7,55 @@ const SERVICE_MAPPING = {
     // Instagram
     '인스타그램 팔로워 늘리기': {
         smmId: 1001,  // 실제 SMM 패널 서비스 ID
-        marginPercent: 90  // 90% 마진
+        marginPercent: 800  // 800% 마진
     },
     '인스타그램 좋아요 늘리기': {
         smmId: 1002,
-        marginPercent: 90
+        marginPercent: 800
     },
     '인스타그램 댓글 늘리기': {
         smmId: 1003,
-        marginPercent: 90
+        marginPercent: 800
     },
     '인스타그램 조회수 늘리기': {
         smmId: 1004,
-        marginPercent: 90
+        marginPercent: 800
     },
     
     // YouTube
     '유튜브 구독자 늘리기': {
         smmId: 2001,
-        marginPercent: 90
+        marginPercent: 800
     },
     '유튜브 조회수 늘리기': {
         smmId: 2002,
-        marginPercent: 90
+        marginPercent: 800
     },
     '유튜브 좋아요 늘리기': {
         smmId: 2003,
-        marginPercent: 90
+        marginPercent: 800
     },
     
     // TikTok
     '틱톡 팔로워 늘리기': {
         smmId: 3001,
-        marginPercent: 90
+        marginPercent: 800
     },
     '틱톡 좋아요 늘리기': {
         smmId: 3002,
-        marginPercent: 90
+        marginPercent: 800
     },
     
     // Facebook
     '페이스북 페이지 좋아요': {
         smmId: 4001,
-        marginPercent: 90
+        marginPercent: 800
     },
     
     // Twitter
     '트위터 팔로워 늘리기': {
         smmId: 5001,
-        marginPercent: 90
+        marginPercent: 800
     }
 };
 
@@ -131,7 +131,7 @@ async function syncServices() {
         console.log('# SMM Panel Configuration');
         console.log('SMM_PANEL_API_URL=https://smmturk.org/api/v2');
         console.log('SMM_PANEL_API_KEY=your_api_key_here');
-        console.log('PRICE_MARGIN=90  # 기본 마진 (%)');
+        console.log('PRICE_MARGIN=800  # 기본 마진 (%)');
         console.log('```');
 
         process.exit(0);

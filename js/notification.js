@@ -1,5 +1,5 @@
 // 알림 관리자
-const NotificationManager = window.NotificationManager || {
+window.NotificationManager = window.NotificationManager || {
     container: null,
     
     init() {
@@ -101,5 +101,5 @@ notificationStyle.textContent = `
 `;
 document.head.appendChild(notificationStyle);
 
-// NotificationManager 전역으로 노출
-window.NotificationManager = NotificationManager;
+// NotificationManager 전역으로 노출 - 이미 위에서 window.NotificationManager로 정의됨
+// window.NotificationManager = NotificationManager;

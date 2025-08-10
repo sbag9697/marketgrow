@@ -33,7 +33,7 @@ class SMMPanelService {
         };
         
         // 가격 마진 설정 (%)
-        this.priceMargin = parseFloat(process.env.PRICE_MARGIN || '90');
+        this.priceMargin = parseFloat(process.env.PRICE_MARGIN || '800');
     }
 
     /**

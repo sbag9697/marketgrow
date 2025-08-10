@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서버 연결 테스트</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .test-item {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #555;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.pending {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .status.testing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .test-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 3px;
+            font-size: 14px;
+            display: none;
+        }
+        .test-details.show {
+            display: block;
+        }
+        .test-url {
+            color: #667eea;
+            word-break: break-all;
+        }
+        .error-msg {
+            color: #dc3545;
+            margin-top: 5px;
+        }
+        .success-msg {
+            color: #28a745;
+            margin-top: 5px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .alternatives {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+        .alternatives h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 서버 연결 테스트</h1>
+        
+        <button onclick="runAllTests()" id="testBtn">모든 테스트 실행</button>
+        <button onclick="useLocalMode()" id="localBtn">로컬 모드로 전환</button>
+        
+        <div id="tests">
+            <div class="test-item" data-test="railway">
+                <div class="test-header">
+                    <span class="test-title">Railway 프로덕션 서버</span>
+                    <span class="status pending" id="railway-status">대기중</span>
+                </div>
+                <div class="test-details" id="railway-details">
+                    <div class="test-url">https://marketgrow-production.up.railway.app/api</div>
+                </div>
+            </div>
+            
+            <div class="test-item" data-test="local">
+                <div class="test-header">
+                    <span class="test-title">로컬 개발 서버</span>
+                    <span class="status pending" id="local-status">대기중</span>
+                </div>
+                <div class="test-details" id="local-details">
+                    <div class="test-url">http://localhost:5001/api</div>
+                </div>
+            </div>
+            
+            <div class="test-item" data-test="health">
+                <div class="test-header">
+                    <span class="test-title">Health Check 엔드포인트</span>
+                    <span class="status pending" id="health-status">대기중</span>
+                </div>
+                <div class="test-details" id="health-details">
+                    <div class="test-url">/health 또는 /ping</div>
+                </div>
+            </div>
+            
+            <div class="test-item" data-test="cors">
+                <div class="test-header">
+                    <span class="test-title">CORS 설정 확인</span>
+                    <span class="status pending" id="cors-status">대기중</span>
+                </div>
+                <div class="test-details" id="cors-details">
+                    <div class="test-url">OPTIONS 요청</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="alternatives" id="alternatives" style="display: none;">
+            <h3>🛠️ 대체 방안</h3>
+            <p>서버 연결에 실패한 경우 다음 방법을 시도해보세요:</p>
+            
+            <h4>1. 로컬 서버 실행</h4>
+            <div class="code-block">
+cd backend
+npm install
+npm run dev
+            </div>
+            
+            <h4>2. 임시 테스트 모드 사용</h4>
+            <p>config.js 파일을 다음과 같이 수정:</p>
+            <div class="code-block">
+const API_CONFIG = {
+    BASE_URL: 'http://localhost:5001/api', // 로컬 서버 사용
+    TIMEOUT: 30000,
+    HEADERS: {
+        'Content-Type': 'application/json'
+    }
+};
+            </div>
+            
+            <h4>3. Mock 서버 사용</h4>
+            <p>테스트를 위한 Mock 서버를 활성화할 수 있습니다.</p>
+            <button onclick="enableMockServer()">Mock 서버 활성화</button>
+        </div>
+    </div>
+
+    <script>
+        // 테스트 상태 업데이트
+        function updateStatus(testId, status, message) {
+            const statusEl = document.getElementById(`${testId}-status`);
+            const detailsEl = document.getElementById(`${testId}-details`);
+            
+            statusEl.className = `status ${status}`;
+            statusEl.textContent = status === 'testing' ? '테스트중...' :
+                                   status === 'success' ? '성공' :
+                                   status === 'error' ? '실패' : '대기중';
+            
+            if (message) {
+                const msgEl = document.createElement('div');
+                msgEl.className = status === 'success' ? 'success-msg' : 'error-msg';
+                msgEl.textContent = message;
+                detailsEl.appendChild(msgEl);
+                detailsEl.classList.add('show');
+            }
+        }
+        
+        // Railway 서버 테스트
+        async function testRailwayServer() {
+            updateStatus('railway', 'testing');
+            
+            try {
+                const response = await fetch('https://marketgrow-production.up.railway.app/api/health', {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    updateStatus('railway', 'success', `✅ 서버 응답: ${response.status} OK`);
+                    return true;
+                } else {
+                    updateStatus('railway', 'error', `❌ 서버 응답: ${response.status} ${response.statusText}`);
+                    return false;
+                }
+            } catch (error) {
+                updateStatus('railway', 'error', `❌ 연결 실패: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // 로컬 서버 테스트
+        async function testLocalServer() {
+            updateStatus('local', 'testing');
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    updateStatus('local', 'success', `✅ 서버 응답: ${response.status} OK`);
+                    return true;
+                } else {
+                    updateStatus('local', 'error', `❌ 서버 응답: ${response.status} ${response.statusText}`);
+                    return false;
+                }
+            } catch (error) {
+                updateStatus('local', 'error', `❌ 연결 실패: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Health Check 테스트
+        async function testHealthCheck() {
+            updateStatus('health', 'testing');
+            
+            const endpoints = [
+                'https://marketgrow-production.up.railway.app/api/health',
+                'https://marketgrow-production.up.railway.app/api/ping',
+                'https://marketgrow-production.up.railway.app/health',
+                'https://marketgrow-production.up.railway.app/'
+            ];
+            
+            for (const url of endpoints) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors'
+                    });
+                    
+                    if (response.ok || response.status < 500) {
+                        updateStatus('health', 'success', `✅ 엔드포인트 발견: ${url}`);
+                        return true;
+                    }
+                } catch (error) {
+                    console.log(`Failed: ${url}`);
+                }
+            }
+            
+            updateStatus('health', 'error', '❌ Health check 엔드포인트를 찾을 수 없습니다');
+            return false;
+        }
+        
+        // CORS 테스트
+        async function testCORS() {
+            updateStatus('cors', 'testing');
+            
+            try {
+                const response = await fetch('https://marketgrow-production.up.railway.app/api', {
+                    method: 'OPTIONS',
+                    mode: 'cors',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                const corsHeaders = response.headers.get('Access-Control-Allow-Origin');
+                if (corsHeaders) {
+                    updateStatus('cors', 'success', `✅ CORS 허용: ${corsHeaders}`);
+                    return true;
+                } else {
+                    updateStatus('cors', 'error', '❌ CORS 헤더가 설정되지 않았습니다');
+                    return false;
+                }
+            } catch (error) {
+                updateStatus('cors', 'error', `❌ CORS 테스트 실패: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // 모든 테스트 실행
+        async function runAllTests() {
+            const testBtn = document.getElementById('testBtn');
+            testBtn.disabled = true;
+            testBtn.textContent = '테스트 중...';
+            
+            const results = await Promise.all([
+                testRailwayServer(),
+                testLocalServer(),
+                testHealthCheck(),
+                testCORS()
+            ]);
+            
+            testBtn.disabled = false;
+            testBtn.textContent = '모든 테스트 실행';
+            
+            // 모든 테스트가 실패한 경우 대체 방안 표시
+            if (!results.some(r => r)) {
+                document.getElementById('alternatives').style.display = 'block';
+            }
+        }
+        
+        // 로컬 모드로 전환
+        function useLocalMode() {
+            const script = document.createElement('script');
+            script.textContent = `
+                window.API_CONFIG = {
+                    BASE_URL: 'http://localhost:5001/api',
+                    TIMEOUT: 30000,
+                    HEADERS: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                console.log('로컬 모드로 전환되었습니다:', window.API_CONFIG);
+            `;
+            document.head.appendChild(script);
+            
+            alert('로컬 모드로 전환되었습니다. 로컬 서버(포트 5001)가 실행 중인지 확인하세요.');
+            window.location.reload();
+        }
+        
+        // Mock 서버 활성화
+        function enableMockServer() {
+            localStorage.setItem('useMockServer', 'true');
+            alert('Mock 서버가 활성화되었습니다. 페이지를 새로고침하면 적용됩니다.');
+            window.location.reload();
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            console.log('현재 API 설정:', window.API_CONFIG);
+            // runAllTests();
+        };
+    </script>
+</body>
+</html>

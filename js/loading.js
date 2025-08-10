@@ -1,5 +1,5 @@
 // 로딩 관리자
-const LoadingManager = window.LoadingManager || {
+window.LoadingManager = window.LoadingManager || {
     show(element) {
         if (!element) return;
         
@@ -78,5 +78,5 @@ const LoadingManager = window.LoadingManager || {
     }
 };
 
-// LoadingManager 전역으로 노출
-window.LoadingManager = LoadingManager;
+// LoadingManager 전역으로 노출 - 이미 위에서 window.LoadingManager로 정의됨
+// window.LoadingManager = LoadingManager;
