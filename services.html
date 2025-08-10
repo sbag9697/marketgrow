@@ -535,18 +535,10 @@
                 </div>
                 <div class="form-group">
                     <label>수량</label>
-                    <select id="quantity" onchange="updatePrice()">
-                        <option value="100">100개</option>
-                        <option value="250">250개</option>
-                        <option value="500">500개</option>
-                        <option value="1000">1,000개</option>
-                        <option value="2500">2,500개</option>
-                        <option value="5000">5,000개</option>
-                        <option value="10000">10,000개</option>
-                        <option value="25000">25,000개</option>
-                        <option value="50000">50,000개</option>
-                        <option value="100000">100,000개</option>
-                    </select>
+                    <input type="number" id="quantity" placeholder="주문 수량을 입력하세요" min="1" value="1000" oninput="updatePrice()" required>
+                    <small style="color: #888; display: block; margin-top: 5px;">
+                        <span id="unitInfo">최소 주문 수량: 1개</span>
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>총 금액</label>
@@ -676,10 +668,28 @@
         function openOrderModal(serviceType) {
             const modal = document.getElementById('orderModal');
             const serviceTypeInput = document.getElementById('serviceType');
+            const quantityInput = document.getElementById('quantity');
+            const unitInfo = document.getElementById('unitInfo');
             
             if (modal && serviceTypeInput) {
                 currentServiceType = serviceType;
-                serviceTypeInput.value = serviceType;
+                serviceTypeInput.value = getServiceName(serviceType);
+                
+                // 서비스별 기본 수량 및 단위 정보 설정
+                if (serviceType === 'youtube-long-watch-time' || serviceType === 'twitch-viewers') {
+                    quantityInput.value = '1';
+                    quantityInput.placeholder = '시간을 입력하세요';
+                    unitInfo.textContent = '단위: 시간';
+                } else if (serviceType === 'instagram-auto-likes') {
+                    quantityInput.value = '1';
+                    quantityInput.placeholder = '개월 수를 입력하세요';
+                    unitInfo.textContent = '단위: 개월 (30일)';
+                } else {
+                    quantityInput.value = '1000';
+                    quantityInput.placeholder = '주문 수량을 입력하세요';
+                    unitInfo.textContent = '최소 주문 수량: 100개';
+                }
+                
                 modal.style.display = 'block';
                 updatePrice(); // 초기 가격 설정
             }
@@ -694,27 +704,29 @@
         
         // 가격 업데이트
         function updatePrice() {
-            const quantity = document.getElementById('quantity').value;
+            const quantityInput = document.getElementById('quantity');
+            const quantity = parseInt(quantityInput.value) || 0;
             const totalPrice = document.getElementById('totalPrice');
-            if (totalPrice && currentServiceType) {
+            
+            if (totalPrice && currentServiceType && quantity > 0) {
                 let total = 0;
                 
                 // 특수 서비스 처리 (시간 단위, 월 단위 등)
                 if (currentServiceType === 'youtube-long-watch-time') {
                     // 시청시간은 시간당 가격 (수량 = 시간)
                     const pricePerHour = servicePrices[currentServiceType];
-                    total = Math.ceil(pricePerHour * parseInt(quantity));
+                    total = Math.ceil(pricePerHour * quantity);
                 } else if (currentServiceType === 'instagram-auto-likes') {
-                    // 자동 좋아요는 월 단위 (고정 가격)
-                    total = servicePrices[currentServiceType];
+                    // 자동 좋아요는 월 단위 (개월 수 * 월 가격)
+                    total = servicePrices[currentServiceType] * quantity;
                 } else if (currentServiceType === 'twitch-viewers') {
                     // Twitch 시청자도 시간당 가격
                     const pricePerHour = servicePrices[currentServiceType];
-                    total = Math.ceil(pricePerHour * parseInt(quantity));
+                    total = Math.ceil(pricePerHour * quantity);
                 } else {
                     // 일반 서비스 (1000개당 가격)
                     const pricePerThousand = servicePrices[currentServiceType] || 1000;
-                    total = Math.ceil(pricePerThousand * (parseInt(quantity) / 1000));
+                    total = Math.ceil(pricePerThousand * (quantity / 1000));
                 }
                 
                 // 디버깅 정보 출력
@@ -724,7 +736,45 @@
                 console.log('총 가격:', total);
                 
                 totalPrice.textContent = '₩' + total.toLocaleString();
+            } else {
+                totalPrice.textContent = '₩0';
             }
+        }
+        
+        // 서비스 이름 가져오기
+        function getServiceName(serviceType) {
+            const serviceNames = {
+                'instagram-followers': '인스타그램 팔로워 (글로벌)',
+                'instagram-followers-kr': '인스타그램 팔로워 (한국)',
+                'instagram-likes': '인스타그램 좋아요',
+                'instagram-comments': '인스타그램 댓글',
+                'instagram-auto-likes': '인스타그램 자동 좋아요',
+                'youtube-subscribers': '유튜브 구독자 (글로벌)',
+                'youtube-subscribers-kr': '유튜브 구독자 (한국)',
+                'youtube-views': '유튜브 조회수',
+                'youtube-long-watch-time': '유튜브 60분+ 동영상 시청시간',
+                'youtube-shorts-views': '유튜브 쇼츠 조회수',
+                'youtube-live-viewers': '유튜브 라이브 시청자',
+                'tiktok-followers': '틱톡 팔로워 (글로벌)',
+                'tiktok-followers-kr': '틱톡 팔로워 (한국)',
+                'tiktok-views': '틱톡 조회수',
+                'tiktok-live-viewers': '틱톡 라이브 시청자',
+                'linkedin-followers': '링크드인 팔로워',
+                'linkedin-connections': '링크드인 연결',
+                'threads-followers': 'Threads 팔로워',
+                'discord-members': '디스코드 멤버',
+                'spotify-plays': 'Spotify 재생수',
+                'spotify-followers': 'Spotify 팔로워',
+                'twitch-followers': 'Twitch 팔로워',
+                'twitch-viewers': 'Twitch 라이브 시청자',
+                'whatsapp-group-members': '왑츠앱 그룹 멤버',
+                'pinterest-followers': 'Pinterest 팔로워',
+                'reddit-upvotes': 'Reddit 업보트',
+                'snapchat-followers': 'Snapchat 팔로워',
+                'kakaotalk-channel-followers': '카카오톡 채널 친구',
+                'naver-blog-views': '네이버 블로그 조회수'
+            };
+            return serviceNames[serviceType] || serviceType;
         }
         
         // 모달 외부 클릭 시 닫기
@@ -734,6 +784,45 @@
                 closeOrderModal();
             }
         }
+        
+        // 주문 폼 제출 처리
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const targetUrl = document.getElementById('targetUrl').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            
+            // 최소 수량 검증
+            if (currentServiceType === 'youtube-long-watch-time' || currentServiceType === 'twitch-viewers') {
+                if (quantity < 1) {
+                    alert('최소 1시간 이상 주문해주세요.');
+                    return;
+                }
+            } else if (currentServiceType === 'instagram-auto-likes') {
+                if (quantity < 1) {
+                    alert('최소 1개월 이상 주문해주세요.');
+                    return;
+                }
+            } else {
+                if (quantity < 100) {
+                    alert('최소 100개 이상 주문해주세요.');
+                    return;
+                }
+            }
+            
+            // 주문 처리 (여기서 실제 주문 API 호출)
+            console.log('주문 정보:', {
+                service: currentServiceType,
+                quantity: quantity,
+                url: targetUrl,
+                payment: paymentMethod,
+                total: document.getElementById('totalPrice').textContent
+            });
+            
+            alert('주문이 접수되었습니다. 곧 처리됩니다.');
+            closeOrderModal();
+        });
     </script>
 </body>
 </html>
