@@ -16,10 +16,10 @@ const TOSS_CONFIG = {
     FAIL_URL: window.location.origin + '/payment-fail.html'
 };
 
-// 로컬 스토리지 키
+// 로컬 스토리지 키 (통일된 키 사용)
 const STORAGE_KEYS = {
-    AUTH_TOKEN: 'auth_token',
-    USER_INFO: 'user_info',
+    AUTH_TOKEN: 'authToken',
+    USER_INFO: 'userInfo',
     CART: 'cart_items'
 };
 

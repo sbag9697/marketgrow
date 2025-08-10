@@ -49,11 +49,15 @@ app.use(helmet());
 
 // CORS configuration
 const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5000',
     'https://resplendent-heliotrope-e5c264.netlify.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
+
+// 개발 환경에서만 localhost 추가
+if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push('http://localhost:3000');
+    allowedOrigins.push('http://localhost:5000');
+}
 
 app.use(cors({
     origin: function(origin, callback) {
@@ -63,7 +67,12 @@ app.use(cors({
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(null, true); // 개발 중에는 모든 origin 허용
+            // 프로덕션에서는 허용되지 않은 origin 차단
+            if (process.env.NODE_ENV === 'production') {
+                callback(new Error('Not allowed by CORS'));
+            } else {
+                callback(null, true); // 개발 중에는 모든 origin 허용
+            }
         }
     },
     credentials: true,

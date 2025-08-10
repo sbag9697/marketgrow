@@ -40,9 +40,9 @@ async function handleGoogleResponse(response) {
         const data = await result.json();
 
         if (data.success) {
-            // 토큰 저장
-            localStorage.setItem('auth_token', data.data.token);
-            localStorage.setItem('user_info', JSON.stringify(data.data.user));
+            // 토큰 저장 (api.js와 동일한 키 사용)
+            localStorage.setItem('authToken', data.data.token);
+            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
             
             NotificationManager.success('구글 로그인 성공!');
             
@@ -111,9 +111,9 @@ function loginWithKakao() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // 토큰 저장
-                    localStorage.setItem('auth_token', data.data.token);
-                    localStorage.setItem('user_info', JSON.stringify(data.data.user));
+                    // 토큰 저장 (api.js와 동일한 키 사용)
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
                     
                     NotificationManager.success('카카오 로그인 성공!');
                     
@@ -182,8 +182,8 @@ async function handleNaverLogin(token) {
         const data = await response.json();
 
         if (data.success) {
-            localStorage.setItem('auth_token', data.data.token);
-            localStorage.setItem('user_info', JSON.stringify(data.data.user));
+            localStorage.setItem('authToken', data.data.token);
+            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
             
             NotificationManager.success('네이버 로그인 성공!');
             
