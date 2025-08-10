@@ -1,4 +1,4 @@
-const { SMMTurkNetlifyAPI } = require('../../smmturk-api.js');
+const { SMMTurkNetlifyAPI } = require('./lib/smmturk-api.js');
 const { neon } = require('@netlify/neon');
 const jwt = require('jsonwebtoken');
 

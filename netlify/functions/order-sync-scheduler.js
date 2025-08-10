@@ -1,5 +1,5 @@
 // 주문 상태 자동 동기화 스케줄러
-const { SMMTurkNetlifyAPI } = require('../../smmturk-api.js');
+const { SMMTurkNetlifyAPI } = require('./lib/smmturk-api.js');
 const { neon } = require('@netlify/neon');
 
 const sql = neon(process.env.NETLIFY_DATABASE_URL);
