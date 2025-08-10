@@ -637,37 +637,37 @@
             });
         });
         
-        // 서비스별 가격 정보 (800% 마진 적용된 가격)
+        // 서비스별 가격 정보 (800% 마진 적용된 가격, 1000개당 원화)
         const servicePrices = {
-            'instagram-followers': 3600,      // 인스타그램 팔로워 (글로벌)
-            'instagram-followers-kr': 13500,  // 인스타그램 팔로워 (한국)
-            'instagram-likes': 450,           // 인스타그램 좋아요
-            'instagram-comments': 7200,       // 인스타그램 댓글
-            'instagram-auto-likes': 225000,   // 인스타그램 자동 좋아요
-            'youtube-subscribers': 10800,     // 유튜브 구독자 (글로벌)
-            'youtube-subscribers-kr': 22500,  // 유튜브 구독자 (한국)
-            'youtube-views': 7200,            // 유튜브 조회수
-            'youtube-long-watch-time': 1080,  // 유튜브 60분+ 시청시간
-            'youtube-shorts-views': 45,       // 유튜브 쇼츠 조회수
-            'youtube-live-viewers': 25200,    // 유튜브 라이브 시청자
-            'tiktok-followers': 5400,         // 틱톡 팔로워 (글로벌)
-            'tiktok-followers-kr': 16200,     // 틱톡 팔로워 (한국)
-            'tiktok-views': 72,               // 틱톡 조회수
-            'tiktok-live-viewers': 31500,     // 틱톡 라이브 시청자
-            'linkedin-followers': 16200,      // 링크드인 팔로워
-            'linkedin-connections': 13500,    // 링크드인 연결
-            'threads-followers': 10800,       // Threads 팔로워
-            'discord-members': 3600,          // 디스코드 멤버
-            'spotify-plays': 3600,            // Spotify 재생수
-            'spotify-followers': 7200,        // Spotify 팔로워
-            'twitch-followers': 6300,         // Twitch 팔로워
-            'twitch-viewers': 1125,           // Twitch 라이브 시청자
-            'whatsapp-group-members': 225,    // 왓츠앱 그룹 멤버
-            'pinterest-followers': 315,       // Pinterest 팔로워
-            'reddit-upvotes': 54,             // Reddit 업보트
-            'snapchat-followers': 450,        // Snapchat 팔로워
-            'kakaotalk-channel-followers': 855, // 카카오톡 채널 친구
-            'naver-blog-views': 18            // 네이버 블로그 조회수
+            'instagram-followers': 3600,      // ₩3,600/1000개
+            'instagram-followers-kr': 13500,  // ₩13,500/1000개
+            'instagram-likes': 450,           // ₩450/1000개
+            'instagram-comments': 72000,      // ₩7,200/100개 → 72,000/1000개
+            'instagram-auto-likes': 225000,   // ₩225,000/월
+            'youtube-subscribers': 10800,     // ₩10,800/1000개
+            'youtube-subscribers-kr': 22500,  // ₩22,500/1000개
+            'youtube-views': 7200,            // ₩7,200/1000회
+            'youtube-long-watch-time': 1080,  // ₩1,080/시간
+            'youtube-shorts-views': 45,       // ₩45/1000회
+            'youtube-live-viewers': 252000,   // ₩25,200/100명 → 252,000/1000명
+            'tiktok-followers': 5400,         // ₩5,400/1000개
+            'tiktok-followers-kr': 16200,     // ₩16,200/1000개
+            'tiktok-views': 72,               // ₩72/1000회
+            'tiktok-live-viewers': 315000,    // ₩31,500/100명 → 315,000/1000명
+            'linkedin-followers': 16200,      // ₩16,200/1000개
+            'linkedin-connections': 13500,    // ₩13,500/1000개
+            'threads-followers': 10800,       // ₩10,800/1000개
+            'discord-members': 3600,          // ₩3,600/1000개
+            'spotify-plays': 3600,            // ₩3,600/1000개
+            'spotify-followers': 7200,        // ₩7,200/1000개
+            'twitch-followers': 6300,         // ₩6,300/1000개
+            'twitch-viewers': 1125,           // ₩1,125/시간
+            'whatsapp-group-members': 2250,   // ₩225/100명 → 2,250/1000명
+            'pinterest-followers': 3150,      // ₩315/100개 → 3,150/1000개
+            'reddit-upvotes': 540,            // ₩54/100개 → 540/1000개
+            'snapchat-followers': 4500,       // ₩450/100개 → 4,500/1000개
+            'kakaotalk-channel-followers': 8550, // ₩855/100개 → 8,550/1000개
+            'naver-blog-views': 180           // ₩18/100회 → 180/1000회
         };
         
         let currentServiceType = '';
@@ -702,6 +702,13 @@
                 // 선택한 수량에 따른 총 가격 계산
                 // 예: 1000개당 3600원, 5000개 주문 시 = 3600 * 5 = 18000원
                 const total = Math.ceil(pricePerThousand * (parseInt(quantity) / 1000));
+                
+                // 디버깅 정보 출력
+                console.log('서비스 타입:', currentServiceType);
+                console.log('1000개당 가격:', pricePerThousand);
+                console.log('주문 수량:', quantity);
+                console.log('총 가격:', total);
+                
                 totalPrice.textContent = '₩' + total.toLocaleString();
             }
         }
