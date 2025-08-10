@@ -52,27 +52,10 @@ async function handleLogin(event) {
             password: formData.get('password')
         };
 
-        let response;
-        
-        try {
-            response = await api.login(credentials);
-        } catch (apiError) {
-            console.log('API 로그인 실패, 데모 모드 시도');
-            // API 실패 시 데모 모드로 폴백
-            if (window.DemoAuth) {
-                response = DemoAuth.login(credentials);
-                if (response.success) {
-                    NotificationManager.info('데모 모드로 로그인했습니다.');
-                }
-            } else {
-                throw apiError;
-            }
-        }
+        const response = await api.login(credentials);
         
         if (response.success && response.data) {
-            if (!window.DemoAuth || !response.data.token.startsWith('demo_')) {
-                NotificationManager.success('로그인 성공! 환영합니다.');
-            }
+            NotificationManager.success('로그인 성공! 환영합니다.');
             
             // 사용자 정보 저장
             if (response.data.user) {

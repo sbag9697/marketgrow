@@ -47,7 +47,20 @@ class API {
             console.log('API Response:', data);
 
             if (!response.ok) {
-                const error = new Error(data.message || '요청 처리 중 오류가 발생했습니다.');
+                let errorMessage = data.message || '요청 처리 중 오류가 발생했습니다.';
+                
+                // 상태 코드별 구체적인 메시지
+                if (response.status === 500) {
+                    errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+                } else if (response.status === 401) {
+                    errorMessage = data.message || '아이디 또는 비밀번호가 올바르지 않습니다.';
+                } else if (response.status === 404) {
+                    errorMessage = '요청한 서비스를 찾을 수 없습니다.';
+                } else if (response.status === 400) {
+                    errorMessage = data.message || '입력 정보를 확인해주세요.';
+                }
+                
+                const error = new Error(errorMessage);
                 error.response = { data, status: response.status };
                 throw error;
             }
@@ -55,6 +68,12 @@ class API {
             return data;
         } catch (error) {
             console.error('API 요청 오류:', error);
+            
+            // 네트워크 오류인 경우
+            if (error.message === 'Failed to fetch') {
+                error.message = '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
+            }
+            
             throw error;
         }
     }
