@@ -647,7 +647,7 @@
             'youtube-subscribers': 108000,     // ₩108,000/1000개
             'youtube-subscribers-kr': 225000,  // ₩225,000/1000개
             'youtube-views': 72000,            // ₩72,000/1000회
-            'youtube-long-watch-time': 10800,  // ₩10,800/시간
+            'youtube-long-watch-time': 1080,   // ₩1,080/시간 (특수: 시간 단위)
             'youtube-shorts-views': 450,       // ₩450/1000회
             'youtube-live-viewers': 2520000,   // ₩2,520,000/1000명
             'tiktok-followers': 54000,         // ₩54,000/1000개
@@ -661,7 +661,7 @@
             'spotify-plays': 36000,            // ₩36,000/1000개
             'spotify-followers': 72000,        // ₩72,000/1000개
             'twitch-followers': 63000,         // ₩63,000/1000개
-            'twitch-viewers': 11250,           // ₩11,250/시간
+            'twitch-viewers': 1125,            // ₩1,125/시간 (특수: 시간 단위)
             'whatsapp-group-members': 22500,   // ₩22,500/1000명
             'pinterest-followers': 31500,      // ₩31,500/1000개
             'reddit-upvotes': 5400,            // ₩5,400/1000개
@@ -697,15 +697,29 @@
             const quantity = document.getElementById('quantity').value;
             const totalPrice = document.getElementById('totalPrice');
             if (totalPrice && currentServiceType) {
-                // 서비스별 단가 가져오기 (1000개당 가격)
-                const pricePerThousand = servicePrices[currentServiceType] || 1000;
-                // 선택한 수량에 따른 총 가격 계산
-                // 예: 1000개당 3600원, 5000개 주문 시 = 3600 * 5 = 18000원
-                const total = Math.ceil(pricePerThousand * (parseInt(quantity) / 1000));
+                let total = 0;
+                
+                // 특수 서비스 처리 (시간 단위, 월 단위 등)
+                if (currentServiceType === 'youtube-long-watch-time') {
+                    // 시청시간은 시간당 가격 (수량 = 시간)
+                    const pricePerHour = servicePrices[currentServiceType];
+                    total = Math.ceil(pricePerHour * parseInt(quantity));
+                } else if (currentServiceType === 'instagram-auto-likes') {
+                    // 자동 좋아요는 월 단위 (고정 가격)
+                    total = servicePrices[currentServiceType];
+                } else if (currentServiceType === 'twitch-viewers') {
+                    // Twitch 시청자도 시간당 가격
+                    const pricePerHour = servicePrices[currentServiceType];
+                    total = Math.ceil(pricePerHour * parseInt(quantity));
+                } else {
+                    // 일반 서비스 (1000개당 가격)
+                    const pricePerThousand = servicePrices[currentServiceType] || 1000;
+                    total = Math.ceil(pricePerThousand * (parseInt(quantity) / 1000));
+                }
                 
                 // 디버깅 정보 출력
                 console.log('서비스 타입:', currentServiceType);
-                console.log('1000개당 가격:', pricePerThousand);
+                console.log('가격:', servicePrices[currentServiceType]);
                 console.log('주문 수량:', quantity);
                 console.log('총 가격:', total);
                 
