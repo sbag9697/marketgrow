@@ -1,7 +1,7 @@
 # MarketGrow - Netlify 배포 설정
 [build]
   publish = "dist"
-  command = "node build-netlify.js"
+  command = "npm install && node build-netlify.js"
 
 [build.environment]
   NODE_VERSION = "18"
