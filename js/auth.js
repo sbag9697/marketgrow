@@ -198,6 +198,12 @@ function handleSignupForm() {
 async function handleSignup(event) {
     event.preventDefault();
     
+    // 아이디 중복확인 체크
+    if (!usernameChecked || !usernameAvailable) {
+        NotificationManager.error('아이디 중복확인을 해주세요.');
+        return;
+    }
+    
     // 이메일 인증 확인
     if (!emailVerified) {
         NotificationManager.error('이메일 인증을 완료해주세요.');
@@ -476,6 +482,110 @@ document.addEventListener('DOMContentLoaded', function() {
         emailCodeInput.addEventListener('input', function() {
             if (this.value.length === 6) {
                 verifyEmailCode();
+            }
+        });
+    }
+});
+
+// 아이디 중복확인 관련 변수
+let usernameChecked = false;
+let usernameAvailable = false;
+
+// 아이디 중복확인
+async function checkUsername() {
+    const usernameInput = document.getElementById('signupUsername');
+    const username = usernameInput.value.trim();
+    
+    if (!username) {
+        NotificationManager.error('아이디를 입력해주세요.');
+        return;
+    }
+    
+    if (username.length < 4) {
+        NotificationManager.error('아이디는 4자 이상이어야 합니다.');
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(username)) {
+        NotificationManager.error('아이디는 영문과 숫자만 사용 가능합니다.');
+        return;
+    }
+    
+    const checkBtn = usernameInput.parentElement.querySelector('.verify-btn');
+    if (checkBtn) {
+        checkBtn.disabled = true;
+        checkBtn.textContent = '확인 중...';
+    }
+    
+    try {
+        const response = await api.get(`/auth/check-username/${username}`, { auth: false });
+        
+        usernameChecked = true;
+        usernameAvailable = response.available;
+        
+        if (response.available) {
+            NotificationManager.success('사용 가능한 아이디입니다.');
+            
+            // 입력 필드에 성공 표시
+            usernameInput.style.borderColor = '#28a745';
+            
+            // 체크 아이콘 추가
+            const existingIcon = usernameInput.parentElement.querySelector('.check-icon');
+            if (existingIcon) {
+                existingIcon.remove();
+            }
+            
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'fas fa-check-circle check-icon';
+            checkIcon.style.cssText = 'color: #28a745; position: absolute; right: 120px; top: 50%; transform: translateY(-50%);';
+            usernameInput.parentElement.style.position = 'relative';
+            usernameInput.parentElement.appendChild(checkIcon);
+            
+            // 중복확인 버튼 숨기기
+            if (checkBtn) {
+                checkBtn.style.display = 'none';
+            }
+        } else {
+            NotificationManager.error(response.message || '이미 사용 중인 아이디입니다.');
+            usernameInput.style.borderColor = '#dc3545';
+            usernameAvailable = false;
+        }
+    } catch (error) {
+        console.error('Username check error:', error);
+        NotificationManager.error('아이디 중복확인 중 오류가 발생했습니다.');
+    } finally {
+        if (checkBtn && !usernameAvailable) {
+            checkBtn.disabled = false;
+            checkBtn.textContent = '중복확인';
+        }
+    }
+}
+
+// 아이디 입력 변경 시 중복확인 초기화
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('signupUsername');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function() {
+            if (usernameChecked) {
+                usernameChecked = false;
+                usernameAvailable = false;
+                
+                // 스타일 초기화
+                this.style.borderColor = '';
+                
+                // 체크 아이콘 제거
+                const checkIcon = this.parentElement.querySelector('.check-icon');
+                if (checkIcon) {
+                    checkIcon.remove();
+                }
+                
+                // 중복확인 버튼 다시 표시
+                const checkBtn = this.parentElement.querySelector('.verify-btn');
+                if (checkBtn) {
+                    checkBtn.style.display = '';
+                    checkBtn.disabled = false;
+                    checkBtn.textContent = '중복확인';
+                }
             }
         });
     }

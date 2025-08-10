@@ -10,7 +10,9 @@ const {
     requestPasswordReset,
     resetPassword,
     verifyEmail,
-    resendEmailVerification
+    resendEmailVerification,
+    checkUsername,
+    checkEmail
 } = require('../controllers/auth.controller');
 const { auth } = require('../middleware/auth');
 
@@ -129,6 +131,10 @@ router.post('/forgot-password', passwordResetLimiter, [
 ], requestPasswordReset);
 router.post('/reset-password', authLimiter, resetPasswordValidation, resetPassword);
 router.get('/verify-email/:token', verifyEmail);
+
+// Check availability routes (중복확인)
+router.get('/check-username/:username', checkUsername);
+router.get('/check-email/:email', checkEmail);
 
 // Protected routes
 router.get('/profile', auth, getProfile);
