@@ -4,8 +4,8 @@ const path = require('path');
 console.log('🚀 MarketGrow Netlify 빌드 시작...\n');
 
 // 환경 변수에서 백엔드 URL 가져오기
-const BACKEND_URL = process.env.BACKEND_URL || 'https://marketgrow-backend.herokuapp.com';
-const TOSSPAYMENTS_CLIENT_KEY = process.env.TOSSPAYMENTS_CLIENT_KEY || '';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://marketgrow-production.up.railway.app';
+const TOSSPAYMENTS_CLIENT_KEY = process.env.TOSSPAYMENTS_CLIENT_KEY || 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoqy';
 
 // 1. 빌드 디렉토리 생성
 const buildDir = path.join(__dirname, 'dist');
@@ -100,6 +100,12 @@ console.log('🔄 _redirects 파일 생성 중...');
 const redirectsContent = `/api/*  ${BACKEND_URL}/api/:splat  200
 /*    /index.html   200`;
 fs.writeFileSync(path.join(buildDir, '_redirects'), redirectsContent);
+
+// 7-1. _headers 파일 복사
+console.log('📋 _headers 파일 복사 중...');
+if (fs.existsSync(path.join(__dirname, '_headers'))) {
+    fs.copyFileSync(path.join(__dirname, '_headers'), path.join(buildDir, '_headers'));
+}
 
 // 8. 환경 변수 정보 파일 생성
 const envInfo = {

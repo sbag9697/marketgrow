@@ -22,9 +22,26 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, '비밀번호는 필수입니다'],
+        required: function() {
+            return !this.socialProvider; // 소셜 로그인이 아닌 경우에만 필수
+        },
         minlength: [8, '비밀번호는 최소 8자 이상이어야 합니다'],
         select: false
+    },
+    // 소셜 로그인 관련 필드
+    socialProvider: {
+        type: String,
+        enum: ['google', 'kakao', 'naver', null],
+        default: null
+    },
+    socialId: {
+        type: String,
+        sparse: true,
+        unique: true
+    },
+    profileImage: {
+        type: String,
+        default: null
     },
     name: {
         type: String,

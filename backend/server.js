@@ -11,6 +11,7 @@ const { connectDB } = require('./utils/database');
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
+const oauthRoutes = require('./routes/oauth.routes');
 const userRoutes = require('./routes/user.routes');
 const serviceRoutes = require('./routes/service.routes');
 const orderRoutes = require('./routes/order.routes');
@@ -47,9 +48,27 @@ initializeApp();
 app.use(helmet());
 
 // CORS configuration
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'https://resplendent-heliotrope-e5c264.netlify.app',
+    process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(null, true); // 개발 중에는 모든 origin 허용
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rate limiting
@@ -73,6 +92,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/oauth', oauthRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
