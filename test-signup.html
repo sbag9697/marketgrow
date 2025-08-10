@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 테스트</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .password-strength {
+            margin-top: 5px;
+        }
+        .strength-bar {
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .strength-bar-fill {
+            height: 100%;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 회원가입 기능 테스트</h1>
+
+    <!-- 함수 로드 확인 -->
+    <div class="test-section">
+        <h2>1. 함수 로드 상태</h2>
+        <button onclick="checkFunctions()">함수 확인</button>
+        <div id="function-result" class="result"></div>
+    </div>
+
+    <!-- 비밀번호 강도 테스트 -->
+    <div class="test-section">
+        <h2>2. 비밀번호 강도 테스트</h2>
+        <input type="password" id="test-password" placeholder="비밀번호 입력" oninput="testPasswordStrength(this.value)">
+        <div class="password-strength">
+            <div class="strength-bar">
+                <div id="strength-bar-fill" class="strength-bar-fill"></div>
+            </div>
+            <div id="strength-text">비밀번호를 입력하세요</div>
+        </div>
+        <div id="password-result" class="result"></div>
+    </div>
+
+    <!-- 단계 이동 테스트 -->
+    <div class="test-section">
+        <h2>3. 단계 이동 테스트</h2>
+        <button onclick="testNextStep()">다음 단계 테스트</button>
+        <button onclick="testPrevStep()">이전 단계 테스트</button>
+        <div id="step-result" class="result"></div>
+    </div>
+
+    <!-- 직접 회원가입 테스트 -->
+    <div class="test-section">
+        <h2>4. 간단한 회원가입 폼</h2>
+        <input type="text" id="simple-username" placeholder="아이디 (4자 이상)">
+        <button onclick="testCheckUsername()">중복확인</button>
+        <input type="email" id="simple-email" placeholder="이메일">
+        <input type="password" id="simple-password" placeholder="비밀번호">
+        <input type="text" id="simple-name" placeholder="이름">
+        <input type="tel" id="simple-phone" placeholder="전화번호">
+        <button onclick="testSignup()">회원가입 테스트</button>
+        <div id="signup-result" class="result"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/notification.js"></script>
+    <script src="js/loading.js"></script>
+    <script src="js/auth.js"></script>
+    
+    <script>
+        // 함수 로드 확인
+        function checkFunctions() {
+            const resultDiv = document.getElementById('function-result');
+            const functions = {
+                'nextStep': typeof nextStep,
+                'prevStep': typeof prevStep,
+                'checkPasswordStrength': typeof checkPasswordStrength,
+                'toggleSignupPassword': typeof toggleSignupPassword,
+                'checkUsername': typeof checkUsername,
+                'verifyEmail': typeof verifyEmail,
+                'isValidEmail': typeof isValidEmail,
+                'isValidPhone': typeof isValidPhone
+            };
+            
+            let html = '<strong>함수 로드 상태:</strong><br>';
+            for (const [name, type] of Object.entries(functions)) {
+                const loaded = type !== 'undefined';
+                html += `${name}: ${loaded ? '✅ 로드됨' : '❌ 없음'} (${type})<br>`;
+            }
+            
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = html;
+        }
+        
+        // 비밀번호 강도 테스트
+        function testPasswordStrength(password) {
+            const resultDiv = document.getElementById('password-result');
+            const fillBar = document.getElementById('strength-bar-fill');
+            const strengthText = document.getElementById('strength-text');
+            
+            let strength = 0;
+            const checks = {
+                '길이 (8자 이상)': password.length >= 8,
+                '소문자': /[a-z]/.test(password),
+                '대문자': /[A-Z]/.test(password),
+                '숫자': /[0-9]/.test(password),
+                '특수문자': /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+            
+            let html = '<strong>체크 결과:</strong><br>';
+            for (const [check, passed] of Object.entries(checks)) {
+                html += `${check}: ${passed ? '✅' : '❌'}<br>`;
+                if (passed) strength++;
+            }
+            
+            // 강도 표시
+            const percentage = (strength / 5) * 100;
+            fillBar.style.width = percentage + '%';
+            
+            if (strength <= 2) {
+                fillBar.style.background = '#dc3545';
+                strengthText.textContent = '비밀번호 강도: 약함';
+            } else if (strength <= 3) {
+                fillBar.style.background = '#ffc107';
+                strengthText.textContent = '비밀번호 강도: 보통';
+            } else {
+                fillBar.style.background = '#28a745';
+                strengthText.textContent = '비밀번호 강도: 강함';
+            }
+            
+            resultDiv.className = 'result info';
+            resultDiv.innerHTML = html;
+        }
+        
+        // 단계 이동 테스트
+        function testNextStep() {
+            const resultDiv = document.getElementById('step-result');
+            if (typeof nextStep === 'function') {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = 'nextStep 함수가 존재합니다. signup.html에서 테스트하세요.';
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 'nextStep 함수를 찾을 수 없습니다!';
+            }
+        }
+        
+        function testPrevStep() {
+            const resultDiv = document.getElementById('step-result');
+            if (typeof prevStep === 'function') {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = 'prevStep 함수가 존재합니다. signup.html에서 테스트하세요.';
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = 'prevStep 함수를 찾을 수 없습니다!';
+            }
+        }
+        
+        // 아이디 중복확인 테스트
+        async function testCheckUsername() {
+            const username = document.getElementById('simple-username').value;
+            const resultDiv = document.getElementById('signup-result');
+            
+            if (!username || username.length < 4) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '아이디는 4자 이상이어야 합니다.';
+                return;
+            }
+            
+            try {
+                const response = await api.get(`/auth/check-username/${username}`, { auth: false });
+                
+                if (response.available) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ "${username}"는 사용 가능한 아이디입니다.`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ "${username}"는 이미 사용 중인 아이디입니다.`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `오류: ${error.message}`;
+            }
+        }
+        
+        // 회원가입 테스트
+        async function testSignup() {
+            const resultDiv = document.getElementById('signup-result');
+            const userData = {
+                username: document.getElementById('simple-username').value,
+                email: document.getElementById('simple-email').value,
+                password: document.getElementById('simple-password').value,
+                name: document.getElementById('simple-name').value,
+                phone: document.getElementById('simple-phone').value,
+                businessType: 'personal'
+            };
+            
+            try {
+                const response = await api.register(userData);
+                
+                if (response.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `✅ 회원가입 성공!<br>토큰: ${response.data.token.substring(0, 20)}...`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `❌ 회원가입 실패: ${response.message}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `오류: ${error.message}`;
+            }
+        }
+        
+        // 페이지 로드 시 자동 체크
+        window.onload = function() {
+            console.log('테스트 페이지 로드 완료');
+            checkFunctions();
+        };
+    </script>
+</body>
+</html>
