@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 계정 설정 - MarketGrow</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status-list {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .status-item {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        .status-icon {
+            margin-right: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 관리자 계정 설정</h1>
+        <p class="subtitle">MarketGrow 관리자 계정을 생성하거나 테스트합니다</p>
+        
+        <div class="warning">
+            ⚠️ 이 페이지는 초기 설정용입니다. 설정 완료 후 반드시 삭제하세요!
+        </div>
+
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" value="admin@marketgrow.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" value="Admin123456!">
+        </div>
+        
+        <div class="form-group">
+            <label for="username">사용자명</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        
+        <div class="form-group">
+            <label for="fullName">이름</label>
+            <input type="text" id="fullName" value="관리자">
+        </div>
+
+        <button onclick="testConnection()">1. API 연결 테스트</button>
+        <button onclick="createAdmin()">2. 관리자 계정 생성</button>
+        <button onclick="testLogin()">3. 로그인 테스트</button>
+        <button onclick="checkServices()">4. 서비스 목록 확인</button>
+        
+        <div class="spinner" id="spinner"></div>
+        <div class="result" id="result"></div>
+        
+        <div class="status-list">
+            <h3>시스템 상태</h3>
+            <div class="status-item">
+                <span class="status-icon" id="api-status">⏸️</span>
+                <span>API 서버 연결</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon" id="db-status">⏸️</span>
+                <span>데이터베이스 연결</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon" id="admin-status">⏸️</span>
+                <span>관리자 계정</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon" id="service-status">⏸️</span>
+                <span>서비스 데이터</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://marketgrow-production.up.railway.app/api';
+        
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            result.className = 'result ' + type;
+            result.innerHTML = message;
+            result.style.display = 'block';
+            document.getElementById('spinner').style.display = 'none';
+        }
+        
+        function showSpinner() {
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        async function testConnection() {
+            showSpinner();
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (data.status === 'OK') {
+                    document.getElementById('api-status').textContent = '✅';
+                    showResult(`✅ API 연결 성공!<br>환경: ${data.environment}<br>시간: ${new Date(data.timestamp).toLocaleString()}`, 'success');
+                } else {
+                    document.getElementById('api-status').textContent = '❌';
+                    showResult('API 연결 실패', 'error');
+                }
+            } catch (error) {
+                document.getElementById('api-status').textContent = '❌';
+                showResult(`연결 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        async function createAdmin() {
+            showSpinner();
+            const adminData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                username: document.getElementById('username').value,
+                fullName: document.getElementById('fullName').value,
+                phone: '010-0000-0000',
+                isAdmin: true
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(adminData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('admin-status').textContent = '✅';
+                    showResult(`✅ 관리자 계정 생성 성공!<br>이메일: ${adminData.email}<br>사용자명: ${adminData.username}`, 'success');
+                    
+                    // 토큰 저장
+                    if (data.data && data.data.token) {
+                        localStorage.setItem('authToken', data.data.token);
+                        localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    }
+                } else {
+                    if (data.message && data.message.includes('already exists')) {
+                        document.getElementById('admin-status').textContent = '✅';
+                        showResult('관리자 계정이 이미 존재합니다. 로그인 테스트를 진행하세요.', 'info');
+                    } else {
+                        showResult(`계정 생성 실패: ${data.message || '알 수 없는 오류'}`, 'error');
+                    }
+                }
+            } catch (error) {
+                showResult(`오류: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testLogin() {
+            showSpinner();
+            const loginData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('admin-status').textContent = '✅';
+                    document.getElementById('db-status').textContent = '✅';
+                    
+                    // 토큰 저장
+                    if (data.data && data.data.token) {
+                        localStorage.setItem('authToken', data.data.token);
+                        localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    }
+                    
+                    showResult(`✅ 로그인 성공!<br>
+                        사용자: ${data.data.user.username}<br>
+                        이메일: ${data.data.user.email}<br>
+                        권한: ${data.data.user.role || '일반'}<br>
+                        토큰: ${data.data.token.substring(0, 20)}...`, 'success');
+                } else {
+                    showResult(`로그인 실패: ${data.message || '알 수 없는 오류'}`, 'error');
+                }
+            } catch (error) {
+                showResult(`오류: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkServices() {
+            showSpinner();
+            try {
+                const response = await fetch(`${API_URL}/services`);
+                const data = await response.json();
+                
+                if (data.success && data.data.services) {
+                    document.getElementById('service-status').textContent = '✅';
+                    const serviceCount = data.data.services.length;
+                    const serviceList = data.data.services.slice(0, 5).map(s => 
+                        `• ${s.name} (${s.platform})`
+                    ).join('<br>');
+                    
+                    showResult(`✅ 서비스 데이터 확인 완료!<br>
+                        총 ${serviceCount}개 서비스<br><br>
+                        ${serviceList}
+                        ${serviceCount > 5 ? '<br>...' : ''}`, 'success');
+                } else {
+                    document.getElementById('service-status').textContent = '❌';
+                    showResult('서비스 데이터를 가져올 수 없습니다.', 'error');
+                }
+            } catch (error) {
+                document.getElementById('service-status').textContent = '❌';
+                showResult(`오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 페이지 로드 시 자동으로 연결 테스트
+        window.onload = function() {
+            testConnection();
+        };
+    </script>
+</body>
+</html>

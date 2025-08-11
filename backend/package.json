@@ -24,7 +24,7 @@
   "author": "MarketGrow",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.5.1",
+    "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
