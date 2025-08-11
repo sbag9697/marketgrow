@@ -338,15 +338,44 @@
 
     <script src="js/logger.js"></script>
     <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auto-mock.js"></script>
-    <script src="js/mock-api.js"></script>
     <script src="js/notification.js"></script>
     <script src="js/loading.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/mock-api.js"></script>
     <script src="js/phone-auth.js"></script>
     <script src="js/form-validator.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/social-auth.js"></script>
     <script src="script.js"></script>
+    <script>
+        // verifyEmail 함수 정의
+        function verifyEmail() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                NotificationManager.show('이메일을 입력해주세요.', 'error');
+                return;
+            }
+            
+            // 이메일 인증 그룹 표시
+            document.getElementById('emailVerifyGroup').style.display = 'block';
+            NotificationManager.show('인증번호가 발송되었습니다. (테스트: 123456)', 'success');
+            
+            // 타이머 시작 (5분)
+            let timeLeft = 300;
+            const timerElement = document.querySelector('.verify-timer');
+            const timer = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    timerElement.textContent = '시간초과';
+                    NotificationManager.show('인증 시간이 초과되었습니다. 다시 시도해주세요.', 'error');
+                }
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
