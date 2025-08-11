@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 테스트 - MarketGrow</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4ec9b0;
+            border-bottom: 2px solid #4ec9b0;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            background: #2d2d30;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-title {
+            color: #dcdcaa;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        button.success {
+            background: #4caf50;
+        }
+        button.error {
+            background: #f44336;
+        }
+        .result {
+            background: #1e1e1e;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success-text {
+            color: #4caf50;
+        }
+        .error-text {
+            color: #f44336;
+        }
+        .info-text {
+            color: #2196f3;
+        }
+        .warning-text {
+            color: #ff9800;
+        }
+        input, select {
+            background: #3e3e42;
+            color: #d4d4d4;
+            border: 1px solid #555;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 150px;
+            color: #9cdcfe;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-online {
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+        .status-offline {
+            background: #f44336;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 MarketGrow API 테스트 콘솔</h1>
+        
+        <!-- API 상태 -->
+        <div class="test-section">
+            <div class="test-title">
+                <span class="status-indicator" id="apiStatus"></span>
+                API 서버 상태
+            </div>
+            <button onclick="testHealth()">헬스체크</button>
+            <button onclick="testServices()">서비스 목록</button>
+            <button onclick="testDatabaseConnection()">DB 연결 테스트</button>
+            <div class="result" id="statusResult"></div>
+        </div>
+
+        <!-- 회원가입 테스트 -->
+        <div class="test-section">
+            <div class="test-title">회원가입 테스트</div>
+            <div class="input-group">
+                <label>이메일:</label>
+                <input type="email" id="regEmail" value="test@example.com">
+            </div>
+            <div class="input-group">
+                <label>비밀번호:</label>
+                <input type="password" id="regPassword" value="Test123!@#">
+            </div>
+            <div class="input-group">
+                <label>사용자명:</label>
+                <input type="text" id="regUsername" value="testuser">
+            </div>
+            <div class="input-group">
+                <label>이름:</label>
+                <input type="text" id="regName" value="테스트 사용자">
+            </div>
+            <div class="input-group">
+                <label>전화번호:</label>
+                <input type="text" id="regPhone" value="01012345678">
+            </div>
+            <button onclick="testRegister()">회원가입 테스트</button>
+            <button onclick="generateRandomUser()">랜덤 사용자 생성</button>
+            <div class="result" id="registerResult"></div>
+        </div>
+
+        <!-- 로그인 테스트 -->
+        <div class="test-section">
+            <div class="test-title">로그인 테스트</div>
+            <div class="input-group">
+                <label>이메일/사용자명:</label>
+                <input type="text" id="loginId" value="admin@marketgrow.com">
+            </div>
+            <div class="input-group">
+                <label>비밀번호:</label>
+                <input type="password" id="loginPassword" value="Admin123!@#">
+            </div>
+            <button onclick="testLogin()">로그인 테스트</button>
+            <button onclick="testProfile()">프로필 조회</button>
+            <button onclick="clearToken()">토큰 삭제</button>
+            <div class="result" id="loginResult"></div>
+        </div>
+
+        <!-- Raw API 테스트 -->
+        <div class="test-section">
+            <div class="test-title">Raw API 테스트</div>
+            <div class="input-group">
+                <label>Method:</label>
+                <select id="rawMethod">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>PUT</option>
+                    <option>DELETE</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Endpoint:</label>
+                <input type="text" id="rawEndpoint" value="/api/health" style="width: 400px;">
+            </div>
+            <div class="input-group">
+                <label>Body (JSON):</label>
+                <textarea id="rawBody" style="width: 600px; height: 100px; background: #3e3e42; color: #d4d4d4; border: 1px solid #555; padding: 8px; border-radius: 4px;">{}</textarea>
+            </div>
+            <button onclick="testRawAPI()">실행</button>
+            <div class="result" id="rawResult"></div>
+        </div>
+
+        <!-- 저장된 토큰 -->
+        <div class="test-section">
+            <div class="test-title">저장된 정보</div>
+            <div class="result" id="storedInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://marketgrow-production.up.railway.app';
+        let authToken = localStorage.getItem('authToken');
+
+        // 페이지 로드 시 실행
+        window.onload = function() {
+            updateStoredInfo();
+            testHealth();
+        };
+
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const typeClass = type === 'success' ? 'success-text' : 
+                            type === 'error' ? 'error-text' : 
+                            type === 'warning' ? 'warning-text' : 'info-text';
+            
+            element.innerHTML = `<span class="${typeClass}">[${timestamp}]</span>\n${content}`;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                
+                const statusEl = document.getElementById('apiStatus');
+                if (data.status === 'OK') {
+                    statusEl.className = 'status-indicator status-online';
+                    showResult('statusResult', JSON.stringify(data, null, 2), 'success');
+                } else {
+                    statusEl.className = 'status-indicator status-offline';
+                    showResult('statusResult', JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').className = 'status-indicator status-offline';
+                showResult('statusResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testServices() {
+            try {
+                const response = await fetch(`${API_URL}/api/services`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = `Services loaded: ${data.data.services.length} services\n\n` +
+                                  data.data.services.slice(0, 3).map(s => 
+                                    `- ${s.name} (${s.platform}): ₩${s.pricing[0].price}`
+                                  ).join('\n') + '\n...';
+                    showResult('statusResult', summary, 'success');
+                } else {
+                    showResult('statusResult', JSON.stringify(data, null, 2), 'error');
+                }
+            } catch (error) {
+                showResult('statusResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDatabaseConnection() {
+            try {
+                const response = await fetch(`${API_URL}/api/health`);
+                const data = await response.json();
+                showResult('statusResult', 
+                    `Database Status: ${data.database || 'Unknown'}\n` +
+                    `Environment: ${data.environment}\n` +
+                    `Timestamp: ${data.timestamp}`, 
+                    'info'
+                );
+            } catch (error) {
+                showResult('statusResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        function generateRandomUser() {
+            const random = Math.floor(Math.random() * 10000);
+            document.getElementById('regEmail').value = `user${random}@example.com`;
+            document.getElementById('regUsername').value = `user${random}`;
+            document.getElementById('regPhone').value = `010${random.toString().padStart(8, '0')}`;
+            showResult('registerResult', 'Random user data generated', 'info');
+        }
+
+        async function testRegister() {
+            const userData = {
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value,
+                username: document.getElementById('regUsername').value,
+                name: document.getElementById('regName').value,
+                phone: document.getElementById('regPhone').value.replace(/-/g, ''),
+                terms: true,
+                privacy: true,
+                businessType: 'personal'
+            };
+
+            try {
+                showResult('registerResult', 'Sending registration request...', 'info');
+                
+                const response = await fetch(`${API_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.data && data.data.token) {
+                        authToken = data.data.token;
+                        localStorage.setItem('authToken', authToken);
+                        updateStoredInfo();
+                    }
+                    showResult('registerResult', 
+                        `✅ Registration successful!\n\n` +
+                        `User: ${data.data.user.username}\n` +
+                        `Email: ${data.data.user.email}\n` +
+                        `Token: ${authToken?.substring(0, 20)}...`, 
+                        'success'
+                    );
+                } else {
+                    showResult('registerResult', 
+                        `❌ Registration failed:\n${data.message}\n\n` +
+                        `${data.errors ? JSON.stringify(data.errors, null, 2) : ''}`, 
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('registerResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const loginData = {
+                login: document.getElementById('loginId').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    authToken = data.data.token;
+                    localStorage.setItem('authToken', authToken);
+                    updateStoredInfo();
+                    
+                    showResult('loginResult', 
+                        `✅ Login successful!\n\n` +
+                        `User: ${data.data.user.username}\n` +
+                        `Email: ${data.data.user.email}\n` +
+                        `Role: ${data.data.user.role || 'user'}\n` +
+                        `Token: ${authToken.substring(0, 20)}...`, 
+                        'success'
+                    );
+                } else {
+                    showResult('loginResult', `❌ Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult('loginResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProfile() {
+            if (!authToken) {
+                showResult('loginResult', 'No auth token. Please login first.', 'warning');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('loginResult', 
+                        `Profile:\n${JSON.stringify(data.data, null, 2)}`, 
+                        'success'
+                    );
+                } else {
+                    showResult('loginResult', `Failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showResult('loginResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testRawAPI() {
+            const method = document.getElementById('rawMethod').value;
+            const endpoint = document.getElementById('rawEndpoint').value;
+            const body = document.getElementById('rawBody').value;
+
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (authToken) {
+                options.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            if (method !== 'GET' && body) {
+                try {
+                    options.body = JSON.stringify(JSON.parse(body));
+                } catch (e) {
+                    showResult('rawResult', 'Invalid JSON in body', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const url = endpoint.startsWith('http') ? endpoint : `${API_URL}${endpoint}`;
+                showResult('rawResult', `${method} ${url}\n\nSending request...`, 'info');
+                
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                showResult('rawResult', 
+                    `Status: ${response.status} ${response.statusText}\n\n` +
+                    JSON.stringify(data, null, 2), 
+                    response.ok ? 'success' : 'error'
+                );
+            } catch (error) {
+                showResult('rawResult', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearToken() {
+            localStorage.removeItem('authToken');
+            authToken = null;
+            updateStoredInfo();
+            showResult('loginResult', 'Token cleared', 'info');
+        }
+
+        function updateStoredInfo() {
+            const info = {
+                authToken: authToken ? `${authToken.substring(0, 30)}...` : 'None',
+                userInfo: localStorage.getItem('userInfo') ? 
+                    JSON.parse(localStorage.getItem('userInfo')) : 'None'
+            };
+            
+            document.getElementById('storedInfo').innerHTML = 
+                `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+        }
+    </script>
+</body>
+</html>
