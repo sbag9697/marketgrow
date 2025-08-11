@@ -1,15 +1,17 @@
 // API 설정
 const API_CONFIG = {
-    // 로컬 개발 시에는 localhost, 프로덕션에서는 Railway 사용
+    // Railway 배포 URL (배포 후 실제 URL로 변경 필요)
+    // railway up 실행 후 제공되는 URL로 교체하세요
+    // 예: https://marketgrow-backend-production.up.railway.app/api
     BASE_URL: window.location.hostname === 'localhost' 
         ? 'http://localhost:5001/api'
-        : 'https://marketgrow-production.up.railway.app/api',
+        : window.RAILWAY_API_URL || 'https://marketgrow-backend-production.up.railway.app/api',
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
     },
-    // Mock 모드 강제 활성화 (백엔드 서버 없이 테스트)
-    USE_MOCK: true
+    // Mock 모드 - Railway 배포 후 false로 변경
+    USE_MOCK: window.location.hostname !== 'localhost' && !window.RAILWAY_API_URL
 };
 
 // 토스페이먼츠 설정
