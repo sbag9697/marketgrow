@@ -1,17 +1,15 @@
 // API 설정
 const API_CONFIG = {
-    // Railway 배포 URL (배포 후 실제 URL로 변경 필요)
-    // railway up 실행 후 제공되는 URL로 교체하세요
-    // 예: https://marketgrow-backend-production.up.railway.app/api
+    // Railway 배포 URL
     BASE_URL: window.location.hostname === 'localhost' 
         ? 'http://localhost:5001/api'
-        : window.RAILWAY_API_URL || 'https://marketgrow-backend-production.up.railway.app/api',
+        : 'https://marketgrow-production.up.railway.app/api',
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
     },
-    // Mock 모드 - Railway 배포 후 false로 변경
-    USE_MOCK: window.location.hostname !== 'localhost' && !window.RAILWAY_API_URL
+    // Mock 모드 비활성화 - Railway 백엔드 사용
+    USE_MOCK: false
 };
 
 // 토스페이먼츠 설정

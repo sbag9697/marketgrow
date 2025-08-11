@@ -52,6 +52,7 @@ app.use(helmet());
 const allowedOrigins = [
     'https://resplendent-heliotrope-e5c264.netlify.app',
     'https://melodious-banoffee-c450ea.netlify.app',
+    'https://marketgrow-production.up.railway.app',
     process.env.FRONTEND_URL
 ].filter(Boolean);
 
