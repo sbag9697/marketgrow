@@ -1,6 +1,9 @@
 [build]
-buildCommand = "npm run start:backend"
+builder = "nixpacks"
+buildCommand = "cd backend && npm install"
 
 [deploy]
-startCommand = "npm run start:backend"
+startCommand = "cd backend && npm start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
 restartPolicyType = "always"

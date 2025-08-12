@@ -132,7 +132,7 @@
     </footer>
 
     <script>
-        // 실제 API URL - Mock 없음
+        // 실제 API URL - Railway에 배포됨 ✅
         const API_URL = 'https://marketgrow-production.up.railway.app/api';
         
         // 모든 Mock 관련 제거
@@ -238,18 +238,7 @@
                 });
                 
                 if (!response.ok) {
-                    // 서버 오류 또는 연결 실패
-                    if (response.status === 404 || response.status === 500) {
-                        showMessage('서버 연결 실패 - 백엔드 서버가 실행 중이 아닙니다', 'error');
-                        hint.textContent = '⚠️ 서버 연결 실패';
-                        hint.style.color = '#ffc107';
-                        
-                        // 개발 모드에서 임시로 통과 (프로덕션에서는 제거해야 함)
-                        console.warn('백엔드 서버 미연결 - 임시 통과');
-                        usernameChecked = true;
-                        this.textContent = '중복확인 (임시)';
-                        return;
-                    }
+                    throw new Error('서버 응답 오류');
                 }
                 
                 const data = await response.json();
@@ -269,13 +258,10 @@
                 }
             } catch (error) {
                 console.error('Username check error:', error);
-                showMessage('서버 연결 실패 - 백엔드를 Railway에 배포해주세요', 'warning');
-                hint.textContent = '⚠️ 서버 미연결 (임시 통과)';
-                hint.style.color = '#ffc107';
-                
-                // 개발 중 임시로 통과 처리
-                usernameChecked = true;
-                this.textContent = '중복확인 (임시)';
+                showMessage('중복확인 중 오류가 발생했습니다', 'error');
+                hint.textContent = '중복확인 실패';
+                hint.style.color = '#dc3545';
+                usernameChecked = false;
             } finally {
                 this.disabled = false;
                 this.textContent = '중복확인';
