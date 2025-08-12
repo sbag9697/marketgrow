@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>관리자 로그인 - MarketGrow</title>
+    
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .admin-login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .admin-login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-login-header h1 {
+            font-size: 28px;
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .admin-login-header p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .admin-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #718096;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link a:hover {
+            color: #667eea;
+        }
+
+        .demo-info {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .demo-info strong {
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="admin-login-header">
+            <div class="admin-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <h1>관리자 로그인</h1>
+            <p>MarketGrow 관리자 대시보드</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" id="email" name="email" required placeholder="admin@marketgrow.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="login-button" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> 로그인
+            </button>
+        </form>
+
+        <div class="demo-info">
+            <strong>데모 계정:</strong><br>
+            이메일: admin@marketgrow.com<br>
+            비밀번호: admin123
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">
+                <i class="fas fa-arrow-left"></i> 메인으로 돌아가기
+            </a>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 관리자 로그인 처리
+        document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // 에러 메시지 초기화
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            // 로딩 상태
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 로그인 중...';
+            
+            // 데모용 관리자 계정 체크
+            if (email === 'admin@marketgrow.com' && password === 'admin123') {
+                // 관리자 정보 저장
+                const adminUser = {
+                    id: 'admin_001',
+                    email: email,
+                    name: '관리자',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // 임시 토큰 생성
+                const token = 'admin_token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // 로컬 스토리지에 저장
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('userInfo', JSON.stringify(adminUser));
+                
+                // 성공 메시지
+                successMsg.textContent = '로그인 성공! 대시보드로 이동합니다...';
+                successMsg.style.display = 'block';
+                
+                // 대시보드로 리다이렉트
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1500);
+                
+            } else if (email === 'manager@marketgrow.com' && password === 'manager123') {
+                // 매니저 계정 (선택적)
+                const managerUser = {
+                    id: 'manager_001',
+                    email: email,
+                    name: '매니저',
+                    role: 'manager',
+                    createdAt: new Date().toISOString()
+                };
+                
+                const token = 'manager_token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('userInfo', JSON.stringify(managerUser));
+                
+                successMsg.textContent = '로그인 성공! 대시보드로 이동합니다...';
+                successMsg.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1500);
+                
+            } else {
+                // 로그인 실패
+                errorMsg.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
+                errorMsg.style.display = 'block';
+                
+                // 버튼 복원
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 로그인';
+            }
+        });
+
+        // 엔터키로 제출
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('adminLoginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // 페이지 로드 시 이미 로그인된 관리자 체크
+        window.addEventListener('load', () => {
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            const token = localStorage.getItem('authToken');
+            
+            if (token && userInfo.email && 
+                (userInfo.email === 'admin@marketgrow.com' || userInfo.email === 'manager@marketgrow.com')) {
+                // 이미 로그인된 관리자는 바로 대시보드로
+                window.location.href = 'admin-dashboard.html';
+            }
+        });
+    </script>
+</body>
+</html>
