@@ -125,6 +125,7 @@ const resetPasswordValidation = [
 
 // Public routes
 // Check username availability
+console.log('Registering POST /check-username route');
 router.post('/check-username', checkUsername);
 
 // Register new user

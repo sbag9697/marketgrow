@@ -81,7 +81,9 @@ app.use(morgan('combined', { stream: { write: message => logger.info(message.tri
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API routes
+console.log('Registering API routes...');
 app.use('/api/auth', authRoutes);
+console.log('Auth routes registered');
 app.use('/api/oauth', oauthRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/users', userRoutes);
@@ -102,6 +104,30 @@ app.get('/api/health', (req, res) => {
         environment: process.env.NODE_ENV || 'development',
         mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
     });
+});
+
+// Debug endpoint to list all routes
+app.get('/api/debug/routes', (req, res) => {
+    const routes = [];
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) {
+            routes.push({
+                path: middleware.route.path,
+                methods: Object.keys(middleware.route.methods)
+            });
+        } else if (middleware.name === 'router') {
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    const path = middleware.regexp.source.replace(/\\/g, '').replace(/\^/g, '').replace(/\$/g, '').replace(/\(\?\:/g, '').replace(/\)/g, '');
+                    routes.push({
+                        path: path + handler.route.path,
+                        methods: Object.keys(handler.route.methods)
+                    });
+                }
+            });
+        }
+    });
+    res.json({ routes });
 });
 
 // 404 handler
