@@ -5,6 +5,56 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
+// Check username availability
+const checkUsername = async (req, res) => {
+    try {
+        const { username } = req.body;
+        
+        if (!username) {
+            return res.status(400).json({
+                success: false,
+                message: '아이디를 입력해주세요.',
+                available: false
+            });
+        }
+        
+        // 아이디 형식 검증 (영문, 숫자만 4-16자)
+        const usernameRegex = /^[a-zA-Z0-9]{4,16}$/;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                success: false,
+                message: '아이디는 영문, 숫자 조합 4-16자여야 합니다.',
+                available: false
+            });
+        }
+        
+        // 데이터베이스에서 중복 확인
+        const existingUser = await User.findOne({ username });
+        
+        if (existingUser) {
+            return res.json({
+                success: true,
+                available: false,
+                message: '이미 사용 중인 아이디입니다.'
+            });
+        }
+        
+        return res.json({
+            success: true,
+            available: true,
+            message: '사용 가능한 아이디입니다.'
+        });
+        
+    } catch (error) {
+        logger.error('Username check error:', error);
+        return res.status(500).json({
+            success: false,
+            message: '아이디 중복확인 중 오류가 발생했습니다.',
+            available: false
+        });
+    }
+};
+
 // Register new user
 const register = async (req, res) => {
     try {
@@ -551,6 +601,7 @@ const resendEmailVerification = async (req, res) => {
 };
 
 module.exports = {
+    checkUsername,
     register,
     login,
     getProfile,
@@ -560,6 +611,5 @@ module.exports = {
     resetPassword,
     verifyEmail,
     resendEmailVerification,
-    checkUsername,
     checkEmail
 };

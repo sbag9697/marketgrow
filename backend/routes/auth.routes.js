@@ -124,6 +124,10 @@ const resetPasswordValidation = [
 ];
 
 // Public routes
+// Check username availability
+router.post('/check-username', checkUsername);
+
+// Register new user
 router.post('/register', authLimiter, registerValidation, register);
 router.post('/login', authLimiter, loginValidation, login);
 router.post('/forgot-password', passwordResetLimiter, [

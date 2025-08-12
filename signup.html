@@ -69,8 +69,9 @@
                             <div class="input-group">
                                 <i class="fas fa-user"></i>
                                 <input type="text" id="signupUsername" name="username" placeholder="아이디를 입력하세요 (4-16자)" required minlength="4" maxlength="16">
+                                <button type="button" class="verify-btn" id="usernameCheckBtn">중복확인</button>
                             </div>
-                            <small class="form-hint">영문, 숫자 조합 4-16자</small>
+                            <small class="form-hint" id="usernameHint">영문, 숫자 조합 4-16자</small>
                         </div>
 
                         <div class="form-group">
@@ -202,6 +203,75 @@
             }
         });
         
+        // 아이디 중복확인
+        let usernameChecked = false;
+        document.getElementById('usernameCheckBtn').addEventListener('click', async function() {
+            const username = document.getElementById('signupUsername').value;
+            const hint = document.getElementById('usernameHint');
+            
+            if (!username) {
+                showMessage('아이디를 입력해주세요', 'error');
+                return;
+            }
+            
+            if (username.length < 4 || username.length > 16) {
+                showMessage('아이디는 4-16자여야 합니다', 'error');
+                return;
+            }
+            
+            // 영문, 숫자만 허용
+            const usernameRegex = /^[a-zA-Z0-9]+$/;
+            if (!usernameRegex.test(username)) {
+                showMessage('아이디는 영문과 숫자만 사용 가능합니다', 'error');
+                return;
+            }
+            
+            this.disabled = true;
+            this.textContent = '확인 중...';
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/check-username`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username})
+                });
+                
+                const data = await response.json();
+                
+                if (data.available) {
+                    showMessage('사용 가능한 아이디입니다', 'success');
+                    hint.textContent = '✅ 사용 가능한 아이디입니다';
+                    hint.style.color = '#28a745';
+                    usernameChecked = true;
+                    document.getElementById('signupUsername').readOnly = true;
+                    this.style.display = 'none';
+                } else {
+                    showMessage('이미 사용 중인 아이디입니다', 'error');
+                    hint.textContent = '❌ 이미 사용 중인 아이디입니다';
+                    hint.style.color = '#dc3545';
+                    usernameChecked = false;
+                }
+            } catch (error) {
+                showMessage('중복확인 실패', 'error');
+                usernameChecked = false;
+            } finally {
+                this.disabled = false;
+                this.textContent = '중복확인';
+            }
+        });
+        
+        // 아이디 입력 변경 시 중복확인 초기화
+        document.getElementById('signupUsername').addEventListener('input', function() {
+            if (this.readOnly) {
+                this.readOnly = false;
+                usernameChecked = false;
+                document.getElementById('usernameCheckBtn').style.display = 'inline-block';
+                const hint = document.getElementById('usernameHint');
+                hint.textContent = '영문, 숫자 조합 4-16자';
+                hint.style.color = '#6c757d';
+            }
+        });
+        
         // 이메일 인증 확인
         document.getElementById('emailConfirmBtn').addEventListener('click', async function() {
             const email = document.getElementById('email').value;
@@ -305,6 +375,13 @@
         // 회원가입 제출
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // 아이디 중복확인 체크
+            if (!usernameChecked) {
+                showMessage('아이디 중복확인을 해주세요', 'error');
+                document.getElementById('usernameCheckBtn').focus();
+                return;
+            }
             
             const formData = {
                 email: document.getElementById('email').value,
