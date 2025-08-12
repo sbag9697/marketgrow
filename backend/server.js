@@ -95,10 +95,12 @@ app.use('/api', require('./routes/dashboard.routes'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
+    const mongoose = require('mongoose');
     res.json({
         status: 'OK',
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development'
+        environment: process.env.NODE_ENV || 'development',
+        mongodb: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
     });
 });
 
