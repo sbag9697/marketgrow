@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>백엔드 연결 테스트 - MarketGrow</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #1a365d;
+            border-bottom: 2px solid #1a365d;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        .pending {
+            background: #feebc8;
+            color: #744210;
+            border: 1px solid #fbd38d;
+        }
+        button {
+            background: #1a365d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2c5282;
+        }
+        .result {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 백엔드 연결 테스트</h1>
+    
+    <div class="test-section">
+        <div class="test-title">📡 API 서버 상태</div>
+        <div id="serverStatus" class="status pending">확인 중...</div>
+        <button onclick="checkServerStatus()">서버 상태 확인</button>
+        <div id="serverResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">👤 회원가입 테스트</div>
+        <input type="text" id="signupName" placeholder="이름" value="테스트유저">
+        <input type="email" id="signupEmail" placeholder="이메일" value="test@example.com">
+        <input type="password" id="signupPassword" placeholder="비밀번호" value="test1234">
+        <button onclick="testSignup()">회원가입 테스트</button>
+        <div id="signupResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🔑 로그인 테스트</div>
+        <input type="email" id="loginEmail" placeholder="이메일" value="test@example.com">
+        <input type="password" id="loginPassword" placeholder="비밀번호" value="test1234">
+        <button onclick="testLogin()">로그인 테스트</button>
+        <div id="loginResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">📦 서비스 목록 조회</div>
+        <button onclick="testServices()">서비스 목록 가져오기</button>
+        <div id="servicesResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <div class="test-title">🛒 주문 테스트</div>
+        <button onclick="testOrder()">주문 생성 테스트</button>
+        <div id="orderResult" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://marketgrow-production.up.railway.app/api';
+        let authToken = null;
+
+        // 서버 상태 확인
+        async function checkServerStatus() {
+            const statusDiv = document.getElementById('serverStatus');
+            const resultDiv = document.getElementById('serverResult');
+            
+            statusDiv.className = 'status pending';
+            statusDiv.textContent = '서버 연결 중...';
+            
+            try {
+                const response = await fetch(API_URL + '/health', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ 서버 정상 작동 중';
+                    resultDiv.style.display = 'block';
+                    resultDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    throw new Error(data.message || '서버 응답 오류');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ 서버 연결 실패: ' + error.message;
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = error.stack;
+            }
+        }
+
+        // 회원가입 테스트
+        async function testSignup() {
+            const resultDiv = document.getElementById('signupResult');
+            
+            try {
+                const response = await fetch(API_URL + '/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('signupName').value,
+                        email: document.getElementById('signupEmail').value,
+                        password: document.getElementById('signupPassword').value
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    alert('✅ 회원가입 성공!');
+                } else {
+                    alert('❌ 회원가입 실패: ' + (data.message || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = '오류: ' + error.message;
+            }
+        }
+
+        // 로그인 테스트
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            
+            try {
+                const response = await fetch(API_URL + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    alert('✅ 로그인 성공! 토큰이 저장되었습니다.');
+                } else {
+                    alert('❌ 로그인 실패: ' + (data.message || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = '오류: ' + error.message;
+            }
+        }
+
+        // 서비스 목록 조회
+        async function testServices() {
+            const resultDiv = document.getElementById('servicesResult');
+            
+            try {
+                const response = await fetch(API_URL + '/services', {
+                    method: 'GET',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken ? `Bearer ${authToken}` : ''
+                    }
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    alert(`✅ ${data.services ? data.services.length : 0}개의 서비스를 불러왔습니다.`);
+                } else {
+                    alert('❌ 서비스 조회 실패: ' + (data.message || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = '오류: ' + error.message;
+            }
+        }
+
+        // 주문 테스트
+        async function testOrder() {
+            const resultDiv = document.getElementById('orderResult');
+            
+            if (!authToken) {
+                alert('먼저 로그인을 해주세요!');
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_URL + '/orders', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        serviceId: 'instagram-followers',
+                        serviceName: '인스타그램 팔로워',
+                        targetUrl: 'https://instagram.com/test',
+                        quantity: 1000,
+                        price: 72000
+                    })
+                });
+                
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (response.ok) {
+                    alert('✅ 주문 생성 성공!');
+                } else {
+                    alert('❌ 주문 실패: ' + (data.message || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.textContent = '오류: ' + error.message;
+            }
+        }
+
+        // 페이지 로드 시 자동으로 서버 상태 확인
+        window.onload = function() {
+            checkServerStatus();
+        };
+    </script>
+</body>
+</html>
