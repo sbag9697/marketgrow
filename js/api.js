@@ -17,6 +17,11 @@ class API {
             headers.Authorization = `Bearer ${this.token}`;
         }
 
+        // Add CSRF token if available
+        if (window.SecurityUtils?.CSRFToken) {
+            window.SecurityUtils.CSRFToken.addToHeaders(headers);
+        }
+
         return headers;
     }
 
