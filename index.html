@@ -71,6 +71,24 @@
     }
     </script>
     
+    <!-- Critical CSS (above-the-fold) -->
+    <style>
+        * {margin:0;padding:0;box-sizing:border-box}
+        body {font-family:'Noto Sans KR',sans-serif;background:#0f172a;color:#fff}
+        .navbar {background:#1a365d;padding:20px 0;position:fixed;top:0;width:100%;z-index:1000}
+        .nav-container {max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+        .hero {padding:100px 0 80px;background:linear-gradient(135deg,#1a365d 0%,#2c5282 100%)}
+        .container {max-width:1200px;margin:0 auto;padding:0 20px}
+        h1,h2,h3 {font-weight:700}
+        .mobile-menu-toggle {display:none}
+        @media (max-width:768px) {.mobile-menu-toggle{display:flex}}
+    </style>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" as="style">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -378,6 +396,11 @@
         </div>
     </footer>
 
+    <!-- Performance optimization scripts -->
+    <script src="js/lazy-load.js" defer></script>
+    <script src="js/performance-utils.js" defer></script>
+    
+    <!-- Core scripts -->
     <script src="js/logger.js"></script>
     <script src="js/config.js"></script>
     <script src="js/notification.js"></script>
