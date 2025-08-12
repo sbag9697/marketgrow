@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온라인 API 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .status-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .status-card.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .status-card.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        .status-card.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .status-card h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 16px;
+        }
+        .status-card .status {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .status-card .details {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .log-area {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MarketGrow API 실시간 상태</h1>
+        
+        <div class="status-grid">
+            <div class="status-card" id="server-status">
+                <h3>🖥️ 서버 상태</h3>
+                <div class="status">확인 중...</div>
+                <div class="details"></div>
+            </div>
+            
+            <div class="status-card" id="db-status">
+                <h3>🗄️ 데이터베이스</h3>
+                <div class="status">확인 중...</div>
+                <div class="details"></div>
+            </div>
+            
+            <div class="status-card" id="api-status">
+                <h3>🔌 API 응답</h3>
+                <div class="status">확인 중...</div>
+                <div class="details"></div>
+            </div>
+            
+            <div class="status-card" id="cors-status">
+                <h3>🔐 CORS 상태</h3>
+                <div class="status">확인 중...</div>
+                <div class="details"></div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="runAllTests()">🔄 전체 테스트 실행</button>
+            <button onclick="testEndpoints()">📡 API 엔드포인트 테스트</button>
+            <button onclick="clearLog()">🗑️ 로그 지우기</button>
+        </div>
+        
+        <div class="log-area" id="log">
+            [시스템] 페이지 로드 완료. 테스트를 시작하세요.
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://marketgrow-production.up.railway.app';
+        const API_URL = `${API_BASE}/api`;
+        
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '[오류]' : 
+                          type === 'success' ? '[성공]' : 
+                          type === 'warning' ? '[경고]' : '[정보]';
+            logArea.innerHTML += `\n[${time}] ${prefix} ${message}`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '[시스템] 로그 초기화됨.';
+        }
+        
+        async function checkServerStatus() {
+            const card = document.getElementById('server-status');
+            try {
+                log('서버 상태 확인 중...', 'info');
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                card.className = 'status-card success';
+                card.querySelector('.status').textContent = '✅ 정상';
+                card.querySelector('.details').textContent = `환경: ${data.environment}\nMongoDB: ${data.mongodb}`;
+                
+                log(`서버 정상 작동 - ${data.environment} 환경`, 'success');
+                return true;
+            } catch (error) {
+                card.className = 'status-card error';
+                card.querySelector('.status').textContent = '❌ 오류';
+                card.querySelector('.details').textContent = error.message;
+                
+                log(`서버 연결 실패: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function checkDatabase() {
+            const card = document.getElementById('db-status');
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (data.mongodb === 'Connected') {
+                    card.className = 'status-card success';
+                    card.querySelector('.status').textContent = '✅ 연결됨';
+                    card.querySelector('.details').textContent = '데이터베이스 정상';
+                    log('MongoDB 연결 정상', 'success');
+                } else {
+                    card.className = 'status-card warning';
+                    card.querySelector('.status').textContent = '⚠️ 미연결';
+                    card.querySelector('.details').textContent = 'MongoDB 연결 필요';
+                    log('MongoDB 연결 안됨', 'warning');
+                }
+            } catch (error) {
+                card.className = 'status-card error';
+                card.querySelector('.status').textContent = '❌ 오류';
+                card.querySelector('.details').textContent = error.message;
+                log(`DB 확인 실패: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkAPI() {
+            const card = document.getElementById('api-status');
+            let successCount = 0;
+            let totalCount = 0;
+            
+            const endpoints = [
+                { path: '/health', method: 'GET' },
+                { path: '/auth/check-username', method: 'OPTIONS' }
+            ];
+            
+            for (const endpoint of endpoints) {
+                totalCount++;
+                try {
+                    const response = await fetch(`${API_URL}${endpoint.path}`, {
+                        method: endpoint.method
+                    });
+                    if (response.ok || response.status === 204) {
+                        successCount++;
+                        log(`✅ ${endpoint.method} ${endpoint.path}: ${response.status}`, 'success');
+                    } else {
+                        log(`⚠️ ${endpoint.method} ${endpoint.path}: ${response.status}`, 'warning');
+                    }
+                } catch (error) {
+                    log(`❌ ${endpoint.method} ${endpoint.path}: ${error.message}`, 'error');
+                }
+            }
+            
+            if (successCount === totalCount) {
+                card.className = 'status-card success';
+                card.querySelector('.status').textContent = '✅ 정상';
+            } else if (successCount > 0) {
+                card.className = 'status-card warning';
+                card.querySelector('.status').textContent = '⚠️ 일부 작동';
+            } else {
+                card.className = 'status-card error';
+                card.querySelector('.status').textContent = '❌ 오류';
+            }
+            card.querySelector('.details').textContent = `${successCount}/${totalCount} 엔드포인트 정상`;
+        }
+        
+        async function checkCORS() {
+            const card = document.getElementById('cors-status');
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Origin': window.location.origin
+                    }
+                });
+                
+                if (response.ok) {
+                    card.className = 'status-card success';
+                    card.querySelector('.status').textContent = '✅ 허용됨';
+                    card.querySelector('.details').textContent = 'CORS 정상 작동';
+                    log('CORS 설정 정상', 'success');
+                } else {
+                    card.className = 'status-card warning';
+                    card.querySelector('.status').textContent = '⚠️ 제한적';
+                    card.querySelector('.details').textContent = 'CORS 부분 허용';
+                    log('CORS 부분적 제한', 'warning');
+                }
+            } catch (error) {
+                card.className = 'status-card error';
+                card.querySelector('.status').textContent = '❌ 차단됨';
+                card.querySelector('.details').textContent = 'CORS 오류';
+                log(`CORS 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testEndpoints() {
+            log('\n=== API 엔드포인트 상세 테스트 ===', 'info');
+            
+            const tests = [
+                {
+                    name: '아이디 중복확인',
+                    method: 'POST',
+                    path: '/auth/check-username',
+                    body: { username: 'testuser' }
+                },
+                {
+                    name: '이메일 발송',
+                    method: 'POST',
+                    path: '/email/send-verification',
+                    body: { email: 'test@example.com' }
+                },
+                {
+                    name: 'SMS 발송',
+                    method: 'POST',
+                    path: '/sms/send-verification',
+                    body: { phone: '01012345678' }
+                }
+            ];
+            
+            for (const test of tests) {
+                try {
+                    log(`테스트: ${test.name}`, 'info');
+                    const response = await fetch(`${API_URL}${test.path}`, {
+                        method: test.method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: test.body ? JSON.stringify(test.body) : undefined
+                    });
+                    
+                    const data = await response.json();
+                    if (response.ok) {
+                        log(`✅ ${test.name}: ${JSON.stringify(data)}`, 'success');
+                    } else {
+                        log(`⚠️ ${test.name}: ${response.status} - ${JSON.stringify(data)}`, 'warning');
+                    }
+                } catch (error) {
+                    log(`❌ ${test.name}: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function runAllTests() {
+            log('\n=== 전체 시스템 테스트 시작 ===', 'info');
+            await checkServerStatus();
+            await checkDatabase();
+            await checkAPI();
+            await checkCORS();
+            log('=== 테스트 완료 ===\n', 'info');
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>
