@@ -231,17 +231,25 @@
             this.textContent = '확인 중...';
             
             try {
+                console.log('Checking username:', username);
+                console.log('API URL:', `${API_URL}/auth/check-username`);
+                
                 const response = await fetch(`${API_URL}/auth/check-username`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({username})
                 });
                 
+                console.log('Response status:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error('서버 응답 오류');
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    throw new Error(`서버 응답 오류: ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log('Response data:', data);
                 
                 if (data.available) {
                     showMessage('사용 가능한 아이디입니다', 'success');
