@@ -1,8 +1,62 @@
+# MarketGrow Robots.txt
+# Last Updated: 2025-08-12
+
+# Default - Allow all crawlers
 User-agent: *
 Allow: /
 Disallow: /dashboard.html
 Disallow: /admin/
 Disallow: /api/
+Disallow: /backend/
+Disallow: /test-backend.html
+Disallow: /payment-success.html
+Disallow: /payment-fail.html
+Disallow: /order-success.html
 Disallow: /*.json$
+Disallow: /*.log$
+Disallow: /node_modules/
+Crawl-delay: 1
 
-Sitemap: https://resplendent-heliotrope-e5c264.netlify.app/sitemap.xml
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /backend/
+Crawl-delay: 0
+
+# Naver
+User-agent: Yeti
+Allow: /
+Disallow: /api/
+Disallow: /backend/
+Crawl-delay: 1
+
+# Daum
+User-agent: Daumoa
+Allow: /
+Disallow: /api/
+Disallow: /backend/
+Crawl-delay: 1
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /backend/
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://melodious-banoffee-c450ea.netlify.app/sitemap.xml

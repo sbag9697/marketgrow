@@ -2,91 +2,85 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/services.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://melodious-banoffee-c450ea.netlify.app/packages.html</loc>
-    <lastmod>2025-08-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/blog.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/video-keywords.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/live-keywords.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/order-method.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/dashboard.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/payment-history.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/notification-settings.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/login.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/signup.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/payment.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/terms.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://melodious-banoffee-c450ea.netlify.app/privacy.html</loc>
-    <lastmod>2025-08-10</lastmod>
+    <lastmod>2025-08-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
