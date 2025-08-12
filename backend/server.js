@@ -45,44 +45,20 @@ const initializeApp = async () => {
 
 initializeApp();
 
-// Security middleware
-app.use(helmet());
+// Security middleware - CSP 비활성화
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
+}));
 
-// CORS configuration
-const allowedOrigins = [
-    'https://resplendent-heliotrope-e5c264.netlify.app',
-    'https://melodious-banoffee-c450ea.netlify.app',
-    'https://marketgrow-production.up.railway.app',
-    process.env.FRONTEND_URL
-].filter(Boolean);
-
-// 개발 환경에서만 localhost 추가
-if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.push('http://localhost:3000');
-    allowedOrigins.push('http://localhost:5000');
-    allowedOrigins.push('http://localhost:5001');
-    allowedOrigins.push('http://127.0.0.1:5001');
-}
-
+// CORS configuration - 모든 origin 허용 (임시)
 app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            // 프로덕션에서는 허용되지 않은 origin 차단
-            if (process.env.NODE_ENV === 'production') {
-                callback(new Error('Not allowed by CORS'));
-            } else {
-                callback(null, true); // 개발 중에는 모든 origin 허용
-            }
-        }
-    },
+    origin: true,  // 모든 origin 허용
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['X-Total-Count', 'X-Page', 'X-Limit'],
+    maxAge: 86400 // 24 hours
 }));
 
 // Rate limiting
