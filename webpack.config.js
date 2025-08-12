@@ -249,26 +249,26 @@ module.exports = {
             ]
         }),
         
-        // PWA Manifest
-        new WebpackPwaManifest({
-            name: 'MarketGrow - SNS 마케팅 서비스',
-            short_name: 'MarketGrow',
-            description: '전문적인 SNS 마케팅 서비스 플랫폼',
-            background_color: '#ffffff',
-            theme_color: '#007bff',
-            start_url: '/',
-            display: 'standalone',
-            orientation: 'portrait',
-            icons: [
-                {
-                    src: path.resolve('assets/icon.png'),
-                    sizes: [96, 128, 192, 256, 384, 512],
-                    destination: path.join('icons'),
-                    purpose: 'any maskable'
-                }
-            ],
-            publicPath: '/'
-        }),
+        // PWA Manifest - 아이콘 파일이 준비되면 활성화
+        // new WebpackPwaManifest({
+        //     name: 'MarketGrow - SNS 마케팅 서비스',
+        //     short_name: 'MarketGrow',
+        //     description: '전문적인 SNS 마케팅 서비스 플랫폼',
+        //     background_color: '#ffffff',
+        //     theme_color: '#007bff',
+        //     start_url: '/',
+        //     display: 'standalone',
+        //     orientation: 'portrait',
+        //     icons: [
+        //         {
+        //             src: path.resolve('assets/icon.png'),
+        //             sizes: [96, 128, 192, 256, 384, 512],
+        //             destination: path.join('icons'),
+        //             purpose: 'any maskable'
+        //         }
+        //     ],
+        //     publicPath: '/'
+        // }),
         
         // Service Worker (프로덕션만)
         ...(isProduction ? [

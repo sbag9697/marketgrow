@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>캐시 초기화</title>
+</head>
+<body>
+    <h1>브라우저 캐시 초기화 중...</h1>
+    <script>
+        // localStorage의 모든 테스트 관련 데이터 삭제
+        localStorage.removeItem('useMockServer');
+        localStorage.removeItem('mockMode');
+        localStorage.removeItem('testMode');
+        
+        // sessionStorage 초기화
+        sessionStorage.clear();
+        
+        console.log('✅ 캐시가 초기화되었습니다');
+        alert('캐시가 초기화되었습니다. 회원가입 페이지로 이동합니다.');
+        
+        // 회원가입 페이지로 리다이렉트
+        window.location.href = 'signup.html';
+    </script>
+</body>
+</html>

@@ -1,3 +1,10 @@
+// API 설정
+const API_CONFIG = window.API_CONFIG || {
+    BASE_URL: window.location.hostname === 'localhost' 
+        ? 'http://localhost:5001/api'
+        : 'https://marketgrow-production.up.railway.app/api'
+};
+
 // 전화번호 인증 모듈
 class PhoneAuthManager {
     constructor() {
@@ -8,9 +15,6 @@ class PhoneAuthManager {
         this.attemptCount = 0;
         this.maxAttempts = 5;
         this.resendCooldown = false;
-        
-        // Mock 모드 확인
-        this.isMockMode = localStorage.getItem('useMockServer') === 'true';
         
         // 초기화
         this.init();
@@ -129,30 +133,25 @@ class PhoneAuthManager {
         try {
             console.log('[PhoneAuth] 인증번호 발송 요청:', phone);
             
-            // 강제로 Mock 모드 사용 (백엔드가 준비될 때까지)
-            console.log('[PhoneAuth] 테스트 모드로 실행');
-            this.verificationCode = '123456';
+            // 실제 SMS API 호출
+            const response = await fetch(`${API_CONFIG.BASE_URL}/sms/send-verification`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone })
+            });
             
-            // 가짜 지연 시간
-            await new Promise(resolve => setTimeout(resolve, 500));
+            const data = await response.json();
             
-            const response = {
-                success: true,
-                message: '📱 인증번호가 발송되었습니다\n테스트 인증번호: 123456'
-            };
-            
-            if (response.success) {
+            if (data.success) {
                 this.attemptCount++;
                 this.showVerificationUI();
                 this.startTimer();
                 this.setResendCooldown();
                 
                 // 성공 메시지
-                this.showNotification('인증번호가 발송되었습니다', 'success');
-                // 테스트 모드 안내
-                setTimeout(() => {
-                    this.showNotification('테스트 인증번호: 123456', 'info');
-                }, 1000);
+                this.showNotification('인증번호가 SMS로 발송되었습니다', 'success');
                 
                 // 인증번호 입력 필드로 포커스
                 const codeInput = document.getElementById('phoneCode');
@@ -163,6 +162,12 @@ class PhoneAuthManager {
                 // 버튼 텍스트 변경
                 if (sendBtn) {
                     sendBtn.innerHTML = '재발송';
+                }
+            } else {
+                // 실패 메시지
+                this.showNotification(data.message || 'SMS 발송에 실패했습니다', 'error');
+                if (sendBtn) {
+                    sendBtn.innerHTML = '인증';
                 }
             }
         } catch (error) {
@@ -210,28 +215,22 @@ class PhoneAuthManager {
         try {
             console.log('[PhoneAuth] 인증번호 확인:', phone, code);
             
-            // Mock 모드 또는 테스트 코드 확인
-            let isValid = false;
-            if (this.isMockMode || code === '123456' || code === this.verificationCode) {
-                isValid = true;
-            } else if (window.api) {
-                // 실제 API 호출
-                try {
-                    const response = await api.post('/sms/verify-code', {
-                        phone: phone,
-                        code: code
-                    }, { auth: false });
-                    isValid = response.success;
-                } catch (error) {
-                    // API 실패 시 테스트 코드 확인
-                    isValid = (code === '123456');
-                }
-            }
+            // 실제 API 호출
+            const response = await fetch(`${API_CONFIG.BASE_URL}/sms/verify-code`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone, code })
+            });
             
-            if (isValid) {
+            const data = await response.json();
+            
+            if (data.success) {
                 this.onVerificationSuccess(phone);
             } else {
                 this.onVerificationFailed();
+                this.showNotification(data.message || '인증번호가 올바르지 않습니다', 'error');
             }
         } catch (error) {
             console.error('[PhoneAuth] 오류:', error);
@@ -538,9 +537,9 @@ class PhoneAuthManager {
     }
 }
 
-// Mock 모드 강제 활성화 (테스트용)
-localStorage.setItem('useMockServer', 'true');
-console.log('📱 전화번호 인증 Mock 모드 활성화');
+// Mock 모드 비활성화 - 실제 SMS API 사용
+// localStorage.setItem('useMockServer', 'true');
+// console.log('📱 전화번호 인증 Mock 모드 활성화');
 
 // 전역 인스턴스 생성
 window.phoneAuthManager = new PhoneAuthManager();

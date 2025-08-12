@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="auth.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .verify-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .verify-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .verify-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .verify-icon.success {
+            background: #d4edda;
+            color: #28a745;
+        }
+        
+        .verify-icon.error {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+        
+        .verify-icon.processing {
+            background: #cce5ff;
+            color: #007bff;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .verify-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .verify-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .verify-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .verify-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .resend-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .resend-text {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .resend-button {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .resend-button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+        
+        .resend-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .countdown {
+            color: #999;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="verify-container">
+        <div class="verify-card" id="verifyCard">
+            <div class="verify-icon processing">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h1 class="verify-title">이메일 인증 중...</h1>
+            <p class="verify-message">잠시만 기다려주세요. 이메일을 인증하고 있습니다.</p>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const email = urlParams.get('email');
+        
+        // 인증 처리
+        async function verifyEmail() {
+            const card = document.getElementById('verifyCard');
+            
+            if (!token || !email) {
+                showError('유효하지 않은 인증 링크입니다.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_CONFIG.BASE_URL}/email/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess();
+                } else {
+                    showError(data.message || '이메일 인증에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+            }
+        }
+        
+        // 성공 화면 표시
+        function showSuccess() {
+            const card = document.getElementById('verifyCard');
+            card.innerHTML = `
+                <div class="verify-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h1 class="verify-title">이메일 인증 완료!</h1>
+                <p class="verify-message">
+                    이메일 인증이 성공적으로 완료되었습니다.<br>
+                    이제 MarketGrow의 모든 서비스를 이용하실 수 있습니다.
+                </p>
+                <a href="login.html" class="verify-button">로그인하기</a>
+            `;
+        }
+        
+        // 에러 화면 표시
+        function showError(message) {
+            const card = document.getElementById('verifyCard');
+            card.innerHTML = `
+                <div class="verify-icon error">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h1 class="verify-title">인증 실패</h1>
+                <p class="verify-message">${message}</p>
+                <div class="resend-section">
+                    <p class="resend-text">인증 이메일을 다시 받으시겠습니까?</p>
+                    <button class="resend-button" onclick="showResendForm()">
+                        인증 이메일 재발송
+                    </button>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="index.html" class="verify-button">홈으로 돌아가기</a>
+                </div>
+            `;
+        }
+        
+        // 재발송 폼 표시
+        function showResendForm() {
+            const card = document.getElementById('verifyCard');
+            card.innerHTML = `
+                <div class="verify-icon processing">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <h1 class="verify-title">인증 이메일 재발송</h1>
+                <p class="verify-message">가입하신 이메일 주소를 입력해주세요.</p>
+                <form onsubmit="resendVerification(event)">
+                    <div class="form-group">
+                        <input 
+                            type="email" 
+                            id="resendEmail" 
+                            class="form-control" 
+                            placeholder="이메일 주소"
+                            required
+                            value="${email || ''}"
+                        >
+                    </div>
+                    <button type="submit" class="verify-button" id="resendBtn">
+                        인증 이메일 발송
+                    </button>
+                </form>
+                <div class="countdown" id="countdown" style="display: none;"></div>
+            `;
+        }
+        
+        // 인증 이메일 재발송
+        async function resendVerification(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('resendEmail').value;
+            const btn = document.getElementById('resendBtn');
+            const countdown = document.getElementById('countdown');
+            
+            btn.disabled = true;
+            btn.textContent = '발송 중...';
+            
+            try {
+                const response = await fetch(`${API_CONFIG.BASE_URL}/email/resend-verification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    btn.textContent = '발송 완료!';
+                    showCountdown(60);
+                    
+                    setTimeout(() => {
+                        showSuccess();
+                    }, 2000);
+                } else {
+                    alert(data.message || '이메일 발송에 실패했습니다.');
+                    btn.disabled = false;
+                    btn.textContent = '인증 이메일 발송';
+                }
+            } catch (error) {
+                console.error('Resend error:', error);
+                alert('서버 연결에 실패했습니다.');
+                btn.disabled = false;
+                btn.textContent = '인증 이메일 발송';
+            }
+        }
+        
+        // 카운트다운 표시
+        function showCountdown(seconds) {
+            const countdown = document.getElementById('countdown');
+            const btn = document.getElementById('resendBtn');
+            
+            countdown.style.display = 'block';
+            let remaining = seconds;
+            
+            const timer = setInterval(() => {
+                if (remaining > 0) {
+                    countdown.textContent = `${remaining}초 후에 다시 발송할 수 있습니다.`;
+                    remaining--;
+                } else {
+                    clearInterval(timer);
+                    countdown.style.display = 'none';
+                    btn.disabled = false;
+                    btn.textContent = '인증 이메일 발송';
+                }
+            }, 1000);
+        }
+        
+        // API 설정 로드
+        const API_CONFIG = {
+            BASE_URL: window.location.hostname === 'localhost' 
+                ? 'http://localhost:5001/api'
+                : 'https://marketgrow-production.up.railway.app/api'
+        };
+        
+        // 페이지 로드 시 인증 시작
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(verifyEmail, 1000); // 1초 후 인증 시작
+        });
+    </script>
+</body>
+</html>

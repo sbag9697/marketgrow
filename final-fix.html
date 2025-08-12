@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>최종 Mock 제거 확인</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            padding: 50px;
+            background: #f7f7f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-item.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-item.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        button.success {
+            background: #28a745;
+        }
+        button.success:hover {
+            background: #218838;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 최종 Mock 제거 확인</h1>
+        
+        <div id="statusList"></div>
+        
+        <div style="margin-top: 30px;">
+            <button onclick="cleanAll()" class="danger">🗑️ 모든 Mock 데이터 제거</button>
+            <button onclick="testRealAPI()">📡 실제 API 테스트</button>
+            <button onclick="goToSignup()" class="success">✅ 회원가입 페이지로</button>
+        </div>
+        
+        <div id="apiTestResult" style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; display: none;">
+            <h3>API 테스트 결과</h3>
+            <pre id="apiResult"></pre>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 상태 확인
+        function checkStatus() {
+            const statusList = document.getElementById('statusList');
+            statusList.innerHTML = '';
+            
+            const checks = [
+                {
+                    name: 'localStorage.useMockServer',
+                    value: localStorage.getItem('useMockServer'),
+                    expected: null
+                },
+                {
+                    name: 'localStorage.mockMode',
+                    value: localStorage.getItem('mockMode'),
+                    expected: null
+                },
+                {
+                    name: 'localStorage.testMode',
+                    value: localStorage.getItem('testMode'),
+                    expected: null
+                },
+                {
+                    name: 'localStorage.mockUsers',
+                    value: localStorage.getItem('mockUsers'),
+                    expected: null
+                },
+                {
+                    name: 'window.mockAPI',
+                    value: window.mockAPI ? 'exists' : null,
+                    expected: null
+                },
+                {
+                    name: 'mock-api.js 로드 상태',
+                    value: checkScriptLoaded('mock-api.js'),
+                    expected: false
+                },
+                {
+                    name: 'auto-mock.js 로드 상태',
+                    value: checkScriptLoaded('auto-mock.js'),
+                    expected: false
+                }
+            ];
+            
+            checks.forEach(check => {
+                const div = document.createElement('div');
+                div.className = 'status-item';
+                
+                const isOk = check.value === check.expected;
+                div.className += isOk ? ' success' : ' error';
+                
+                div.innerHTML = `
+                    <span>${check.name}</span>
+                    <span>
+                        ${check.value === null || check.value === false ? '❌ 비활성' : `⚠️ ${check.value}`}
+                    </span>
+                `;
+                
+                statusList.appendChild(div);
+            });
+            
+            // 전체 상태 표시
+            const allClear = checks.every(c => c.value === c.expected);
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'status-item ' + (allClear ? 'success' : 'error');
+            summaryDiv.style.marginTop = '20px';
+            summaryDiv.style.fontWeight = 'bold';
+            summaryDiv.innerHTML = allClear 
+                ? '✅ 모든 Mock 모드가 비활성화되었습니다! 실제 API를 사용합니다.'
+                : '⚠️ Mock 모드가 아직 활성화되어 있습니다.';
+            statusList.appendChild(summaryDiv);
+        }
+        
+        // 스크립트 로드 확인
+        function checkScriptLoaded(filename) {
+            const scripts = document.getElementsByTagName('script');
+            for (let script of scripts) {
+                if (script.src && script.src.includes(filename)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // 모든 Mock 데이터 제거
+        function cleanAll() {
+            console.log('🧹 모든 Mock 데이터 제거 중...');
+            
+            // localStorage 완전 정리
+            const keysToRemove = [
+                'useMockServer',
+                'mockMode',
+                'testMode',
+                'mockUsers',
+                'mockOrders',
+                'mockData',
+                'enableMock'
+            ];
+            
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key) !== null) {
+                    console.log(`Removing localStorage.${key}`);
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            // 추가로 mock 관련 모든 키 제거
+            Object.keys(localStorage).forEach(key => {
+                if (key.toLowerCase().includes('mock') || key.toLowerCase().includes('test')) {
+                    console.log(`Removing localStorage.${key}`);
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            // sessionStorage 정리
+            sessionStorage.clear();
+            
+            // window 객체 정리
+            if (window.mockAPI) {
+                delete window.mockAPI;
+                console.log('window.mockAPI 제거됨');
+            }
+            
+            alert('✅ 모든 Mock 데이터가 제거되었습니다!');
+            checkStatus();
+        }
+        
+        // 실제 API 테스트
+        async function testRealAPI() {
+            const resultDiv = document.getElementById('apiTestResult');
+            const result = document.getElementById('apiResult');
+            resultDiv.style.display = 'block';
+            result.textContent = '테스트 중...';
+            
+            try {
+                const response = await fetch('https://marketgrow-production.up.railway.app/api/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `✅ 실제 서버 연결 성공!\n\n응답:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.innerHTML = `⚠️ 서버 응답 오류: ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                result.innerHTML = `❌ 서버 연결 실패\n\n오류:\n${error.message}\n\n실제 서버가 실행 중인지 확인하세요.`;
+            }
+        }
+        
+        // 회원가입 페이지로 이동
+        function goToSignup() {
+            // 이동 전 한번 더 정리
+            localStorage.removeItem('useMockServer');
+            localStorage.removeItem('mockMode');
+            localStorage.removeItem('testMode');
+            
+            window.location.href = 'signup.html';
+        }
+        
+        // 페이지 로드 시 실행
+        window.addEventListener('DOMContentLoaded', () => {
+            checkStatus();
+            
+            // 3초마다 상태 업데이트
+            setInterval(checkStatus, 3000);
+        });
+    </script>
+</body>
+</html>

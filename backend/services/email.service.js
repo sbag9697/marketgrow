@@ -65,8 +65,81 @@ class EmailService {
         return { success: false, message: '인증 코드가 일치하지 않습니다.' };
     }
 
-    // 이메일 인증 코드 발송
-    async sendVerificationEmail(email, username) {
+    // 회원가입 인증 링크 발송
+    async sendVerificationEmail(email, username, verificationUrl) {
+        try {
+            const mailOptions = {
+                from: `"MarketGrow" <${process.env.EMAIL_USER || 'noreply@marketgrow.com'}>`,
+                to: email,
+                subject: '[MarketGrow] 이메일 인증을 완료해주세요',
+                html: `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; color: #333; }
+                            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+                            .button { display: inline-block; padding: 15px 40px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+                            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+                            .warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 15px; margin: 20px 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <h1>MarketGrow</h1>
+                                <p>이메일 인증</p>
+                            </div>
+                            <div class="content">
+                                <h2>안녕하세요, ${username}님!</h2>
+                                <p>MarketGrow에 가입해 주셔서 감사합니다.</p>
+                                <p>아래 버튼을 클릭하여 이메일 인증을 완료해주세요.</p>
+                                
+                                <div style="text-align: center;">
+                                    <a href="${verificationUrl}" class="button">이메일 인증하기</a>
+                                </div>
+                                
+                                <div class="warning">
+                                    <strong>⏰ 이 링크는 24시간 동안 유효합니다.</strong>
+                                </div>
+                                
+                                <p>만약 버튼이 작동하지 않으면 아래 링크를 복사하여 브라우저에 붙여넣으세요:</p>
+                                <p style="word-break: break-all; color: #667eea; font-size: 12px;">${verificationUrl}</p>
+                                
+                                <div class="footer">
+                                    <p>본인이 가입하지 않으셨다면 이 메일을 무시하셔도 됩니다.</p>
+                                    <p>© 2024 MarketGrow. All rights reserved.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `,
+                text: `MarketGrow 이메일 인증\n\n안녕하세요, ${username}님!\n\n아래 링크를 클릭하여 이메일 인증을 완료해주세요:\n${verificationUrl}\n\n이 링크는 24시간 동안 유효합니다.\n\n본인이 가입하지 않으셨다면 이 메일을 무시하셔도 됩니다.`
+            };
+
+            const info = await this.transporter.sendMail(mailOptions);
+            console.log('Verification email sent:', info.messageId);
+            
+            return { 
+                success: true, 
+                message: '인증 이메일이 발송되었습니다.',
+                messageId: info.messageId 
+            };
+        } catch (error) {
+            console.error('Email sending error:', error);
+            return { 
+                success: false, 
+                message: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
+                error: error.message 
+            };
+        }
+    }
+
+    // 이메일 인증 코드 발송 (6자리 코드)
+    async sendVerificationCode(email, username) {
         try {
             const code = this.generateVerificationCode();
             this.saveVerificationCode(email, code);
