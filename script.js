@@ -1,5 +1,37 @@
+// 방문자 추적
+function trackVisitor() {
+    // 총 방문자 수 증가
+    let totalVisitors = parseInt(localStorage.getItem('total_visitors') || '0');
+    totalVisitors++;
+    localStorage.setItem('total_visitors', totalVisitors.toString());
+    
+    // 오늘 방문자 수 증가
+    const today = new Date().toISOString().split('T')[0];
+    const todayKey = `visitors_${today}`;
+    let todayVisitors = parseInt(localStorage.getItem(todayKey) || '0');
+    todayVisitors++;
+    localStorage.setItem(todayKey, todayVisitors.toString());
+    
+    // 일일 방문 기록 (최근 30일)
+    const visitHistory = JSON.parse(localStorage.getItem('visit_history') || '{}');
+    visitHistory[today] = todayVisitors;
+    
+    // 30일 이상 된 데이터 제거
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    Object.keys(visitHistory).forEach(date => {
+        if (new Date(date) < thirtyDaysAgo) {
+            delete visitHistory[date];
+        }
+    });
+    
+    localStorage.setItem('visit_history', JSON.stringify(visitHistory));
+}
+
 // DOM이 로드된 후 실행
 document.addEventListener('DOMContentLoaded', function() {
+    // 방문자 추적
+    trackVisitor();
     
     // 모바일 메뉴 토글
     const mobileToggle = document.querySelector('.mobile-menu-toggle');
