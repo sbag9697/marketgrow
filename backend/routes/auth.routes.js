@@ -137,7 +137,6 @@ router.post('/reset-password', authLimiter, resetPasswordValidation, resetPasswo
 router.get('/verify-email/:token', verifyEmail);
 
 // Check availability routes (중복확인)
-router.get('/check-username/:username', checkUsername);
 router.get('/check-email/:email', checkEmail);
 
 // Protected routes

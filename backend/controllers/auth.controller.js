@@ -326,43 +326,6 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// Check username availability
-const checkUsername = async (req, res) => {
-    try {
-        const { username } = req.params;
-        
-        if (!username || username.length < 4) {
-            return res.status(400).json({
-                success: false,
-                message: '아이디는 4자 이상이어야 합니다.',
-                available: false
-            });
-        }
-
-        const existingUser = await User.findOne({ username: username.toLowerCase() });
-        
-        if (existingUser) {
-            return res.json({
-                success: true,
-                available: false,
-                message: '이미 사용 중인 아이디입니다.'
-            });
-        }
-
-        res.json({
-            success: true,
-            available: true,
-            message: '사용 가능한 아이디입니다.'
-        });
-
-    } catch (error) {
-        logger.error('Check username error:', error);
-        res.status(500).json({
-            success: false,
-            message: '아이디 확인 중 오류가 발생했습니다.'
-        });
-    }
-};
 
 // Check email availability
 const checkEmail = async (req, res) => {
