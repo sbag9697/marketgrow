@@ -71,7 +71,7 @@ module.exports = {
         'performance': 'readonly',
         
         // 외부 라이브러리
-        'TossPayments': 'readonly',
+        'INIStdPay': 'readonly',
         'emailjs': 'readonly',
         'kakao': 'readonly',
         

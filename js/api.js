@@ -213,8 +213,8 @@ class API {
         return this.post('/payments/initialize', paymentData);
     }
 
-    async confirmTossPayment(confirmData) {
-        return this.post('/payments/toss/confirm', confirmData);
+    async confirmKGInicisPayment(confirmData) {
+        return this.post('/payments/inicis/confirm', confirmData);
     }
 
     async createBankTransferOrder(orderData) {

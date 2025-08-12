@@ -1,22 +1,8 @@
-// 토스페이먼츠 결제 시스템
+// KG이니시스 결제 시스템
 class PaymentManager {
     constructor() {
-        // 토스페이먼츠 클라이언트 키 (테스트용)
-        this.clientKey = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoqy';
-        this.customerKey = this.generateCustomerKey();
-        this.paymentWidget = null;
         this.currentOrder = null;
-        
         this.init();
-    }
-
-    // 고객 키 생성
-    generateCustomerKey() {
-        const user = authManager?.getCurrentUser();
-        if (user) {
-            return `customer_${user.id}`;
-        }
-        return `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // 초기화
@@ -24,9 +10,6 @@ class PaymentManager {
         try {
             // URL에서 주문 정보 가져오기
             this.loadOrderFromURL();
-            
-            // 토스페이먼츠 위젯 초기화
-            await this.initPaymentWidget();
             
             // 결제 버튼 이벤트
             this.setupEventListeners();
@@ -83,97 +66,115 @@ class PaymentManager {
         this.currentOrder.finalAmount = finalAmount;
     }
 
-    // 토스페이먼츠 위젯 초기화
-    async initPaymentWidget() {
-        try {
-            this.paymentWidget = PaymentWidget(this.clientKey, this.customerKey);
-
-            // 결제 수단 렌더링
-            await this.paymentWidget.renderPaymentMethods(
-                '#payment-method',
-                { value: this.currentOrder?.finalAmount || 50000 },
-                { variantKey: 'DEFAULT' }
-            );
-
-            // 이용약관 렌더링
-            await this.paymentWidget.renderAgreement('#agreement', {
-                variantKey: 'AGREEMENT'
-            });
-
-        } catch (error) {
-            console.error('결제 위젯 초기화 실패:', error);
-            this.showError('결제 위젯을 로드할 수 없습니다.');
-        }
-    }
-
     // 이벤트 리스너 설정
     setupEventListeners() {
-        const paymentButton = document.getElementById('payment-request-button');
-        if (paymentButton) {
-            paymentButton.addEventListener('click', () => this.requestPayment());
+        const paymentBtn = document.getElementById('payment-button');
+        if (paymentBtn) {
+            paymentBtn.addEventListener('click', () => this.processPayment());
         }
+
+        // 결제 방법 선택
+        const paymentMethods = document.querySelectorAll('.payment-method-item');
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', (e) => {
+                // 기존 선택 제거
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                // 새로운 선택 추가
+                method.classList.add('selected');
+                this.currentOrder.paymentMethod = method.dataset.method;
+            });
+        });
     }
 
-    // 결제 요청
-    async requestPayment() {
-        if (!this.currentOrder) {
-            this.showError('주문 정보가 없습니다.');
-            return;
-        }
-
+    // 결제 처리
+    async processPayment() {
         try {
-            this.showLoading(true);
+            if (!this.currentOrder) {
+                throw new Error('주문 정보가 없습니다.');
+            }
 
-            // 주문 ID 생성
-            const orderId = `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            
-            await this.paymentWidget.requestPayment({
-                orderId: orderId,
-                orderName: this.currentOrder.serviceName,
-                customerName: authManager?.getCurrentUser()?.username || '게스트',
-                customerEmail: authManager?.getCurrentUser()?.email || 'guest@example.com',
-                successUrl: `${window.location.origin}/payment-success.html`,
-                failUrl: `${window.location.origin}/payment-fail.html`,
-            });
+            // 구매자 정보 수집
+            const buyerName = document.getElementById('buyer-name')?.value || '';
+            const buyerEmail = document.getElementById('buyer-email')?.value || '';
+            const buyerPhone = document.getElementById('buyer-phone')?.value || '';
+
+            if (!buyerName || !buyerEmail) {
+                this.showError('구매자 정보를 입력해주세요.');
+                return;
+            }
+
+            // 로딩 표시
+            this.showLoading();
+
+            // KG이니시스 결제 요청 데이터
+            const paymentData = {
+                amount: this.currentOrder.finalAmount,
+                productName: this.currentOrder.serviceName,
+                buyerName: buyerName,
+                buyerEmail: buyerEmail,
+                buyerPhone: buyerPhone,
+                serviceId: this.currentOrder.serviceId,
+                quantity: this.currentOrder.quantity,
+                userId: localStorage.getItem('userId') || null,
+                paymentMethod: this.currentOrder.paymentMethod || ''
+            };
+
+            // KG이니시스 결제 요청
+            if (window.KGInicisPayment) {
+                await window.KGInicisPayment.requestPayment(paymentData);
+            } else {
+                // KG이니시스 스크립트가 로드되지 않은 경우
+                console.error('KG이니시스 결제 모듈이 로드되지 않았습니다.');
+                this.showError('결제 모듈을 불러올 수 없습니다. 페이지를 새로고침해주세요.');
+            }
 
         } catch (error) {
-            this.showLoading(false);
-            console.error('결제 요청 실패:', error);
-            
-            if (error.code === 'USER_CANCEL') {
-                this.showError('결제가 취소되었습니다.');
-            } else if (error.code === 'INVALID_CARD') {
-                this.showError('유효하지 않은 카드입니다.');
-            } else {
-                this.showError('결제 중 오류가 발생했습니다. 다시 시도해주세요.');
-            }
+            console.error('결제 처리 실패:', error);
+            this.showError(error.message || '결제 처리 중 오류가 발생했습니다.');
+        } finally {
+            this.hideLoading();
         }
     }
 
     // 로딩 표시
-    showLoading(show) {
-        const loadingModal = document.getElementById('loadingModal');
-        if (loadingModal) {
-            loadingModal.style.display = show ? 'block' : 'none';
+    showLoading() {
+        const btn = document.getElementById('payment-button');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 처리 중...';
         }
     }
 
-    // 에러 메시지 표시
+    // 로딩 숨기기
+    hideLoading() {
+        const btn = document.getElementById('payment-button');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '결제하기';
+        }
+    }
+
+    // 에러 표시
     showError(message) {
-        alert(`❌ ${message}`);
+        if (window.NotificationManager) {
+            window.NotificationManager.error(message);
+        } else {
+            alert(message);
+        }
     }
 
     // 서비스 페이지로 리다이렉트
     redirectToServices() {
-        alert('주문 정보가 없습니다. 서비스 페이지로 이동합니다.');
-        window.location.href = 'services.html';
+        if (window.NotificationManager) {
+            window.NotificationManager.error('주문 정보가 없습니다. 서비스를 먼저 선택해주세요.');
+        }
+        setTimeout(() => {
+            window.location.href = '/services.html';
+        }, 2000);
     }
 }
 
-// 결제 매니저 인스턴스 생성
-let paymentManager;
-
-// 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    paymentManager = new PaymentManager();
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    window.paymentManager = new PaymentManager();
 });
