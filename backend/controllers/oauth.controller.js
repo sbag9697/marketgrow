@@ -4,7 +4,7 @@ const axios = require('axios');
 const { OAuth2Client } = require('google-auth-library');
 
 // Google OAuth 클라이언트 초기화
-const googleClient = new OAuth2Client('641017178501-b62koacmej8ess6jr9clgpae907356mn.apps.googleusercontent.com');
+const googleClient = new OAuth2Client('1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com');
 
 // JWT 토큰 생성
 const generateToken = (userId) => {
@@ -20,7 +20,7 @@ async function verifyGoogleToken(token) {
     try {
         const ticket = await googleClient.verifyIdToken({
             idToken: token,
-            audience: '641017178501-b62koacmej8ess6jr9clgpae907356mn.apps.googleusercontent.com'
+            audience: '1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com'
         });
         return ticket.getPayload();
     } catch (error) {
