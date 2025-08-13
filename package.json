@@ -15,7 +15,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "clean": "rimraf dist",
-    "start": "cd backend && node server.js",
+    "start": "cd backend && npm install && node server.js",
     "start:backend": "cd backend && npm install --production && node server.js",
     "server:dev": "cd server && npm run dev",
     "server:start": "cd server && npm start"
