@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 로그인 테스트</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <h1>Google 로그인 테스트 페이지</h1>
+    
+    <div id="status">초기화 중...</div>
+    
+    <br><br>
+    
+    <!-- Google 로그인 버튼 -->
+    <div id="buttonDiv"></div>
+    
+    <br><br>
+    
+    <button onclick="testDirectAuth()">직접 OAuth URL 테스트</button>
+    
+    <br><br>
+    
+    <div id="result"></div>
+    
+    <script>
+        const CLIENT_ID = '1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com';
+        
+        // 상태 업데이트
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.style.color = isError ? 'red' : 'green';
+            console.log(message);
+        }
+        
+        // 결과 표시
+        function showResult(data) {
+            document.getElementById('result').innerHTML = `
+                <h3>응답 데이터:</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+        
+        // Google 응답 처리
+        function handleCredentialResponse(response) {
+            updateStatus('Google 로그인 성공! 토큰 받음');
+            console.log("Encoded JWT ID token: " + response.credential);
+            
+            // JWT 토큰 디코드 (테스트용)
+            const parts = response.credential.split('.');
+            const payload = JSON.parse(atob(parts[1]));
+            showResult(payload);
+            
+            // 백엔드로 전송 테스트
+            fetch('https://marketgrow-production-c586.up.railway.app/api/oauth/google', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    token: response.credential
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    updateStatus('✅ 백엔드 인증 성공!');
+                    showResult(data);
+                } else {
+                    updateStatus('❌ 백엔드 인증 실패: ' + data.message, true);
+                }
+            })
+            .catch(err => {
+                updateStatus('❌ 백엔드 통신 오류: ' + err.message, true);
+            });
+        }
+        
+        // Google 초기화
+        window.onload = function () {
+            try {
+                google.accounts.id.initialize({
+                    client_id: CLIENT_ID,
+                    callback: handleCredentialResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                
+                google.accounts.id.renderButton(
+                    document.getElementById("buttonDiv"),
+                    { 
+                        theme: "outline", 
+                        size: "large",
+                        text: "signin_with",
+                        width: 300
+                    }
+                );
+                
+                updateStatus('✅ Google 로그인 초기화 완료');
+            } catch (error) {
+                updateStatus('❌ 초기화 실패: ' + error.message, true);
+                console.error(error);
+            }
+        }
+        
+        // 직접 OAuth URL 테스트
+        function testDirectAuth() {
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+                `client_id=${CLIENT_ID}` +
+                `&redirect_uri=${encodeURIComponent(window.location.origin + '/auth-callback.html')}` +
+                `&response_type=code` +
+                `&scope=email profile` +
+                `&access_type=offline`;
+            
+            console.log('OAuth URL:', authUrl);
+            window.location.href = authUrl;
+        }
+        
+        // 디버그 정보
+        console.log('Current origin:', window.location.origin);
+        console.log('Client ID:', CLIENT_ID);
+        console.log('Google object available:', typeof google !== 'undefined');
+    </script>
+    
+    <hr>
+    
+    <h3>디버그 정보:</h3>
+    <ul>
+        <li>현재 도메인: <script>document.write(window.location.origin)</script></li>
+        <li>Client ID: 1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn</li>
+        <li>백엔드: https://marketgrow-production-c586.up.railway.app</li>
+    </ul>
+    
+    <h3>체크리스트:</h3>
+    <ul>
+        <li>✅ MongoDB 연결: Connected</li>
+        <li>⏳ Google Cloud Console 도메인 승인</li>
+        <li>⏳ Client Secret 설정 (백엔드용)</li>
+    </ul>
+</body>
+</html>
