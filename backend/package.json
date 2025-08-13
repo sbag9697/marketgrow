@@ -26,6 +26,7 @@
   "dependencies": {
     "axios": "^1.11.0",
     "bcryptjs": "^2.4.3",
+    "coolsms-node-sdk": "^2.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -50,8 +51,5 @@
     "jest": "^29.7.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
-  },
-  "optionalDependencies": {
-    "coolsms-node-sdk": "^5.0.0"
   }
 }
