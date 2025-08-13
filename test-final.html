@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최종 API 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ 최종 API 테스트</h1>
+        <p>API URL: <strong>https://marketgrow-production-9802.up.railway.app/api</strong></p>
+        
+        <input type="text" id="username" placeholder="테스트할 아이디" value="newuser999">
+        
+        <div>
+            <button onclick="testDirectly()">직접 테스트</button>
+            <button onclick="testWithFetch()">Fetch API 테스트</button>
+            <button onclick="testWithXHR()">XMLHttpRequest 테스트</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://marketgrow-production-9802.up.railway.app/api';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+        
+        // 1. Fetch API 테스트
+        async function testWithFetch() {
+            const username = document.getElementById('username').value;
+            console.log('Testing with Fetch API:', username);
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/check-username`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    showResult(`✅ Fetch 성공!\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ Fetch 오류: ${response.status}\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showResult(`❌ Fetch 실패: ${error.message}`, 'error');
+            }
+        }
+        
+        // 2. XMLHttpRequest 테스트
+        function testWithXHR() {
+            const username = document.getElementById('username').value;
+            console.log('Testing with XMLHttpRequest:', username);
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${API_URL}/auth/check-username`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    console.log('XHR status:', xhr.status);
+                    console.log('XHR response:', xhr.responseText);
+                    
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (xhr.status === 200) {
+                            showResult(`✅ XHR 성공!\n${JSON.stringify(data, null, 2)}`, 'success');
+                        } else {
+                            showResult(`❌ XHR 오류: ${xhr.status}\n${JSON.stringify(data, null, 2)}`, 'error');
+                        }
+                    } catch (e) {
+                        showResult(`❌ XHR 파싱 오류: ${e.message}\n${xhr.responseText}`, 'error');
+                    }
+                }
+            };
+            
+            xhr.onerror = function() {
+                showResult(`❌ XHR 네트워크 오류`, 'error');
+            };
+            
+            xhr.send(JSON.stringify({ username }));
+        }
+        
+        // 3. 직접 테스트 (브라우저 콘솔 로그 확인)
+        async function testDirectly() {
+            const username = document.getElementById('username').value;
+            
+            // 콘솔에 모든 정보 출력
+            console.group('🔍 API 테스트 시작');
+            console.log('URL:', `${API_URL}/auth/check-username`);
+            console.log('Method:', 'POST');
+            console.log('Headers:', { 'Content-Type': 'application/json' });
+            console.log('Body:', { username });
+            console.groupEnd();
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${API_URL}/auth/check-username`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                });
+                
+                const endTime = Date.now();
+                const data = await response.json();
+                
+                console.group('✅ API 응답');
+                console.log('Status:', response.status);
+                console.log('Time:', `${endTime - startTime}ms`);
+                console.log('Data:', data);
+                console.groupEnd();
+                
+                showResult(
+                    `✅ 테스트 완료!\n` +
+                    `Status: ${response.status}\n` +
+                    `Time: ${endTime - startTime}ms\n` +
+                    `Response: ${JSON.stringify(data, null, 2)}`,
+                    response.ok ? 'success' : 'error'
+                );
+            } catch (error) {
+                console.error('❌ API 오류:', error);
+                showResult(`❌ 오류: ${error.message}`, 'error');
+            }
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 페이지 로드 완료');
+            console.log('API URL:', API_URL);
+        });
+    </script>
+</body>
+</html>
