@@ -3,7 +3,7 @@
 ## ✅ 완료된 작업
 
 ### 1. Google 로그인
-- **Client ID**: `1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com`
+- **Client ID**: `1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com`
 - **프론트엔드**: ✅ 구현 완료
 - **백엔드**: ✅ 구현 완료
 - **필요한 작업**:
@@ -30,7 +30,7 @@
 1. https://console.cloud.google.com 접속
 2. 프로젝트 선택
 3. **API 및 서비스** → **사용자 인증 정보**
-4. OAuth 2.0 클라이언트 ID 클릭 (1020058007586...)
+4. OAuth 2.0 클라이언트 ID 클릭 (1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn...)
 5. **승인된 JavaScript 원본**에 추가:
    ```
    https://marketgrow.kr

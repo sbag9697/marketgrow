@@ -50,7 +50,7 @@
 **원인**: Client ID가 잘못됨
 **해결**: 
 - Client ID 재확인
-- 새 Client ID: 1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com
+- 새 Client ID: 1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com
 
 ## 3. 디버깅 단계
 
@@ -58,7 +58,7 @@
 ```javascript
 // F12 → Console에서 실행
 console.log(GOOGLE_CLIENT_ID);
-// 출력: 1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com
+// 출력: 1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com
 
 console.log(typeof google);
 // 출력: object (Google SDK 로드 확인)
@@ -78,7 +78,7 @@ window.debugGoogleAuth();
 ```javascript
 // 브라우저 콘솔에서 실행
 window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?` +
-  `client_id=1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com` +
+  `client_id=1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com` +
   `&redirect_uri=${encodeURIComponent('https://marketgrow.kr/auth-callback.html')}` +
   `&response_type=code` +
   `&scope=email profile` +
@@ -89,7 +89,7 @@ window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?` +
 
 login.html에 직접 링크 추가:
 ```html
-<a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com&redirect_uri=https://marketgrow.kr/auth-callback.html&response_type=code&scope=email%20profile&access_type=offline" 
+<a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com&redirect_uri=https://marketgrow.kr/auth-callback.html&response_type=code&scope=email%20profile&access_type=offline" 
    class="social-btn google">
    구글로 시작하기 (직접)
 </a>
@@ -99,7 +99,7 @@ login.html에 직접 링크 추가:
 
 Railway 대시보드에서 환경변수 확인:
 ```
-GOOGLE_CLIENT_ID=1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=(시크릿 키)
 ```
 

@@ -4,7 +4,7 @@
 
 ### 1. Google OAuth
 ```
-GOOGLE_CLIENT_ID=1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com
+GOOGLE_CLIENT_ID=1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=(Google Cloud Console에서 확인)
 ```
 

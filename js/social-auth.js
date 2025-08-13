@@ -1,5 +1,5 @@
 // 소셜 로그인 설정
-const GOOGLE_CLIENT_ID = '1020058007586-n4h8saihm59tjehs90sv00u5efuu00uo.apps.googleusercontent.com'; // ✅ Google 설정 완료
+const GOOGLE_CLIENT_ID = '1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com'; // ✅ Google 설정 완료
 const KAKAO_APP_KEY = '95a2c17a5ec078dd1762950680e53267'; // ✅ Kakao JavaScript 키 설정 완료
 const NAVER_CLIENT_ID = 'YOUR_NAVER_CLIENT_ID'; // ⚠️ Naver Developers에서 Client ID 발급 필요
 
