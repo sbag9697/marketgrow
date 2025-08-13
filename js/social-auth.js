@@ -1,6 +1,6 @@
 // 소셜 로그인 설정
 const GOOGLE_CLIENT_ID = '641017178501-b62koacmej8ess6jr9clgpae907356mn.apps.googleusercontent.com'; // ✅ Google 설정 완료
-const KAKAO_APP_KEY = 'YOUR_KAKAO_APP_KEY'; // ⚠️ Kakao Developers에서 JavaScript 키 발급 필요
+const KAKAO_APP_KEY = '95a2c17a5ec078dd1762950680e53267'; // ✅ Kakao JavaScript 키 설정 완료
 const NAVER_CLIENT_ID = 'YOUR_NAVER_CLIENT_ID'; // ⚠️ Naver Developers에서 Client ID 발급 필요
 
 // Google 로그인 초기화
@@ -125,12 +125,6 @@ function initKakaoAuth() {
 
 // Kakao 로그인
 function loginWithKakao() {
-    if (KAKAO_APP_KEY === 'YOUR_KAKAO_APP_KEY') {
-        NotificationManager.error('카카오 로그인 설정이 필요합니다. 관리자에게 문의하세요.');
-        console.error('Kakao App Key가 설정되지 않았습니다.');
-        return;
-    }
-    
     if (!window.Kakao) {
         NotificationManager.error('카카오 로그인을 초기화하는 중입니다. 잠시 후 다시 시도해주세요.');
         initKakaoAuth();
@@ -291,12 +285,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOMContentLoaded - Initializing social auth');
     
     // 소셜 로그인 SDK 초기화
-    if (GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID') {
-        initGoogleAuth();
-    }
-    if (KAKAO_APP_KEY !== 'YOUR_KAKAO_APP_KEY') {
-        initKakaoAuth();
-    }
+    initGoogleAuth(); // Google 초기화
+    initKakaoAuth(); // Kakao 초기화
+    
     if (NAVER_CLIENT_ID !== 'YOUR_NAVER_CLIENT_ID') {
         initNaverAuth();
     }
