@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 테스트</title>
+</head>
+<body>
+    <h1>회원가입 API 테스트</h1>
+    
+    <form id="testForm">
+        <p>
+            <label>아이디: <input type="text" id="username" value="testuser789"></label>
+        </p>
+        <p>
+            <label>이메일: <input type="email" id="email" value="test789@example.com"></label>
+        </p>
+        <p>
+            <label>비밀번호: <input type="password" id="password" value="Test123!@#"></label>
+        </p>
+        <p>
+            <label>이름: <input type="text" id="name" value="테스트"></label>
+        </p>
+        <p>
+            <label>전화번호: <input type="tel" id="phone" value="01055556666"></label>
+        </p>
+        <p>
+            <button type="button" onclick="testSignup()">회원가입 테스트</button>
+        </p>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+        
+        async function testSignup() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '테스트 중...';
+            
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            console.log('전송 데이터:', formData);
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                console.log('응답 상태:', response.status);
+                console.log('응답 헤더:', response.headers);
+                
+                const data = await response.json();
+                console.log('응답 데이터:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h3 style="color: green;">✅ 회원가입 성공!</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3 style="color: red;">❌ 회원가입 실패</h3>
+                        <p>오류: ${data.message}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('오류:', error);
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ 네트워크 오류</h3>
+                    <p>${error.message}</p>
+                    <p>콘솔을 확인하세요 (F12)</p>
+                `;
+            }
+        }
+        
+        // 테스트용 랜덤 데이터 생성
+        function generateRandom() {
+            const random = Math.floor(Math.random() * 10000);
+            document.getElementById('username').value = `user${random}`;
+            document.getElementById('email').value = `user${random}@example.com`;
+            document.getElementById('phone').value = `010${random.toString().padStart(8, '0')}`;
+        }
+    </script>
+    
+    <hr>
+    
+    <button onclick="generateRandom()">랜덤 데이터 생성</button>
+    
+    <h3>문제 해결 체크리스트</h3>
+    <ul>
+        <li>콘솔(F12)에서 CORS 오류 확인</li>
+        <li>네트워크 탭에서 실제 요청 확인</li>
+        <li>응답 상태 코드 확인</li>
+    </ul>
+    
+    <h3>직접 CURL 테스트</h3>
+    <pre>
+curl -X POST https://marketgrow-production-c586.up.railway.app/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test999","email":"test999@example.com","password":"Test123!@#","name":"Test","phone":"01099998888"}'
+    </pre>
+</body>
+</html>
