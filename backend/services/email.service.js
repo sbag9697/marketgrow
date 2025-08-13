@@ -66,12 +66,16 @@ class EmailService {
     }
 
     // 회원가입 인증 링크 발송
-    async sendVerificationEmail(email, username, verificationUrl) {
+    async sendVerificationEmail(email, username) {
         try {
+            // 인증 코드 생성
+            const code = this.generateVerificationCode();
+            this.saveVerificationCode(email, code);
+            
             const mailOptions = {
                 from: `"MarketGrow" <${process.env.EMAIL_USER || 'noreply@marketgrow.com'}>`,
                 to: email,
-                subject: '[MarketGrow] 이메일 인증을 완료해주세요',
+                subject: '[MarketGrow] 이메일 인증 코드',
                 html: `
                     <!DOCTYPE html>
                     <html>
@@ -81,9 +85,9 @@ class EmailService {
                             .container { max-width: 600px; margin: 0 auto; padding: 20px; }
                             .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
                             .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
-                            .button { display: inline-block; padding: 15px 40px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; }
+                            .code-box { background: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+                            .code { font-size: 32px; font-weight: bold; color: #667eea; letter-spacing: 8px; }
                             .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-                            .warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 15px; margin: 20px 0; }
                         </style>
                     </head>
                     <body>
@@ -93,20 +97,17 @@ class EmailService {
                                 <p>이메일 인증</p>
                             </div>
                             <div class="content">
-                                <h2>안녕하세요, ${username}님!</h2>
-                                <p>MarketGrow에 가입해 주셔서 감사합니다.</p>
-                                <p>아래 버튼을 클릭하여 이메일 인증을 완료해주세요.</p>
+                                <h2>안녕하세요${username ? `, ${username}님` : ''}!</h2>
+                                <p>MarketGrow 회원가입을 위한 이메일 인증 코드입니다.</p>
                                 
-                                <div style="text-align: center;">
-                                    <a href="${verificationUrl}" class="button">이메일 인증하기</a>
+                                <div class="code-box">
+                                    <p>인증 코드</p>
+                                    <div class="code">${code}</div>
                                 </div>
                                 
-                                <div class="warning">
-                                    <strong>⏰ 이 링크는 24시간 동안 유효합니다.</strong>
-                                </div>
+                                <p>위 6자리 코드를 회원가입 페이지에 입력해주세요.</p>
+                                <p><strong>⏰ 이 코드는 5분간 유효합니다.</strong></p>
                                 
-                                <p>만약 버튼이 작동하지 않으면 아래 링크를 복사하여 브라우저에 붙여넣으세요:</p>
-                                <p style="word-break: break-all; color: #667eea; font-size: 12px;">${verificationUrl}</p>
                                 
                                 <div class="footer">
                                     <p>본인이 가입하지 않으셨다면 이 메일을 무시하셔도 됩니다.</p>
