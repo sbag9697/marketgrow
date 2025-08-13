@@ -99,6 +99,11 @@ self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
     
+    // chrome-extension 요청은 무시
+    if (url.protocol === 'chrome-extension:') {
+        return;
+    }
+    
     // API 요청 처리
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(handleAPIRequest(request));
@@ -174,9 +179,13 @@ async function handleStaticRequest(request) {
         const networkResponse = await fetch(request);
         
         if (networkResponse.ok) {
-            // 동적 캐시에 저장
-            const cache = await caches.open(DYNAMIC_CACHE);
-            cache.put(request, networkResponse.clone());
+            // chrome-extension 스킴은 캐시하지 않음
+            const url = new URL(request.url);
+            if (!url.protocol.startsWith('chrome-extension')) {
+                // 동적 캐시에 저장
+                const cache = await caches.open(DYNAMIC_CACHE);
+                cache.put(request, networkResponse.clone());
+            }
         }
         
         return networkResponse;
