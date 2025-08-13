@@ -5,8 +5,8 @@
 // 기본 Railway URL (작동하지 않음)
 // const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
-// Production API URL
-const API_URL = 'https://marketgrow-production-9802.up.railway.app/api';
+// Production API URL (새 Railway 도메인)
+const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
 
 // 도메인 설정
 const DOMAIN = 'https://marketgrow.kr';
