@@ -40,17 +40,20 @@
 3. Driver: **Node.js**, Version: **4.1 or later**
 4. Connection String 복사:
 ```
-mongodb+srv://marketgrow:<password>@marketgrow-cluster.xxxxx.mongodb.net/?retryWrites=true&w=majority
+mongodb+srv://marketgrow:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 ```
 
 ### Step 6: Railway 환경변수 설정
 1. Railway 대시보드 → **Variables**
 2. 추가:
 ```
-MONGODB_URI=mongodb+srv://marketgrow:비밀번호@marketgrow-cluster.xxxxx.mongodb.net/marketgrow?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://marketgrow:비밀번호@cluster0.xxxxx.mongodb.net/marketgrow?retryWrites=true&w=majority&appName=Cluster0
 ```
-⚠️ `<password>`를 실제 비밀번호로 교체
-⚠️ 끝에 `/marketgrow` 데이터베이스 이름 추가
+⚠️ **중요**: 
+- `<password>`를 실제 비밀번호로 교체
+- `cluster0.xxxxx` 부분을 실제 클러스터 주소로 교체
+- 끝에 `/marketgrow` 데이터베이스 이름 추가
+- `appName=Cluster0` 파라미터 포함
 
 ---
 
@@ -166,9 +169,14 @@ COOLSMS_SENDER=01057728658
 ## ❓ 문제 해결
 
 ### "MongoDB connection error" 로그
-- MONGODB_URI가 잘못됨
+- MONGODB_URI 형식이 잘못됨
 - 자동으로 In-Memory DB로 전환됨
 - 데이터는 임시 저장됨
+
+**일반적인 오류:**
+1. `querySrv ENOTFOUND`: 클러스터 주소가 잘못됨
+2. `Authentication failed`: 비밀번호가 잘못됨
+3. `Network error`: IP 화이트리스트 설정 필요
 
 ### 회원가입 후 데이터가 사라짐
 - In-Memory DB 사용 중
