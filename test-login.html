@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 테스트</title>
+</head>
+<body>
+    <h1>로그인 API 테스트</h1>
+    
+    <form id="testForm">
+        <p>
+            <label>아이디/이메일: <input type="text" id="login" value="newuser456"></label>
+        </p>
+        <p>
+            <label>비밀번호: <input type="password" id="password" value="Test123!@#"></label>
+        </p>
+        <p>
+            <button type="button" onclick="testLogin()">로그인 테스트</button>
+        </p>
+    </form>
+    
+    <div id="result"></div>
+    
+    <hr>
+    
+    <h2>브라우저 콘솔 테스트 (F12)</h2>
+    <pre id="consoleTest">
+// 이 코드를 복사해서 브라우저 콘솔(F12)에 붙여넣으세요:
+
+fetch('https://marketgrow-production-c586.up.railway.app/api/auth/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        login: 'newuser456',
+        password: 'Test123!@#'
+    })
+})
+.then(r => r.json())
+.then(data => {
+    if (data.success) {
+        console.log('✅ 로그인 성공!');
+        console.log('토큰:', data.data.token);
+        localStorage.setItem('authToken', data.data.token);
+        localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+        console.log('토큰이 저장되었습니다. 대시보드로 이동할 수 있습니다.');
+    } else {
+        console.error('❌ 로그인 실패:', data.message);
+    }
+    console.log('전체 응답:', data);
+})
+.catch(err => console.error('오류:', err));
+    </pre>
+    
+    <script>
+        const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+        
+        async function testLogin() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '로그인 중...';
+            
+            const loginData = {
+                login: document.getElementById('login').value,
+                password: document.getElementById('password').value
+            };
+            
+            console.log('전송 데이터:', loginData);
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                console.log('응답 상태:', response.status);
+                
+                const data = await response.json();
+                console.log('응답 데이터:', data);
+                
+                if (data.success) {
+                    // 토큰 저장
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    
+                    resultDiv.innerHTML = `
+                        <h3 style="color: green;">✅ 로그인 성공!</h3>
+                        <p>사용자: ${data.data.user.name} (${data.data.user.email})</p>
+                        <p>토큰이 저장되었습니다.</p>
+                        <button onclick="window.location.href='/dashboard.html'">대시보드로 이동</button>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3 style="color: red;">❌ 로그인 실패</h3>
+                        <p>오류: ${data.message}</p>
+                        ${data.errors ? '<p>상세: ' + JSON.stringify(data.errors) + '</p>' : ''}
+                    `;
+                }
+            } catch (error) {
+                console.error('오류:', error);
+                resultDiv.innerHTML = `
+                    <h3 style="color: red;">❌ 네트워크 오류</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // 페이지 로드 시 콘솔 코드 하이라이트
+        document.addEventListener('DOMContentLoaded', () => {
+            const code = document.getElementById('consoleTest').textContent;
+            console.log('테스트 코드가 준비되었습니다. 위 코드를 복사해서 콘솔에 붙여넣으세요.');
+        });
+    </script>
+    
+    <hr>
+    
+    <h2>테스트 계정 정보</h2>
+    <ul>
+        <li><strong>아이디:</strong> newuser456</li>
+        <li><strong>비밀번호:</strong> Test123!@#</li>
+        <li><strong>이메일:</strong> newuser456@example.com</li>
+    </ul>
+    
+    <h2>문제 해결</h2>
+    <ol>
+        <li>브라우저 캐시 삭제 (Ctrl+Shift+Delete)</li>
+        <li>Service Worker 제거 (F12 → Application → Service Workers → Unregister)</li>
+        <li>시크릿 모드에서 테스트</li>
+        <li>다른 브라우저에서 테스트</li>
+    </ol>
+</body>
+</html>
