@@ -3,7 +3,7 @@ const API_CONFIG = {
     // Railway 배포 URL (실제 배포 URL로 변경 필요)
     BASE_URL: window.location.hostname === 'localhost' 
         ? 'http://localhost:5001/api'
-        : 'https://marketgrow-production.up.railway.app/api',
+        : 'https://marketgrow-production-c586.up.railway.app/api',
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'

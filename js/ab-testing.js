@@ -9,7 +9,7 @@ class ABTestingManager {
 
     // 초기화
     init() {
-        if (!ENV_CONFIG.FEATURES.ENABLE_AB_TESTING) {
+        if (typeof ENV_CONFIG === 'undefined' || !ENV_CONFIG?.FEATURES?.ENABLE_AB_TESTING) {
             console.log('A/B 테스팅이 비활성화되어 있습니다.');
             return;
         }

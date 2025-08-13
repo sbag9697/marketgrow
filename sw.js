@@ -104,7 +104,12 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // API 요청 처리
+    // 외부 API 요청은 Service Worker가 처리하지 않음
+    if (url.hostname !== location.hostname) {
+        return;
+    }
+    
+    // 로컬 API 요청 처리
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(handleAPIRequest(request));
         return;

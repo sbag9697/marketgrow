@@ -49,7 +49,8 @@ class EnhancedAnalytics {
 
     // 사용자 ID 가져오기
     getUserId() {
-        const userInfo = JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_INFO) || '{}');
+        const storageKey = (typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.USER_INFO) || 'userInfo';
+        const userInfo = JSON.parse(localStorage.getItem(storageKey) || '{}');
         return userInfo.id || localStorage.getItem('anonymous_user_id') || this.createAnonymousUserId();
     }
 
