@@ -403,11 +403,13 @@
                 email: document.getElementById('email').value,
                 username: document.getElementById('signupUsername').value,
                 password: document.getElementById('signupPassword').value,
-                phone: document.getElementById('phone').value
+                phone: document.getElementById('phone').value,
+                name: document.getElementById('signupUsername').value, // name 필드 추가
+                businessType: 'personal' // 기본값
             };
             
             try {
-                const response = await fetch(`${API_URL}/auth/signup`, {
+                const response = await fetch(`${API_URL}/auth/register`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(formData)
