@@ -396,8 +396,8 @@
             }
         });
         
-        // 회원가입 제출
-        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        // 회원가입 제출 - simple-auth.js로 처리하므로 주석 처리
+        /* document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // 아이디 중복확인 체크
@@ -436,7 +436,7 @@
             } catch (error) {
                 showMessage('서버 연결 실패', 'error');
             }
-        });
+        }); */
         
         console.log('✅ Clean signup page loaded - No mock, No test mode');
     </script>

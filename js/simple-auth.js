@@ -47,14 +47,22 @@ async function doLogin(event) {
 async function doSignup(event) {
     event.preventDefault();
     
-    const username = document.getElementById('signupUsername').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('signupPassword').value;
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
+    const username = document.getElementById('signupUsername')?.value || '';
+    const email = document.getElementById('email')?.value || '';
+    const password = document.getElementById('signupPassword')?.value || '';
+    const name = document.getElementById('name')?.value || '';
+    const phone = document.getElementById('phone')?.value || '';
+    
+    console.log('회원가입 시도:', { username, email, name, phone });
     
     if (!username || !email || !password || !name || !phone) {
-        alert('모든 필수 항목을 입력하세요');
+        const missing = [];
+        if (!username) missing.push('아이디');
+        if (!email) missing.push('이메일');
+        if (!password) missing.push('비밀번호');
+        if (!name) missing.push('이름');
+        if (!phone) missing.push('전화번호');
+        alert('다음 항목을 입력하세요: ' + missing.join(', '));
         return;
     }
     
@@ -74,6 +82,7 @@ async function doSignup(event) {
         });
         
         const data = await response.json();
+        console.log('회원가입 응답:', data);
         
         if (data.success) {
             alert('회원가입 성공! 로그인 페이지로 이동합니다.');
