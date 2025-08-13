@@ -12,7 +12,11 @@ const {
     verifyEmail,
     resendEmailVerification,
     checkUsername,
-    checkEmail
+    checkEmail,
+    sendEmailVerification,
+    verifyEmailCode,
+    sendSMSVerification,
+    verifySMSCode
 } = require('../controllers/auth.controller');
 const { auth } = require('../middleware/auth');
 
@@ -139,6 +143,12 @@ router.get('/verify-email/:token', verifyEmail);
 
 // Check availability routes (중복확인)
 router.get('/check-email/:email', checkEmail);
+
+// Verification routes (인증)
+router.post('/send-email-verification', authLimiter, sendEmailVerification);
+router.post('/verify-email-code', verifyEmailCode);
+router.post('/send-sms-verification', authLimiter, sendSMSVerification);
+router.post('/verify-sms-code', verifySMSCode);
 
 // Protected routes
 router.get('/profile', auth, getProfile);

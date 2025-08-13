@@ -180,10 +180,10 @@
             this.textContent = '발송 중...';
             
             try {
-                const response = await fetch(`${API_URL}/email/send-verification`, {
+                const response = await fetch(`${API_URL}/auth/send-email-verification`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email})
+                    body: JSON.stringify({email, username: document.getElementById('signupUsername').value})
                 });
                 
                 const data = await response.json();
@@ -299,7 +299,7 @@
             }
             
             try {
-                const response = await fetch(`${API_URL}/email/verify-code`, {
+                const response = await fetch(`${API_URL}/auth/verify-email-code`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({email, code})
@@ -332,10 +332,10 @@
             this.textContent = '발송 중...';
             
             try {
-                const response = await fetch(`${API_URL}/sms/send-verification`, {
+                const response = await fetch(`${API_URL}/auth/send-sms-verification`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({phone})
+                    body: JSON.stringify({phoneNumber: phone})
                 });
                 
                 const data = await response.json();
@@ -367,10 +367,10 @@
             }
             
             try {
-                const response = await fetch(`${API_URL}/sms/verify-code`, {
+                const response = await fetch(`${API_URL}/auth/verify-sms-code`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({phone, code})
+                    body: JSON.stringify({phoneNumber: phone, code})
                 });
                 
                 const data = await response.json();

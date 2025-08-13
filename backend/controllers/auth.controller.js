@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const emailService = require('../services/email.service');
+const smsService = require('../services/sms.service');
 
 // Check username availability
 const checkUsername = async (req, res) => {
@@ -563,6 +565,153 @@ const resendEmailVerification = async (req, res) => {
     }
 };
 
+// Send email verification code
+const sendEmailVerification = async (req, res) => {
+    try {
+        const { email, username } = req.body;
+        
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: '이메일을 입력해주세요.'
+            });
+        }
+
+        // 이메일 형식 검증
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: '올바른 이메일 형식이 아닙니다.'
+            });
+        }
+
+        // 이메일 인증 코드 발송
+        const result = await emailService.sendVerificationCode(email, username);
+        
+        if (!result.success) {
+            logger.error('Email verification send failed:', result.error);
+            return res.status(500).json({
+                success: false,
+                message: result.message || '이메일 발송에 실패했습니다.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: '인증 코드가 이메일로 발송되었습니다. 이메일을 확인해주세요.'
+        });
+        
+    } catch (error) {
+        logger.error('Send email verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: '이메일 발송 중 오류가 발생했습니다.'
+        });
+    }
+};
+
+// Verify email code
+const verifyEmailCode = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        
+        if (!email || !code) {
+            return res.status(400).json({
+                success: false,
+                message: '이메일과 인증 코드를 입력해주세요.'
+            });
+        }
+
+        // 인증 코드 검증
+        const result = emailService.verifyCode(email, code);
+        
+        res.json(result);
+        
+    } catch (error) {
+        logger.error('Verify email code error:', error);
+        res.status(500).json({
+            success: false,
+            message: '인증 코드 확인 중 오류가 발생했습니다.'
+        });
+    }
+};
+
+// Send SMS verification
+const sendSMSVerification = async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+        
+        if (!phoneNumber) {
+            return res.status(400).json({
+                success: false,
+                message: '전화번호를 입력해주세요.'
+            });
+        }
+
+        // 전화번호 형식 검증 (한국 번호)
+        const phoneRegex = /^01[0-9]{1}[0-9]{3,4}[0-9]{4}$/;
+        const cleaned = phoneNumber.replace(/\D/g, '');
+        
+        if (!phoneRegex.test(cleaned)) {
+            return res.status(400).json({
+                success: false,
+                message: '올바른 전화번호 형식이 아닙니다. (예: 01012345678)'
+            });
+        }
+
+        // SMS 인증 코드 발송
+        const result = await smsService.sendVerificationSMS(phoneNumber);
+        
+        if (!result.success) {
+            logger.error('SMS verification send failed:', result.error);
+            return res.status(500).json({
+                success: false,
+                message: result.message || 'SMS 발송에 실패했습니다.'
+            });
+        }
+
+        res.json({
+            success: true,
+            message: '인증번호가 발송되었습니다.',
+            ...(result.devMode && { code: result.code }) // 개발 모드에서만 코드 반환
+        });
+        
+    } catch (error) {
+        logger.error('Send SMS verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'SMS 발송 중 오류가 발생했습니다.'
+        });
+    }
+};
+
+// Verify SMS code
+const verifySMSCode = async (req, res) => {
+    try {
+        const { phoneNumber, code } = req.body;
+        
+        if (!phoneNumber || !code) {
+            return res.status(400).json({
+                success: false,
+                message: '전화번호와 인증 코드를 입력해주세요.'
+            });
+        }
+
+        // 인증 코드 검증
+        const result = smsService.verifyCode(phoneNumber, code);
+        
+        res.json(result);
+        
+    } catch (error) {
+        logger.error('Verify SMS code error:', error);
+        res.status(500).json({
+            success: false,
+            message: '인증 코드 확인 중 오류가 발생했습니다.'
+        });
+    }
+};
+
 module.exports = {
     checkUsername,
     register,
@@ -574,5 +723,9 @@ module.exports = {
     resetPassword,
     verifyEmail,
     resendEmailVerification,
-    checkEmail
+    checkEmail,
+    sendEmailVerification,
+    verifyEmailCode,
+    sendSMSVerification,
+    verifySMSCode
 };
