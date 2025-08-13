@@ -27,6 +27,9 @@ const logger = require('./utils/logger');
 
 const app = express();
 
+// Trust proxy for Railway deployment
+app.set('trust proxy', true);
+
 // Initialize database connection and seed data
 const initializeApp = async () => {
     const connected = await connectDB();
