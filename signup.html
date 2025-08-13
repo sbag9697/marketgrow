@@ -439,8 +439,50 @@
         }); */
         
         console.log('✅ Clean signup page loaded - No mock, No test mode');
+        
+        // 새로운 간단한 회원가입 처리
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('signupUsername').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('signupPassword').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            console.log('회원가입 시도:', formData);
+            
+            // 간단한 검증
+            if (!formData.username || !formData.email || !formData.password || !formData.name || !formData.phone) {
+                alert('모든 필수 항목을 입력하세요');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                console.log('회원가입 응답:', data);
+                
+                if (data.success) {
+                    alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+                    window.location.href = '/login.html';
+                } else {
+                    alert('회원가입 실패: ' + (data.message || '입력 정보를 확인하세요'));
+                }
+            } catch (error) {
+                console.error('회원가입 오류:', error);
+                alert('서버 연결 실패. 잠시 후 다시 시도하세요.');
+            }
+        });
     </script>
-    <!-- 간단한 인증 시스템 추가 -->
-    <script src="js/simple-auth.js"></script>
 </body>
 </html>
