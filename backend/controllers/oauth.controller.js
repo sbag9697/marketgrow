@@ -5,8 +5,8 @@ const { OAuth2Client } = require('google-auth-library');
 
 // Google OAuth 클라이언트 초기화
 const googleClient = new OAuth2Client(
-    process.env.GOOGLE_CLIENT_ID || '1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com',
-    process.env.GOOGLE_CLIENT_SECRET
+    process.env.GOOGLE_CLIENT_ID || '1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com'
+    // Client Secret은 ID Token 검증에는 필요없음
 );
 
 // JWT 토큰 생성
@@ -112,10 +112,24 @@ exports.googleAuth = async (req, res) => {
 
     } catch (error) {
         console.error('Google OAuth Error:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        // 더 구체적인 에러 메시지 제공
+        let errorMessage = '구글 로그인 중 오류가 발생했습니다.';
+        
+        if (error.message && error.message.includes('duplicate key')) {
+            errorMessage = '이미 가입된 이메일입니다.';
+        } else if (error.message && error.message.includes('validation')) {
+            errorMessage = '입력 정보가 올바르지 않습니다.';
+        } else if (error.message && error.message.includes('network')) {
+            errorMessage = '네트워크 오류가 발생했습니다.';
+        }
+        
         res.status(500).json({
             success: false,
-            message: '구글 로그인 중 오류가 발생했습니다.',
-            error: error.message
+            message: errorMessage,
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
