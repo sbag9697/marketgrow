@@ -145,19 +145,30 @@ exports.googleAuth = async (req, res) => {
 
         // 더 구체적인 에러 메시지 제공
         let errorMessage = '구글 로그인 중 오류가 발생했습니다.';
+        let debugInfo = '';
 
         if (error.message && error.message.includes('duplicate key')) {
             errorMessage = '이미 가입된 이메일입니다.';
         } else if (error.message && error.message.includes('validation')) {
             errorMessage = '입력 정보가 올바르지 않습니다.';
+            debugInfo = `Validation error: ${error.message}`;
         } else if (error.message && error.message.includes('network')) {
             errorMessage = '네트워크 오류가 발생했습니다.';
+        } else if (error.name === 'MongooseError' || error.name === 'ValidationError') {
+            errorMessage = '데이터베이스 오류가 발생했습니다.';
+            debugInfo = `DB error: ${error.message}`;
+        }
+
+        // 개발 환경이거나 Railway 환경에서 디버깅 정보 포함
+        if (process.env.NODE_ENV === 'development' || process.env.RAILWAY_ENVIRONMENT) {
+            console.log('Debug info for OAuth error:', debugInfo || error.message);
         }
 
         res.status(500).json({
             success: false,
             message: errorMessage,
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            debug: process.env.RAILWAY_ENVIRONMENT ? debugInfo : undefined
         });
     }
 };

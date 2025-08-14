@@ -21,7 +21,25 @@ JWT_EXPIRE=30d
 MONGODB_URI=mongodb+srv://sbag9697:tlgus0611!@cluster0.17qmchk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 ```
 
-### 4. 이메일 설정 ⚠️ 중요
+### 4. Google OAuth 설정 ⚠️ 중요
+```
+GOOGLE_CLIENT_ID=1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+```
+
+### 5. Kakao OAuth 설정
+```
+KAKAO_APP_KEY=95a2c17a5ec078dd1762950680e53267
+KAKAO_CLIENT_SECRET=your_kakao_client_secret_here
+```
+
+### 6. Naver OAuth 설정
+```
+NAVER_CLIENT_ID=Cirw8aXNIq8wF518fNMZ
+NAVER_CLIENT_SECRET=your_naver_client_secret_here
+```
+
+### 7. 이메일 설정 ⚠️ 중요
 ```
 EMAIL_USER=sbag9697@gmail.com
 EMAIL_APP_PASSWORD=여기에_Gmail_앱_비밀번호_16자리_입력
@@ -39,7 +57,7 @@ EMAIL_APP_PASSWORD=여기에_Gmail_앱_비밀번호_16자리_입력
 FRONTEND_URL=https://marketgrow.kr
 ```
 
-### 6. SMS 설정 (선택 - 아직 설정 안 해도 됨)
+### 8. SMS 설정 (선택 - 아직 설정 안 해도 됨)
 ```
 # 네이버 클라우드 플랫폼 사용 시
 NAVER_ACCESS_KEY=
@@ -53,7 +71,7 @@ TWILIO_AUTH_TOKEN=
 TWILIO_PHONE_NUMBER=
 ```
 
-### 7. 관리자 계정
+### 9. 관리자 계정
 ```
 ADMIN_EMAIL=admin@marketgrow.com
 ADMIN_PASSWORD=admin123!@#
