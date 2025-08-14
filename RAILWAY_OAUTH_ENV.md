@@ -57,15 +57,15 @@ NAVER_CLIENT_SECRET=(Naver Developers에서 발급)
 
 ```bash
 # Google OAuth
-POST https://marketgrow-production-c586.up.railway.app/api/oauth/google
+POST https://marketgrow-production.up.railway.app/api/oauth/google
 Body: { "token": "google_id_token" }
 
 # Kakao OAuth
-POST https://marketgrow-production-c586.up.railway.app/api/oauth/kakao
+POST https://marketgrow-production.up.railway.app/api/oauth/kakao
 Body: { "token": "kakao_access_token" }
 
 # Naver OAuth
-POST https://marketgrow-production-c586.up.railway.app/api/oauth/naver
+POST https://marketgrow-production.up.railway.app/api/oauth/naver
 Body: { "token": "naver_access_token" }
 ```
 

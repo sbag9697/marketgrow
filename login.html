@@ -223,11 +223,11 @@
         </div>
     </footer>
 
+    <!-- 설정 파일 로드 (가장 먼저) -->
+    <script src="js/config.js"></script>
+    
     <!-- 소셜 로그인 스크립트 -->
     <script src="js/social-login-fix.js"></script>
-    
-    <!-- 설정 파일 로드 -->
-    <script src="js/config.js"></script>
     
     <!-- 인라인 스크립트로 직접 처리 -->
     <script>
@@ -256,7 +256,8 @@
             console.log('로그인 시도:', username);
             
             try {
-                const response = await fetch(API_CONFIG.BASE_URL + '/auth/login', {
+                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
+                const response = await fetch(API_URL + '/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
