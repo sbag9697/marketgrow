@@ -27,7 +27,6 @@ router.post('/toss-payments', async (req, res) => {
 
         // 토스페이먼츠는 200 OK를 기대
         res.status(200).json(result);
-
     } catch (error) {
         logger.error('Webhook processing error:', error);
         // 에러가 발생해도 200을 반환하여 재시도 방지
@@ -49,13 +48,12 @@ router.post('/test-deposit/:depositId', async (req, res) => {
         }
 
         const result = await virtualAccountService.simulateDeposit(req.params.depositId);
-        
+
         res.json({
             success: true,
             message: 'Test deposit completed',
             data: result
         });
-
     } catch (error) {
         logger.error('Test deposit error:', error);
         res.status(500).json({

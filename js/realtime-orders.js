@@ -7,7 +7,7 @@ let reconnectInterval = null;
 let orderChart = null;
 
 // 페이지 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initializeRealtime();
     initializeChart();
@@ -23,7 +23,7 @@ function checkAuth() {
         window.location.href = '/login.html';
         return false;
     }
-    
+
     // 사용자 정보 표시
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
@@ -33,7 +33,7 @@ function checkAuth() {
             navUserName.textContent = user.name || user.username || '사용자';
         }
     }
-    
+
     return true;
 }
 
@@ -46,31 +46,31 @@ function initializeRealtime() {
 function connectWebSocket() {
     // WebSocket 서버 주소 (Railway 배포 서버)
     const wsUrl = 'wss://marketgrow-production-c586.up.railway.app';
-    
+
     try {
         ws = new WebSocket(wsUrl);
-        
+
         ws.onopen = () => {
             console.log('실시간 연결 성공');
             clearInterval(reconnectInterval);
-            
+
             // 인증 토큰 전송
             const token = localStorage.getItem('authToken');
             ws.send(JSON.stringify({
                 type: 'auth',
-                token: token
+                token
             }));
         };
-        
+
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             handleRealtimeUpdate(data);
         };
-        
+
         ws.onerror = (error) => {
             console.error('WebSocket 오류:', error);
         };
-        
+
         ws.onclose = () => {
             console.log('실시간 연결 종료');
             // 재연결 시도
@@ -94,7 +94,7 @@ function usePolling() {
 
 // 실시간 업데이트 처리
 function handleRealtimeUpdate(data) {
-    switch(data.type) {
+    switch (data.type) {
         case 'newOrder':
             addNewOrder(data.order);
             updateStats();
@@ -124,10 +124,10 @@ async function loadStats() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/orders/stats/today`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
@@ -153,10 +153,10 @@ async function loadRecentOrders() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/orders/recent?limit=10`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.data) {
@@ -171,7 +171,7 @@ async function loadRecentOrders() {
 // 최신 주문 표시
 function displayRecentOrders(orders) {
     const container = document.getElementById('recentOrdersList');
-    
+
     if (!orders || orders.length === 0) {
         container.innerHTML = `
             <div class="no-data">
@@ -181,7 +181,7 @@ function displayRecentOrders(orders) {
         `;
         return;
     }
-    
+
     container.innerHTML = orders.map(order => createOrderHTML(order)).join('');
 }
 
@@ -191,10 +191,10 @@ async function loadProcessingOrders() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/orders/processing`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.data) {
@@ -209,7 +209,7 @@ async function loadProcessingOrders() {
 // 처리중 주문 표시
 function displayProcessingOrders(orders) {
     const container = document.getElementById('processingOrdersList');
-    
+
     if (!orders || orders.length === 0) {
         container.innerHTML = `
             <div class="no-data">
@@ -219,7 +219,7 @@ function displayProcessingOrders(orders) {
         `;
         return;
     }
-    
+
     container.innerHTML = orders.map(order => createOrderHTML(order)).join('');
 }
 
@@ -229,7 +229,7 @@ function createOrderHTML(order) {
     const platformIcon = getPlatformIcon(order.platform);
     const statusClass = getStatusClass(order.status);
     const statusText = getStatusText(order.status);
-    
+
     return `
         <div class="order-item" data-order-id="${order._id}">
             <div class="order-header">
@@ -256,22 +256,22 @@ function createOrderHTML(order) {
 function addNewOrder(order) {
     const container = document.getElementById('recentOrdersList');
     const orderHTML = createOrderHTML(order);
-    
+
     // 기존 빈 상태 메시지 제거
     const noData = container.querySelector('.no-data');
     if (noData) {
         container.innerHTML = '';
     }
-    
+
     // 새 주문을 맨 위에 추가
     container.insertAdjacentHTML('afterbegin', orderHTML);
-    
+
     // 10개 초과 시 마지막 항목 제거
     const items = container.querySelectorAll('.order-item');
     if (items.length > 10) {
         items[items.length - 1].remove();
     }
-    
+
     // 애니메이션 효과
     const newItem = container.querySelector('.order-item:first-child');
     newItem.style.background = '#fef3c7';
@@ -294,7 +294,7 @@ function updateOrder(order) {
 async function loadTrendingKeywords() {
     try {
         const response = await fetch(`${API_URL}/analytics/trending-keywords`);
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.data) {
@@ -309,11 +309,11 @@ async function loadTrendingKeywords() {
 // 트렌딩 키워드 표시
 function displayTrendingKeywords(keywords) {
     const container = document.getElementById('keywordList');
-    
+
     if (!keywords || keywords.length === 0) {
         return;
     }
-    
+
     container.innerHTML = keywords.map(keyword => `
         <div class="keyword-tag">
             <span>${keyword.name}</span>
@@ -326,7 +326,7 @@ function displayTrendingKeywords(keywords) {
 function initializeChart() {
     const ctx = document.getElementById('ordersChart');
     if (!ctx) return;
-    
+
     orderChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -363,12 +363,12 @@ function initializeChart() {
 function generateTimeLabels() {
     const labels = [];
     const now = new Date();
-    
+
     for (let i = 23; i >= 0; i--) {
         const time = new Date(now - i * 60 * 60 * 1000);
         labels.push(`${time.getHours()}시`);
     }
-    
+
     return labels;
 }
 
@@ -380,7 +380,7 @@ function generateInitialData() {
 // 차트 업데이트
 function updateChart(newData) {
     if (!orderChart) return;
-    
+
     orderChart.data.datasets[0].data = newData;
     orderChart.update();
 }
@@ -405,7 +405,7 @@ async function loadRealtimeData() {
 // 유틸리티 함수
 function getTimeAgo(date) {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    
+
     if (seconds < 60) return '방금 전';
     if (seconds < 3600) return `${Math.floor(seconds / 60)}분 전`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}시간 전`;

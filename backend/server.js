@@ -61,7 +61,7 @@ app.use(helmet({
 
 // CORS configuration - 모든 origin 허용 (임시)
 app.use(cors({
-    origin: true,  // 모든 origin 허용
+    origin: true, // 모든 origin 허용
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -163,7 +163,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    
+
     // SMM 패널 주문 동기화 시작 (API 키가 있을 때만)
     if (process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {
         const orderSync = new OrderSyncService();

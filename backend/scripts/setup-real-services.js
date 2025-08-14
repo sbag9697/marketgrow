@@ -286,24 +286,24 @@ const realServices = [
 async function setupRealServices() {
     try {
         console.log('🔄 실제 서비스 데이터 설정 시작...');
-        
+
         // 데이터베이스 연결
         await connectDB();
-        
+
         // 기존 서비스 삭제 (선택사항)
         const deleteExisting = process.argv.includes('--clean');
         if (deleteExisting) {
             await Service.deleteMany({});
             console.log('🗑️ 기존 서비스 데이터 삭제 완료');
         }
-        
+
         // 서비스 추가 또는 업데이트
         let added = 0;
         let updated = 0;
-        
+
         for (const serviceData of realServices) {
             const existingService = await Service.findOne({ serviceId: serviceData.serviceId });
-            
+
             if (existingService) {
                 // 업데이트
                 await Service.updateOne(
@@ -320,22 +320,22 @@ async function setupRealServices() {
                 console.log(`✅ 추가: ${serviceData.name}`);
             }
         }
-        
+
         console.log('\n📊 설정 완료:');
         console.log(`- 추가된 서비스: ${added}개`);
         console.log(`- 업데이트된 서비스: ${updated}개`);
         console.log(`- 전체 서비스: ${await Service.countDocuments()}개`);
-        
+
         // 카테고리별 통계
         const stats = await Service.aggregate([
             { $group: { _id: '$platform', count: { $sum: 1 } } }
         ]);
-        
+
         console.log('\n📈 플랫폼별 서비스:');
         stats.forEach(stat => {
             console.log(`- ${stat._id}: ${stat.count}개`);
         });
-        
+
         process.exit(0);
     } catch (error) {
         console.error('❌ 오류 발생:', error);

@@ -272,13 +272,13 @@ class SupportManager {
         try {
             // 먼저 상담 티켓 생성
             const ticket = await this.createQuickTicket('카카오톡 상담 요청', 'general');
-            
+
             if (ticket.success) {
                 // 카카오톡 상담방 연결
                 const response = await fetch(`${this.apiBase}/support`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -293,7 +293,7 @@ class SupportManager {
                 if (result.success) {
                     // 카카오톡 오픈채팅방 링크 제공
                     const kakaoUrl = `https://open.kakao.com/o/s${Math.random().toString(36).substr(2, 8)}`;
-                    
+
                     const modal = this.showModal(`
                         <h3>카카오톡 상담 연결</h3>
                         <p>아래 링크를 클릭하여 카카오톡 상담을 시작하세요:</p>
@@ -321,7 +321,7 @@ class SupportManager {
     // 텔레그램 상담 연결
     connectTelegram() {
         const telegramUrl = 'https://t.me/socialmarketing_support';
-        
+
         const modal = this.showModal(`
             <h3>텔레그램 상담</h3>
             <p>텔레그램으로 빠른 상담을 받으세요:</p>
@@ -371,14 +371,14 @@ class SupportManager {
             const response = await fetch(`${this.apiBase}/support`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     action: 'create-ticket',
-                    title: title,
+                    title,
                     content: `${title} - 자동 생성된 상담 요청`,
-                    category: category
+                    category
                 })
             });
 
@@ -454,7 +454,7 @@ class SupportManager {
         try {
             const response = await fetch(`${this.apiBase}/support?action=get-tickets`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
@@ -469,7 +469,7 @@ class SupportManager {
 
     displayTickets(tickets) {
         const ticketsList = document.getElementById('ticketsList');
-        
+
         if (tickets.length === 0) {
             ticketsList.innerHTML = '<p class="no-tickets">문의 내역이 없습니다.</p>';
             return;
@@ -488,10 +488,10 @@ class SupportManager {
 
     getStatusText(status) {
         const statusMap = {
-            'open': '접수',
-            'in_progress': '진행중',
-            'resolved': '해결완료',
-            'closed': '종료'
+            open: '접수',
+            in_progress: '진행중',
+            resolved: '해결완료',
+            closed: '종료'
         };
         return statusMap[status] || status;
     }

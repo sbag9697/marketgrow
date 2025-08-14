@@ -10,10 +10,9 @@ class PaymentManager {
         try {
             // URL에서 주문 정보 가져오기
             this.loadOrderFromURL();
-            
+
             // 결제 버튼 이벤트
             this.setupEventListeners();
-            
         } catch (error) {
             console.error('결제 시스템 초기화 실패:', error);
             this.showError('결제 시스템을 초기화할 수 없습니다.');
@@ -24,7 +23,7 @@ class PaymentManager {
     loadOrderFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         const orderData = urlParams.get('order');
-        
+
         if (orderData) {
             try {
                 this.currentOrder = JSON.parse(decodeURIComponent(orderData));
@@ -110,9 +109,9 @@ class PaymentManager {
             const paymentData = {
                 amount: this.currentOrder.finalAmount,
                 productName: this.currentOrder.serviceName,
-                buyerName: buyerName,
-                buyerEmail: buyerEmail,
-                buyerPhone: buyerPhone,
+                buyerName,
+                buyerEmail,
+                buyerPhone,
                 serviceId: this.currentOrder.serviceId,
                 quantity: this.currentOrder.quantity,
                 userId: localStorage.getItem('userId') || null,
@@ -127,7 +126,6 @@ class PaymentManager {
                 console.error('KG이니시스 결제 모듈이 로드되지 않았습니다.');
                 this.showError('결제 모듈을 불러올 수 없습니다. 페이지를 새로고침해주세요.');
             }
-
         } catch (error) {
             console.error('결제 처리 실패:', error);
             this.showError(error.message || '결제 처리 중 오류가 발생했습니다.');

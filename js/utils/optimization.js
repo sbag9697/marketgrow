@@ -18,7 +18,7 @@ function debounce(func, wait, immediate = false) {
 // 스로틀 함수
 function throttle(func, limit) {
     let inThrottle;
-    return function(...args) {
+    return function (...args) {
         if (!inThrottle) {
             func.apply(this, args);
             inThrottle = true;
@@ -90,11 +90,11 @@ class EventManager {
 
     add(element, event, handler, options = {}) {
         const key = `${element.tagName}-${event}`;
-        
+
         if (!this.listeners.has(key)) {
             this.listeners.set(key, []);
         }
-        
+
         this.listeners.get(key).push({ element, handler, options });
         element.addEventListener(event, handler, options);
     }
@@ -102,12 +102,12 @@ class EventManager {
     remove(element, event, handler) {
         const key = `${element.tagName}-${event}`;
         const listeners = this.listeners.get(key);
-        
+
         if (listeners) {
-            const index = listeners.findIndex(l => 
+            const index = listeners.findIndex(l =>
                 l.element === element && l.handler === handler
             );
-            
+
             if (index > -1) {
                 listeners.splice(index, 1);
                 element.removeEventListener(event, handler);
@@ -132,7 +132,7 @@ class VisibilityOptimizer {
             visible: [],
             hidden: []
         };
-        
+
         this.init();
     }
 
@@ -141,7 +141,7 @@ class VisibilityOptimizer {
             document.addEventListener('visibilitychange', () => {
                 const isVisible = !document.hidden;
                 const callbacks = isVisible ? this.callbacks.visible : this.callbacks.hidden;
-                
+
                 callbacks.forEach(callback => callback());
             });
         }
@@ -161,7 +161,7 @@ class NetworkOptimizer {
     constructor() {
         this.connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         this.isSlowConnection = false;
-        
+
         this.init();
     }
 
@@ -177,11 +177,11 @@ class NetworkOptimizer {
     updateConnectionStatus() {
         if (this.connection) {
             // 2G 또는 느린 3G 연결 감지
-            this.isSlowConnection = 
-                this.connection.effectiveType === '2g' || 
+            this.isSlowConnection =
+                this.connection.effectiveType === '2g' ||
                 this.connection.effectiveType === 'slow-2g' ||
                 (this.connection.effectiveType === '3g' && this.connection.downlink < 1.5);
-                
+
             console.log(`네트워크 상태: ${this.connection.effectiveType}, 느린 연결: ${this.isSlowConnection}`);
         }
     }
@@ -258,7 +258,7 @@ async function registerServiceWorker() {
         try {
             const registration = await navigator.serviceWorker.register('/sw.js');
             console.log('Service Worker 등록 성공:', registration);
-            
+
             // 업데이트 확인
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;

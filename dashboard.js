@@ -5,7 +5,7 @@ class DashboardManager {
         this.notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
         this.currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
         this.chart = null;
-        
+
         this.init();
     }
 
@@ -19,7 +19,7 @@ class DashboardManager {
 
         // 사용자별 주문 필터링
         this.userOrders = this.orders.filter(order => order.userId === this.currentUser.id);
-        
+
         // 대시보드 초기화
         this.updateUserGreeting();
         this.updateStats();
@@ -28,7 +28,7 @@ class DashboardManager {
         this.loadPlatformStats();
         this.loadNotifications();
         this.initChart();
-        
+
         // 실시간 업데이트 (5초마다)
         setInterval(() => {
             this.refreshDashboard();
@@ -41,11 +41,11 @@ class DashboardManager {
         if (greeting) {
             const hour = new Date().getHours();
             let timeGreeting = '';
-            
+
             if (hour < 12) timeGreeting = '좋은 아침입니다';
             else if (hour < 18) timeGreeting = '좋은 오후입니다';
             else timeGreeting = '좋은 저녁입니다';
-            
+
             greeting.textContent = `${timeGreeting}, ${this.currentUser.username}님!`;
         }
     }
@@ -137,9 +137,9 @@ class DashboardManager {
 
         const platforms = ['instagram', 'youtube', 'facebook', 'tiktok', 'twitter', 'telegram'];
         const platformStats = platforms.map(platform => {
-            const platformOrders = this.userOrders.filter(order => 
+            const platformOrders = this.userOrders.filter(order =>
                 order.serviceType.includes(platform));
-            
+
             return {
                 name: platform,
                 displayName: this.getPlatformDisplayName(platform),
@@ -206,7 +206,7 @@ class DashboardManager {
         if (!ctx) return;
 
         const chartData = this.generateChartData();
-        
+
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -255,21 +255,21 @@ class DashboardManager {
         const months = [];
         const data = [];
         const now = new Date();
-        
+
         for (let i = 5; i >= 0; i--) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const monthName = date.toLocaleDateString('ko-KR', { month: 'short' });
             months.push(monthName);
-            
+
             const monthOrders = this.userOrders.filter(order => {
                 const orderDate = new Date(order.createdAt);
-                return orderDate.getMonth() === date.getMonth() && 
+                return orderDate.getMonth() === date.getMonth() &&
                        orderDate.getFullYear() === date.getFullYear();
             }).length;
-            
+
             data.push(monthOrders);
         }
-        
+
         return { labels: months, data };
     }
 
@@ -310,7 +310,7 @@ class DashboardManager {
     refreshDashboard() {
         this.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         this.userOrders = this.orders.filter(order => order.userId === this.currentUser.id);
-        
+
         this.updateStats();
         this.loadRecentOrders();
         this.loadActiveServices();
@@ -325,14 +325,14 @@ class DashboardManager {
                 refreshBtn.style.animation = '';
             }, 1000);
         }
-        
+
         this.refreshDashboard();
     }
 
     // 차트 업데이트
     updateChart() {
         if (!this.chart) return;
-        
+
         const chartData = this.generateChartData();
         this.chart.data.labels = chartData.labels;
         this.chart.data.datasets[0].data = chartData.data;
@@ -343,18 +343,18 @@ class DashboardManager {
     filterOrders() {
         const statusFilter = document.getElementById('statusFilter').value;
         const serviceFilter = document.getElementById('serviceFilter').value;
-        
+
         let filteredOrders = this.userOrders;
-        
+
         if (statusFilter !== 'all') {
             filteredOrders = filteredOrders.filter(order => order.status === statusFilter);
         }
-        
+
         if (serviceFilter !== 'all') {
-            filteredOrders = filteredOrders.filter(order => 
+            filteredOrders = filteredOrders.filter(order =>
                 order.serviceType.includes(serviceFilter));
         }
-        
+
         this.displayFilteredOrders(filteredOrders);
     }
 
@@ -403,7 +403,7 @@ class DashboardManager {
         this.notifications.forEach(notification => {
             notification.read = true;
         });
-        
+
         localStorage.setItem('notifications', JSON.stringify(this.notifications));
         this.loadNotifications();
     }
@@ -411,67 +411,67 @@ class DashboardManager {
     // 유틸리티 함수들
     getServiceIcon(serviceType) {
         const iconMap = {
-            'instagram': '<i class="fab fa-instagram"></i>',
-            'youtube': '<i class="fab fa-youtube"></i>',
-            'facebook': '<i class="fab fa-facebook"></i>',
-            'tiktok': '<i class="fab fa-tiktok"></i>',
-            'twitter': '<i class="fab fa-twitter"></i>',
-            'telegram': '<i class="fab fa-telegram"></i>'
+            instagram: '<i class="fab fa-instagram"></i>',
+            youtube: '<i class="fab fa-youtube"></i>',
+            facebook: '<i class="fab fa-facebook"></i>',
+            tiktok: '<i class="fab fa-tiktok"></i>',
+            twitter: '<i class="fab fa-twitter"></i>',
+            telegram: '<i class="fab fa-telegram"></i>'
         };
-        
+
         for (const [platform, icon] of Object.entries(iconMap)) {
             if (serviceType.includes(platform)) {
                 return icon;
             }
         }
-        
+
         return '<i class="fas fa-star"></i>';
     }
 
     getPlatformIcon(platform) {
         const iconMap = {
-            'instagram': '<i class="fab fa-instagram"></i>',
-            'youtube': '<i class="fab fa-youtube"></i>',
-            'facebook': '<i class="fab fa-facebook"></i>',
-            'tiktok': '<i class="fab fa-tiktok"></i>',
-            'twitter': '<i class="fab fa-twitter"></i>',
-            'telegram': '<i class="fab fa-telegram"></i>'
+            instagram: '<i class="fab fa-instagram"></i>',
+            youtube: '<i class="fab fa-youtube"></i>',
+            facebook: '<i class="fab fa-facebook"></i>',
+            tiktok: '<i class="fab fa-tiktok"></i>',
+            twitter: '<i class="fab fa-twitter"></i>',
+            telegram: '<i class="fab fa-telegram"></i>'
         };
-        
+
         return iconMap[platform] || '<i class="fas fa-star"></i>';
     }
 
     getPlatformDisplayName(platform) {
         const nameMap = {
-            'instagram': 'Instagram',
-            'youtube': 'YouTube',
-            'facebook': 'Facebook',
-            'tiktok': 'TikTok',
-            'twitter': 'Twitter',
-            'telegram': 'Telegram'
+            instagram: 'Instagram',
+            youtube: 'YouTube',
+            facebook: 'Facebook',
+            tiktok: 'TikTok',
+            twitter: 'Twitter',
+            telegram: 'Telegram'
         };
-        
+
         return nameMap[platform] || platform;
     }
 
     getStatusText(status) {
         const statusMap = {
-            'pending': '대기중',
-            'processing': '진행중',
-            'completed': '완료'
+            pending: '대기중',
+            processing: '진행중',
+            completed: '완료'
         };
-        
+
         return statusMap[status] || status;
     }
 
     getNotificationIcon(type) {
         const iconMap = {
-            'success': '<i class="fas fa-check"></i>',
-            'info': '<i class="fas fa-info"></i>',
-            'warning': '<i class="fas fa-exclamation"></i>',
-            'error': '<i class="fas fa-times"></i>'
+            success: '<i class="fas fa-check"></i>',
+            info: '<i class="fas fa-info"></i>',
+            warning: '<i class="fas fa-exclamation"></i>',
+            error: '<i class="fas fa-times"></i>'
         };
-        
+
         return iconMap[type] || '<i class="fas fa-bell"></i>';
     }
 
@@ -479,11 +479,11 @@ class DashboardManager {
         const date = new Date(timestamp);
         const now = new Date();
         const diff = now - date;
-        
+
         const minutes = Math.floor(diff / (1000 * 60));
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        
+
         if (minutes < 60) {
             return `${minutes}분 전`;
         } else if (hours < 24) {
@@ -501,7 +501,7 @@ function showOrderDetail(orderId) {
 
     const modal = document.getElementById('orderDetailModal');
     const content = document.getElementById('orderDetailContent');
-    
+
     content.innerHTML = `
         <div class="order-detail-content">
             <div class="order-detail-header">
@@ -550,14 +550,16 @@ function showOrderDetail(orderId) {
                     <div class="progress-fill" style="width: ${order.progress}%"></div>
                 </div>
                 <p style="color: #718096; font-size: 0.9rem;">
-                    ${order.status === 'completed' ? '주문이 성공적으로 완료되었습니다.' : 
-                      order.status === 'processing' ? '주문이 진행 중입니다. 완료까지 조금만 기다려주세요.' : 
-                      '주문 처리를 준비 중입니다.'}
+                    ${order.status === 'completed'
+        ? '주문이 성공적으로 완료되었습니다.'
+        : order.status === 'processing'
+            ? '주문이 진행 중입니다. 완료까지 조금만 기다려주세요.'
+            : '주문 처리를 준비 중입니다.'}
                 </p>
             </div>
         </div>
     `;
-    
+
     modal.style.display = 'block';
 }
 
@@ -583,12 +585,12 @@ function showSupport() {
 const dashboardManager = new DashboardManager();
 
 // 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 모달 외부 클릭시 닫기
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const orderModal = document.getElementById('orderDetailModal');
         const allOrdersModal = document.getElementById('allOrdersModal');
-        
+
         if (event.target === orderModal) {
             closeOrderDetail();
         }

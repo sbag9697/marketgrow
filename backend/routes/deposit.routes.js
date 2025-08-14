@@ -44,7 +44,6 @@ router.post('/virtual-account', auth, async (req, res) => {
             message: '가상계좌가 발급되었습니다.',
             data: result.data
         });
-
     } catch (error) {
         logger.error('Virtual account creation error:', error);
         res.status(500).json({
@@ -86,7 +85,6 @@ router.get('/', auth, async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get deposits error:', error);
         res.status(500).json({
@@ -133,7 +131,6 @@ router.get('/:depositId/status', auth, async (req, res) => {
                 paymentStatus
             }
         });
-
     } catch (error) {
         logger.error('Get deposit status error:', error);
         res.status(500).json({
@@ -176,7 +173,6 @@ router.post('/:depositId/simulate', auth, async (req, res) => {
             message: '테스트 충전이 완료되었습니다.',
             data: result
         });
-
     } catch (error) {
         logger.error('Simulate deposit error:', error);
         res.status(500).json({

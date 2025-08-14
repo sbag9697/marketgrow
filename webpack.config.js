@@ -12,7 +12,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
     mode: isProduction ? 'production' : 'development',
-    
+
     entry: {
         main: './script.js',
         dashboard: './js/dashboard.js',
@@ -20,7 +20,7 @@ module.exports = {
         payment: './js/payment.js',
         auth: './js/auth.js'
     },
-    
+
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: isProduction ? '[name].[contenthash].js' : '[name].js',
@@ -28,9 +28,9 @@ module.exports = {
         publicPath: '/',
         clean: true
     },
-    
+
     devtool: isProduction ? 'source-map' : 'eval-source-map',
-    
+
     optimization: {
         minimize: isProduction,
         minimizer: [
@@ -70,7 +70,7 @@ module.exports = {
             name: 'runtime'
         }
     },
-    
+
     module: {
         rules: [
             {
@@ -141,83 +141,93 @@ module.exports = {
             }
         ]
     },
-    
+
     plugins: [
         new CleanWebpackPlugin(),
-        
+
         // HTML 페이지들
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: 'index.html',
             chunks: ['runtime', 'vendors', 'common', 'main'],
-            minify: isProduction ? {
-                collapseWhitespace: true,
-                removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true,
-                minifyCSS: true,
-                minifyJS: true
-            } : false
+            minify: isProduction
+                ? {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    removeRedundantAttributes: true,
+                    removeScriptTypeAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    useShortDoctype: true,
+                    minifyCSS: true,
+                    minifyJS: true
+                }
+                : false
         }),
-        
+
         new HtmlWebpackPlugin({
             template: './dashboard.html',
             filename: 'dashboard.html',
             chunks: ['runtime', 'vendors', 'common', 'dashboard', 'auth'],
-            minify: isProduction ? {
-                collapseWhitespace: true,
-                removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true,
-                minifyCSS: true,
-                minifyJS: true
-            } : false
+            minify: isProduction
+                ? {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    removeRedundantAttributes: true,
+                    removeScriptTypeAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    useShortDoctype: true,
+                    minifyCSS: true,
+                    minifyJS: true
+                }
+                : false
         }),
-        
+
         new HtmlWebpackPlugin({
             template: './services.html',
             filename: 'services.html',
             chunks: ['runtime', 'vendors', 'common', 'services', 'auth'],
-            minify: isProduction ? {
-                collapseWhitespace: true,
-                removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true,
-                minifyCSS: true,
-                minifyJS: true
-            } : false
+            minify: isProduction
+                ? {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    removeRedundantAttributes: true,
+                    removeScriptTypeAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    useShortDoctype: true,
+                    minifyCSS: true,
+                    minifyJS: true
+                }
+                : false
         }),
-        
+
         new HtmlWebpackPlugin({
             template: './payment.html',
             filename: 'payment.html',
             chunks: ['runtime', 'vendors', 'common', 'payment', 'auth'],
-            minify: isProduction ? {
-                collapseWhitespace: true,
-                removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true,
-                minifyCSS: true,
-                minifyJS: true
-            } : false
+            minify: isProduction
+                ? {
+                    collapseWhitespace: true,
+                    removeComments: true,
+                    removeRedundantAttributes: true,
+                    removeScriptTypeAttributes: true,
+                    removeStyleLinkTypeAttributes: true,
+                    useShortDoctype: true,
+                    minifyCSS: true,
+                    minifyJS: true
+                }
+                : false
         }),
-        
+
         // CSS 추출
-        ...(isProduction ? [
-            new MiniCssExtractPlugin({
-                filename: '[name].[contenthash].css',
-                chunkFilename: '[name].[contenthash].chunk.css'
-            })
-        ] : []),
-        
+        ...(isProduction
+            ? [
+                new MiniCssExtractPlugin({
+                    filename: '[name].[contenthash].css',
+                    chunkFilename: '[name].[contenthash].chunk.css'
+                })
+            ]
+            : []),
+
         // 정적 파일 복사
         new CopyWebpackPlugin({
             patterns: [
@@ -248,7 +258,7 @@ module.exports = {
                 }
             ]
         }),
-        
+
         // PWA Manifest - 아이콘 파일이 준비되면 활성화
         // new WebpackPwaManifest({
         //     name: 'MarketGrow - SNS 마케팅 서비스',
@@ -269,7 +279,7 @@ module.exports = {
         //     ],
         //     publicPath: '/'
         // }),
-        
+
         // Service Worker (프로덕션만)
         ...(isProduction ? [
             new WorkboxPlugin.InjectManifest({
@@ -279,7 +289,7 @@ module.exports = {
             })
         ] : [])
     ],
-    
+
     resolve: {
         extensions: ['.js', '.json'],
         alias: {
@@ -289,7 +299,7 @@ module.exports = {
             '@assets': path.resolve(__dirname, './assets')
         }
     },
-    
+
     devServer: {
         static: {
             directory: path.join(__dirname, 'dist')
@@ -307,13 +317,13 @@ module.exports = {
             }
         }
     },
-    
+
     performance: {
         hints: isProduction ? 'warning' : false,
         maxEntrypointSize: 512000,
         maxAssetSize: 512000
     },
-    
+
     stats: {
         colors: true,
         modules: false,

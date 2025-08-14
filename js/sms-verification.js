@@ -5,7 +5,7 @@ const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
 const SMS_CONFIG = {
     serviceId: 'marketgrow',
     apiKey: process.env.ALIGO_API_KEY, // 실제 API 키는 환경변수에서
-    userId: process.env.ALIGO_USER_ID,  // 실제 사용자 ID는 환경변수에서
+    userId: process.env.ALIGO_USER_ID, // 실제 사용자 ID는 환경변수에서
     sender: '010-5772-8658' // 실제 발신번호
 };
 
@@ -50,11 +50,11 @@ class SMSVerification {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({
                     phoneNumber: this.phoneNumber,
-                    purpose: purpose,
+                    purpose,
                     sender: SMS_CONFIG.sender
                 })
             });
@@ -98,11 +98,11 @@ class SMSVerification {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({
                     phoneNumber: this.phoneNumber,
-                    code: code,
+                    code,
                     sessionId: this.sessionId
                 })
             });
@@ -362,7 +362,7 @@ class SMSVerificationUI {
         if (result.success) {
             this.showStep('successStep');
             this.showSuccess(result.message);
-            
+
             if (this.onSuccess) {
                 this.onSuccess(result);
             }

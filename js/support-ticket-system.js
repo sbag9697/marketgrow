@@ -16,7 +16,7 @@ class SupportTicketSystem {
         };
         this.sortBy = 'createdAt';
         this.sortOrder = 'desc';
-        
+
         this.init();
     }
 
@@ -47,24 +47,24 @@ class SupportTicketSystem {
 
         try {
             this.socket = new WebSocket(`${WS_URL}/support?token=${token}`);
-            
+
             this.socket.onopen = () => {
                 console.log('고객 지원 서버 연결됨');
                 this.socket.send(JSON.stringify({
                     type: 'admin_connect',
-                    token: token
+                    token
                 }));
             };
-            
+
             this.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 this.handleWebSocketMessage(data);
             };
-            
+
             this.socket.onerror = (error) => {
                 console.error('WebSocket 오류:', error);
             };
-            
+
             this.socket.onclose = () => {
                 console.log('고객 지원 서버 연결 종료');
                 // 재연결 시도
@@ -82,22 +82,22 @@ class SupportTicketSystem {
                 this.addTicket(data.ticket);
                 this.showNotification('새 문의가 접수되었습니다', 'info');
                 break;
-                
+
             case 'ticket_updated':
                 this.updateTicket(data.ticket);
                 break;
-                
+
             case 'new_message':
                 this.addMessageToTicket(data.ticketId, data.message);
                 if (data.message.sender !== 'admin') {
                     this.showNotification(`새 메시지: ${data.message.text.substring(0, 50)}...`, 'info');
                 }
                 break;
-                
+
             case 'customer_typing':
                 this.showTypingIndicator(data.ticketId, true);
                 break;
-                
+
             case 'customer_stopped_typing':
                 this.showTypingIndicator(data.ticketId, false);
                 break;
@@ -110,12 +110,12 @@ class SupportTicketSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/support/tickets`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.tickets = data.data.tickets;
                 this.renderTicketList();
@@ -134,17 +134,17 @@ class SupportTicketSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(ticketData)
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 return data.data.ticket;
             }
-            
+
             throw new Error(data.message || '티켓 생성 실패');
         } catch (error) {
             console.error('티켓 생성 오류:', error);
@@ -158,12 +158,12 @@ class SupportTicketSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/support/tickets/${ticketId}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.currentTicket = data.data.ticket;
                 this.renderTicketDetails();
@@ -182,13 +182,13 @@ class SupportTicketSystem {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ status })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.updateTicket(data.data.ticket);
                 this.showNotification('티켓 상태가 업데이트되었습니다', 'success');
@@ -206,13 +206,13 @@ class SupportTicketSystem {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ priority })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.updateTicket(data.data.ticket);
                 this.showNotification('우선순위가 변경되었습니다', 'success');
@@ -230,13 +230,13 @@ class SupportTicketSystem {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ adminId })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.updateTicket(data.data.ticket);
                 this.showNotification('담당자가 할당되었습니다', 'success');
@@ -253,7 +253,7 @@ class SupportTicketSystem {
             const formData = new FormData();
             formData.append('message', message);
             formData.append('sender', this.isAdmin ? 'admin' : 'customer');
-            
+
             // 첨부파일 추가
             attachments.forEach(file => {
                 formData.append('attachments', file);
@@ -262,25 +262,25 @@ class SupportTicketSystem {
             const response = await fetch(`${API_URL}/support/tickets/${ticketId}/messages`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: formData
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.addMessageToTicket(ticketId, data.data.message);
-                
+
                 // WebSocket으로 실시간 전송
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     this.socket.send(JSON.stringify({
                         type: 'message',
-                        ticketId: ticketId,
+                        ticketId,
                         message: data.data.message
                     }));
                 }
-                
+
                 return data.data.message;
             }
         } catch (error) {
@@ -294,16 +294,16 @@ class SupportTicketSystem {
         if (ticket) {
             if (!ticket.messages) ticket.messages = [];
             ticket.messages.push(message);
-            
+
             // 마지막 메시지 업데이트
             ticket.lastMessage = message.text;
             ticket.lastMessageAt = message.createdAt;
-            
+
             // 현재 보고 있는 티켓이면 UI 업데이트
             if (this.currentTicket && this.currentTicket._id === ticketId) {
                 this.renderMessage(message);
             }
-            
+
             // 티켓 목록 업데이트
             this.renderTicketList();
         }
@@ -322,7 +322,7 @@ class SupportTicketSystem {
         if (index >= 0) {
             this.tickets[index] = { ...this.tickets[index], ...updatedTicket };
             this.renderTicketList();
-            
+
             if (this.currentTicket && this.currentTicket._id === updatedTicket._id) {
                 this.currentTicket = this.tickets[index];
                 this.renderTicketDetails();
@@ -337,7 +337,7 @@ class SupportTicketSystem {
 
         // 필터링
         let filteredTickets = this.filterTickets();
-        
+
         // 정렬
         filteredTickets = this.sortTickets(filteredTickets);
 
@@ -377,26 +377,32 @@ class SupportTicketSystem {
                     ${ticket.customerEmail ? `(${ticket.customerEmail})` : ''}
                 </div>
                 
-                ${ticket.lastMessage ? `
+                ${ticket.lastMessage
+        ? `
                     <div class="ticket-last-message">
                         <i class="fas fa-comment"></i> ${ticket.lastMessage.substring(0, 100)}...
                     </div>
-                ` : ''}
+                `
+        : ''}
                 
                 <div class="ticket-footer">
                     <div class="ticket-category">
                         <i class="fas fa-tag"></i> ${ticket.category}
                     </div>
-                    ${ticket.assignedTo ? `
+                    ${ticket.assignedTo
+        ? `
                         <div class="ticket-assigned">
                             <i class="fas fa-user-check"></i> ${ticket.assignedTo.name}
                         </div>
-                    ` : ''}
+                    `
+        : ''}
                 </div>
                 
-                ${ticket.unreadCount > 0 ? `
+                ${ticket.unreadCount > 0
+        ? `
                     <div class="unread-badge">${ticket.unreadCount}</div>
-                ` : ''}
+                `
+        : ''}
             </div>
         `).join('');
     }
@@ -407,7 +413,7 @@ class SupportTicketSystem {
         if (!container || !this.currentTicket) return;
 
         const ticket = this.currentTicket;
-        
+
         container.innerHTML = `
             <div class="ticket-detail-header">
                 <div class="ticket-detail-info">
@@ -494,7 +500,7 @@ class SupportTicketSystem {
                 </div>
             </div>
         `;
-        
+
         // 메시지 컨테이너 스크롤 하단으로
         const messagesContainer = document.getElementById('messagesContainer');
         if (messagesContainer) {
@@ -519,7 +525,8 @@ class SupportTicketSystem {
                 <div class="message-content">
                     ${message.text}
                 </div>
-                ${message.attachments && message.attachments.length > 0 ? `
+                ${message.attachments && message.attachments.length > 0
+        ? `
                     <div class="message-attachments">
                         ${message.attachments.map(att => `
                             <a href="${att.url}" target="_blank" class="attachment">
@@ -527,7 +534,8 @@ class SupportTicketSystem {
                             </a>
                         `).join('')}
                     </div>
-                ` : ''}
+                `
+        : ''}
             </div>
         `;
     }
@@ -545,16 +553,16 @@ class SupportTicketSystem {
     // 메시지 제출 처리
     async handleMessageSubmit(event, ticketId) {
         event.preventDefault();
-        
+
         const input = document.getElementById('messageInput');
         const fileInput = document.getElementById('attachFile');
         const message = input.value.trim();
-        
+
         if (!message) return;
-        
+
         // 메시지 전송
         await this.sendMessage(ticketId, message, fileInput.files);
-        
+
         // 입력 필드 초기화
         input.value = '';
         fileInput.value = '';
@@ -576,17 +584,17 @@ class SupportTicketSystem {
             if (this.filters.status !== 'all' && ticket.status !== this.filters.status) {
                 return false;
             }
-            
+
             // 우선순위 필터
             if (this.filters.priority !== 'all' && ticket.priority !== this.filters.priority) {
                 return false;
             }
-            
+
             // 카테고리 필터
             if (this.filters.category !== 'all' && ticket.category !== this.filters.category) {
                 return false;
             }
-            
+
             // 검색어 필터
             if (this.filters.search) {
                 const search = this.filters.search.toLowerCase();
@@ -594,7 +602,7 @@ class SupportTicketSystem {
                        ticket.customerName.toLowerCase().includes(search) ||
                        ticket.ticketNumber.includes(search);
             }
-            
+
             return true;
         });
     }
@@ -604,20 +612,20 @@ class SupportTicketSystem {
         return tickets.sort((a, b) => {
             let aValue = a[this.sortBy];
             let bValue = b[this.sortBy];
-            
+
             // 우선순위 정렬 (숫자)
             if (this.sortBy === 'priority') {
                 const priorityOrder = { high: 3, medium: 2, low: 1 };
                 aValue = priorityOrder[aValue] || 0;
                 bValue = priorityOrder[bValue] || 0;
             }
-            
+
             // 날짜 정렬
             if (this.sortBy === 'createdAt' || this.sortBy === 'updatedAt') {
                 aValue = new Date(aValue).getTime();
                 bValue = new Date(bValue).getTime();
             }
-            
+
             if (this.sortOrder === 'asc') {
                 return aValue > bValue ? 1 : -1;
             } else {
@@ -683,11 +691,11 @@ class SupportTicketSystem {
     // 상태 텍스트
     getStatusText(status) {
         const statusMap = {
-            'open': '열림',
-            'in_progress': '진행중',
-            'pending': '대기중',
-            'resolved': '해결됨',
-            'closed': '닫힘'
+            open: '열림',
+            in_progress: '진행중',
+            pending: '대기중',
+            resolved: '해결됨',
+            closed: '닫힘'
         };
         return statusMap[status] || status;
     }
@@ -695,10 +703,10 @@ class SupportTicketSystem {
     // 우선순위 텍스트
     getPriorityText(priority) {
         const priorityMap = {
-            'low': '낮음',
-            'medium': '보통',
-            'high': '높음',
-            'urgent': '긴급'
+            low: '낮음',
+            medium: '보통',
+            high: '높음',
+            urgent: '긴급'
         };
         return priorityMap[priority] || priority;
     }
@@ -708,12 +716,12 @@ class SupportTicketSystem {
         const now = new Date();
         const time = new Date(timestamp);
         const diff = Math.floor((now - time) / 1000);
-        
+
         if (diff < 60) return '방금 전';
         if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
         if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
         if (diff < 604800) return `${Math.floor(diff / 86400)}일 전`;
-        
+
         return time.toLocaleDateString('ko-KR');
     }
 
@@ -723,7 +731,7 @@ class SupportTicketSystem {
         if (window.notificationSystem) {
             window.notificationSystem.showToastNotification({
                 title: '고객 지원',
-                message: message,
+                message,
                 icon: type === 'success' ? 'fa-check-circle' : 'fa-info-circle',
                 color: type === 'success' ? '#10b981' : '#3b82f6'
             });

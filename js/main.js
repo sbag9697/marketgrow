@@ -1,5 +1,5 @@
 // 메인 페이지 JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 초기화
     checkUserStatus();
     loadServices();
@@ -36,7 +36,7 @@ async function checkUserStatus() {
 function showLoginCard() {
     const loginCard = document.getElementById('loginCard');
     const userCard = document.getElementById('userCard');
-    
+
     if (loginCard) loginCard.style.display = 'block';
     if (userCard) userCard.style.display = 'none';
 }
@@ -47,10 +47,10 @@ function showUserCard(user) {
     const userCard = document.getElementById('userCard');
     const userName = document.getElementById('userName');
     const userLevel = document.getElementById('userLevel');
-    
+
     if (loginCard) loginCard.style.display = 'none';
     if (userCard) userCard.style.display = 'block';
-    
+
     if (userName) userName.textContent = `${user.name}님`;
     if (userLevel) {
         const levelNames = {
@@ -75,12 +75,12 @@ function initHeroLogin() {
 // 히어로 섹션 로그인 처리
 async function handleHeroLogin(event) {
     event.preventDefault();
-    
+
     const submitBtn = event.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.textContent = '로그인 중...';
     submitBtn.disabled = true;
-    
+
     try {
         // api 객체 체크
         if (typeof api === 'undefined' || !api || !api.login) {
@@ -94,15 +94,15 @@ async function handleHeroLogin(event) {
         };
 
         const response = await api.login(credentials);
-        
+
         if (response.success) {
             if (typeof NotificationManager !== 'undefined') {
                 NotificationManager.success('로그인 성공! 환영합니다.');
             }
-            
+
             // 사용자 정보 업데이트
             showUserCard(response.data.user);
-            
+
             // 폼 리셋
             event.target.reset();
         }
@@ -125,7 +125,7 @@ async function handleHeroLogin(event) {
 // 서비스 목록 로드
 async function loadServices() {
     const servicesGrid = document.getElementById('servicesGrid');
-    
+
     if (!servicesGrid) {
         return;
     }
@@ -148,7 +148,7 @@ async function loadServices() {
 // Static 서비스 렌더링
 function renderStaticServices(platforms) {
     const servicesGrid = document.getElementById('servicesGrid');
-    
+
     if (!servicesGrid) {
         return;
     }
@@ -179,7 +179,7 @@ function renderStaticServices(platforms) {
 
     // 서비스 카드 HTML 생성
     let servicesHTML = '';
-    
+
     platforms.forEach(platform => {
         const icon = platformIcons[platform.platform] || 'fas fa-globe';
         const description = platformDescriptions[platform.platform] || '다양한 마케팅 서비스';
@@ -259,7 +259,7 @@ function renderServices(services) {
 
     // 서비스 카드 HTML 생성
     let servicesHTML = '';
-    
+
     Object.keys(servicesByPlatform).forEach(platform => {
         const platformServices = servicesByPlatform[platform];
         const icon = platformIcons[platform] || 'fas fa-globe';

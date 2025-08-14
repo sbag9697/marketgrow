@@ -10,7 +10,7 @@ const Service = require('../models/Service');
 const createAdminUser = async () => {
     try {
         const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL || 'admin@marketgrow.com' });
-        
+
         if (adminExists) {
             console.log('Admin user already exists');
             return;
@@ -216,7 +216,7 @@ const sampleServices = [
 const createSampleServices = async () => {
     try {
         const existingServices = await Service.countDocuments();
-        
+
         if (existingServices > 0) {
             console.log('Services already exist');
             return;
@@ -237,12 +237,12 @@ const seedDatabase = async () => {
             console.error('Failed to connect to database');
             process.exit(1);
         }
-        
+
         console.log('Starting database seeding...');
-        
+
         await createAdminUser();
         await createSampleServices();
-        
+
         console.log('Database seeding completed successfully');
         process.exit(0);
     } catch (error) {

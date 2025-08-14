@@ -23,8 +23,8 @@ async function addServices() {
         // 2. 서비스 추가 실행
         console.log('\n2. 서비스 데이터 추가 중...');
         const config = {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
+            headers: {
+                Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         };
@@ -35,7 +35,7 @@ async function addServices() {
             console.log('✅ 서비스 데이터 추가 완료:', seedResponse.data);
         } catch (error) {
             console.log('⚠️  Seed 엔드포인트가 없습니다. 수동으로 추가합니다...');
-            
+
             // 여기에 수동으로 서비스 추가하는 코드를 넣을 수 있습니다
             console.log('로컬에서 seed-services.js를 실행하세요:');
             console.log('cd backend && node seed-services.js');
@@ -51,10 +51,9 @@ async function addServices() {
         console.log('1. 프론트엔드를 Netlify에 배포');
         console.log('2. CORS 설정 업데이트');
         console.log('3. 실제 서비스 테스트');
-
     } catch (error) {
         console.error('❌ 오류 발생:', error.response?.data || error.message);
-        
+
         if (error.response?.status === 404) {
             console.log('\n💡 Railway에서 직접 명령 실행:');
             console.log('1. Railway 대시보드에서 "Run a command" 찾기');

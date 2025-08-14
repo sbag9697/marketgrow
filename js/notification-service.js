@@ -12,13 +12,13 @@ class NotificationService {
             },
             publicKey: 'YOUR_EMAILJS_PUBLIC_KEY'
         };
-        
+
         this.smsConfig = {
             apiKey: 'YOUR_SMS_API_KEY',
             senderId: 'MarketGrow',
             endpoint: 'https://api.coolsms.co.kr/sms/4/send'
         };
-        
+
         this.init();
     }
 
@@ -29,10 +29,10 @@ class NotificationService {
             if (typeof emailjs === 'undefined') {
                 await this.loadEmailJS();
             }
-            
+
             // EmailJS 초기화
             emailjs.init(this.emailjsConfig.publicKey);
-            
+
             console.log('NotificationService 초기화 완료');
         } catch (error) {
             console.error('NotificationService 초기화 실패:', error);
@@ -92,7 +92,7 @@ class NotificationService {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.smsConfig.apiKey}`
+                    Authorization: `Bearer ${this.smsConfig.apiKey}`
                 },
                 body: JSON.stringify({
                     to: phoneNumber,
@@ -147,7 +147,7 @@ class NotificationService {
         // SMS 전송
         if (userInfo.phone && userInfo.smsNotifications) {
             const smsMessage = `${userInfo.name}님, MarketGrow에 가입해주셔서 감사합니다! 지금 바로 SNS 마케팅 서비스를 시작해보세요. ${window.location.origin}`;
-            
+
             const smsResult = await this.sendSMS(userInfo.phone, smsMessage);
             notifications.push({
                 type: 'sms',
@@ -186,7 +186,7 @@ class NotificationService {
         // SMS 전송
         if (userInfo.phone && userInfo.smsNotifications) {
             const smsMessage = `[MarketGrow] 주문이 접수되었습니다. 주문번호: ${orderInfo.orderNumber} / 서비스: ${orderInfo.serviceName} / 금액: ${PaymentUtils.formatAmount(orderInfo.totalAmount)}`;
-            
+
             const smsResult = await this.sendSMS(userInfo.phone, smsMessage);
             notifications.push({
                 type: 'sms',
@@ -226,7 +226,7 @@ class NotificationService {
         // SMS 전송
         if (userInfo.phone && userInfo.smsNotifications) {
             const smsMessage = `[MarketGrow] 결제가 완료되었습니다. 결제금액: ${PaymentUtils.formatAmount(paymentInfo.amount)} / 결제번호: ${paymentInfo.paymentId} / 서비스가 곧 시작됩니다.`;
-            
+
             const smsResult = await this.sendSMS(userInfo.phone, smsMessage);
             notifications.push({
                 type: 'sms',
@@ -293,7 +293,7 @@ class NotificationService {
         if (userInfo.phone && userInfo.smsNotifications && this.isImportantStatusChange(updateInfo.newStatus)) {
             const statusText = this.getStatusText(updateInfo.newStatus);
             const smsMessage = `[MarketGrow] 주문 상태가 변경되었습니다. 주문번호: ${orderInfo.orderNumber} / 상태: ${statusText} / ${updateInfo.message}`;
-            
+
             const smsResult = await this.sendSMS(userInfo.phone, smsMessage);
             notifications.push({
                 type: 'sms',
@@ -370,7 +370,7 @@ class NotificationService {
     async sendTestNotification(type, userInfo) {
         try {
             let result;
-            
+
             switch (type) {
                 case 'email':
                     result = await this.sendEmail('welcome', {
@@ -381,18 +381,18 @@ class NotificationService {
                         dashboard_url: `${window.location.origin}/dashboard.html`
                     });
                     break;
-                    
+
                 case 'sms':
                     result = await this.sendSMS(
-                        userInfo.phone, 
-                        `[MarketGrow] 테스트 메시지입니다. 알림 설정이 정상적으로 작동하고 있습니다.`
+                        userInfo.phone,
+                        '[MarketGrow] 테스트 메시지입니다. 알림 설정이 정상적으로 작동하고 있습니다.'
                     );
                     break;
-                    
+
                 default:
                     throw new Error('지원하지 않는 알림 타입입니다.');
             }
-            
+
             return result;
         } catch (error) {
             console.error('테스트 알림 전송 실패:', error);

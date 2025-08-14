@@ -9,51 +9,51 @@ class SMMTurkServices {
         this.marginRate = 9.0; // 800% 마진 (9배)
         this.init();
     }
-    
+
     async init() {
         await this.loadServices();
         this.renderServices();
         this.bindEvents();
     }
-    
+
     // 서비스 목록 로드
     async loadServices() {
         try {
             // 로컬 스토리지에서 캐시 확인
             const cached = localStorage.getItem('smmturk_services');
             const cacheTime = localStorage.getItem('smmturk_services_time');
-            
+
             // 1시간 이내 캐시면 사용
             if (cached && cacheTime && (Date.now() - parseInt(cacheTime)) < 3600000) {
                 this.services = JSON.parse(cached);
                 console.log('캐시된 서비스 데이터 사용');
                 return;
             }
-            
+
             // API에서 새로 가져오기
             const response = await fetch('/api/smmturk/services');
             const data = await response.json();
-            
+
             if (data.success) {
                 this.services = data.services;
-                
+
                 // 캐시 저장
                 localStorage.setItem('smmturk_services', JSON.stringify(this.services));
                 localStorage.setItem('smmturk_services_time', Date.now().toString());
-                
+
                 console.log(`${this.services.length}개 서비스 로드 완료`);
             }
         } catch (error) {
             console.error('서비스 로드 실패:', error);
-            
+
             // 폴백: 기본 서비스 목록
             this.services = this.getDefaultServices();
         }
-        
+
         // 카테고리와 플랫폼 추출
         this.extractCategories();
     }
-    
+
     // 카테고리와 플랫폼 추출
     extractCategories() {
         this.services.forEach(service => {
@@ -61,7 +61,7 @@ class SMMTurkServices {
             if (service.platform) this.platforms.add(service.platform);
         });
     }
-    
+
     // 기본 서비스 목록 (API 실패 시 폴백)
     getDefaultServices() {
         const baseServices = [
@@ -121,18 +121,18 @@ class SMMTurkServices {
                 description: '고품질 팔로워'
             }
         ];
-        
+
         return baseServices;
     }
-    
+
     // 서비스 렌더링
     renderServices() {
         const container = document.getElementById('services-container');
         if (!container) return;
-        
+
         // 카테고리별로 그룹화
         const grouped = this.groupByCategory();
-        
+
         let html = '';
         for (const [category, services] of Object.entries(grouped)) {
             html += `
@@ -147,14 +147,14 @@ class SMMTurkServices {
                 </div>
             `;
         }
-        
+
         container.innerHTML = html;
     }
-    
+
     // 서비스 카드 렌더링
     renderServiceCard(service) {
         const discountPercent = Math.round((1 - service.smmturk_price / service.price) * 100);
-        
+
         return `
             <div class="service-card" data-service-id="${service.smmturk_id}">
                 <div class="service-header">
@@ -198,11 +198,11 @@ class SMMTurkServices {
             </div>
         `;
     }
-    
+
     // 카테고리별 그룹화
     groupByCategory() {
         const grouped = {};
-        
+
         this.services.forEach(service => {
             const category = service.category || '기타';
             if (!grouped[category]) {
@@ -210,25 +210,25 @@ class SMMTurkServices {
             }
             grouped[category].push(service);
         });
-        
+
         return grouped;
     }
-    
+
     // 카테고리 아이콘
     getCategoryIcon(category) {
         const icons = {
-            '인스타그램': 'fab fa-instagram',
-            '유튜브': 'fab fa-youtube',
-            '틱톡': 'fab fa-tiktok',
-            '페이스북': 'fab fa-facebook',
-            '트위터': 'fab fa-twitter',
-            '텔레그램': 'fab fa-telegram',
-            '스포티파이': 'fab fa-spotify'
+            인스타그램: 'fab fa-instagram',
+            유튜브: 'fab fa-youtube',
+            틱톡: 'fab fa-tiktok',
+            페이스북: 'fab fa-facebook',
+            트위터: 'fab fa-twitter',
+            텔레그램: 'fab fa-telegram',
+            스포티파이: 'fab fa-spotify'
         };
-        
+
         return icons[category] || 'fas fa-globe';
     }
-    
+
     // 서비스 주문
     async orderService(serviceId) {
         const service = this.services.find(s => s.smmturk_id === serviceId);
@@ -236,11 +236,11 @@ class SMMTurkServices {
             alert('서비스를 찾을 수 없습니다.');
             return;
         }
-        
+
         // 주문 모달 표시
         this.showOrderModal(service);
     }
-    
+
     // 주문 모달 표시
     showOrderModal(service) {
         const modalHtml = `
@@ -302,74 +302,74 @@ class SMMTurkServices {
                 </div>
             </div>
         `;
-        
+
         // 모달 추가
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
         // 모달 표시
         setTimeout(() => {
             document.getElementById('orderModal').classList.add('show');
         }, 10);
     }
-    
+
     // 가격 업데이트
     updateOrderPrice(serviceId) {
         const service = this.services.find(s => s.smmturk_id === serviceId);
         const quantity = parseInt(document.getElementById('orderQuantity').value) || 0;
-        
+
         document.getElementById('orderQuantityDisplay').textContent = quantity.toLocaleString();
-        document.getElementById('orderTotalPrice').textContent = 
-            '₩' + this.calculateTotal(service.price, quantity).toLocaleString();
+        document.getElementById('orderTotalPrice').textContent =
+            `₩${this.calculateTotal(service.price, quantity).toLocaleString()}`;
     }
-    
+
     // 총액 계산
     calculateTotal(pricePerThousand, quantity) {
         return Math.ceil((pricePerThousand * quantity) / 1000);
     }
-    
+
     // 주문 제출
     async submitOrder(serviceId) {
         const service = this.services.find(s => s.smmturk_id === serviceId);
         const link = document.getElementById('orderLink').value;
         const quantity = parseInt(document.getElementById('orderQuantity').value);
-        
+
         if (!link || !quantity) {
             alert('모든 필드를 입력해주세요.');
             return;
         }
-        
+
         try {
             // 로딩 표시
             this.showLoading();
-            
+
             // API 호출
             const response = await fetch('/api/smmturk/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({
                     smmturk_service_id: serviceId,
-                    link: link,
-                    quantity: quantity,
+                    link,
+                    quantity,
                     service_name: service.name,
                     price: this.calculateTotal(service.price, quantity)
                 })
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 alert('주문이 성공적으로 접수되었습니다!');
                 this.closeModal();
-                
+
                 // 주문 내역 페이지로 이동
                 if (confirm('주문 내역을 확인하시겠습니까?')) {
                     window.location.href = '/dashboard.html#orders';
                 }
             } else {
-                alert('주문 실패: ' + result.message);
+                alert(`주문 실패: ${result.message}`);
             }
         } catch (error) {
             console.error('주문 오류:', error);
@@ -378,19 +378,19 @@ class SMMTurkServices {
             this.hideLoading();
         }
     }
-    
+
     // 가격 계산기
     calculatePrice(serviceId) {
         const service = this.services.find(s => s.smmturk_id === serviceId);
         if (!service) return;
-        
+
         const quantity = prompt(`수량을 입력하세요 (${service.min_quantity} - ${service.max_quantity}):`);
         if (quantity) {
             const total = this.calculateTotal(service.price, parseInt(quantity));
             alert(`${quantity.toLocaleString()}개 주문 시 총 금액: ₩${total.toLocaleString()}`);
         }
     }
-    
+
     // 모달 닫기
     closeModal() {
         const modal = document.getElementById('orderModal');
@@ -399,7 +399,7 @@ class SMMTurkServices {
             setTimeout(() => modal.remove(), 300);
         }
     }
-    
+
     // 로딩 표시
     showLoading() {
         const btn = document.querySelector('.btn-submit');
@@ -408,7 +408,7 @@ class SMMTurkServices {
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리 중...';
         }
     }
-    
+
     // 로딩 숨기기
     hideLoading() {
         const btn = document.querySelector('.btn-submit');
@@ -417,7 +417,7 @@ class SMMTurkServices {
             btn.innerHTML = '<i class="fas fa-check"></i> 주문하기';
         }
     }
-    
+
     // 이벤트 바인딩
     bindEvents() {
         // 검색
@@ -427,7 +427,7 @@ class SMMTurkServices {
                 this.filterServices(e.target.value);
             });
         }
-        
+
         // 카테고리 필터
         const categoryFilter = document.getElementById('categoryFilter');
         if (categoryFilter) {
@@ -436,7 +436,7 @@ class SMMTurkServices {
             });
         }
     }
-    
+
     // 서비스 필터링
     filterServices(keyword) {
         const cards = document.querySelectorAll('.service-card');
@@ -445,7 +445,7 @@ class SMMTurkServices {
             card.style.display = text.includes(keyword.toLowerCase()) ? '' : 'none';
         });
     }
-    
+
     // 카테고리별 필터링
     filterByCategory(category) {
         const categories = document.querySelectorAll('.service-category');

@@ -37,7 +37,7 @@ class API {
 
         try {
             const response = await fetch(url, config);
-            
+
             // 응답이 JSON이 아닐 수 있음
             let data;
             const contentType = response.headers.get('content-type');
@@ -53,7 +53,7 @@ class API {
 
             if (!response.ok) {
                 let errorMessage = data.message || '요청 처리 중 오류가 발생했습니다.';
-                
+
                 // 상태 코드별 구체적인 메시지
                 if (response.status === 500) {
                     errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
@@ -64,7 +64,7 @@ class API {
                 } else if (response.status === 400) {
                     errorMessage = data.message || '입력 정보를 확인해주세요.';
                 }
-                
+
                 const error = new Error(errorMessage);
                 error.response = { data, status: response.status };
                 throw error;
@@ -73,12 +73,12 @@ class API {
             return data;
         } catch (error) {
             console.error('API 요청 오류:', error);
-            
+
             // 네트워크 오류인 경우
             if (error.message === 'Failed to fetch') {
                 error.message = '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
             }
-            
+
             throw error;
         }
     }
@@ -283,7 +283,7 @@ class API {
 
     async getNotificationHistory(params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        return this.get(`/notifications/history${queryString ? '?' + queryString : ''}`);
+        return this.get(`/notifications/history${queryString ? `?${queryString}` : ''}`);
     }
 
     async clearNotificationHistory() {
@@ -313,16 +313,16 @@ const api = new API();
 // 에러 처리 유틸리티
 const handleApiError = (error, fallbackMessage = '오류가 발생했습니다.') => {
     console.error('API 에러 상세:', error);
-    
+
     // 에러 응답이 있는 경우
     if (error.response) {
         console.log('Error response status:', error.response.status);
         console.log('Error response data:', error.response.data);
-        
+
         if (error.response.data && error.response.data.message) {
             return error.response.data.message;
         }
-        
+
         // 상태 코드별 메시지
         switch (error.response.status) {
             case 401:
@@ -336,61 +336,61 @@ const handleApiError = (error, fallbackMessage = '오류가 발생했습니다.'
                 return error.message || fallbackMessage;
         }
     }
-    
+
     // 네트워크 에러 등
     if (error.message) {
         return error.message;
     }
-    
+
     return fallbackMessage;
 };
 
 // 로딩 상태 관리 유틸리티 (중복 방지)
 if (!window.LoadingManager) {
     window.LoadingManager = {
-    show(element) {
-        if (element) {
-            element.disabled = true;
-            element.classList.add('loading');
-            const originalText = element.textContent;
-            element.dataset.originalText = originalText;
-            element.textContent = '처리 중...';
-        }
-    },
-    
-    hide(element) {
-        if (element) {
-            element.disabled = false;
-            element.classList.remove('loading');
-            if (element.dataset.originalText) {
-                element.textContent = element.dataset.originalText;
-                delete element.dataset.originalText;
+        show(element) {
+            if (element) {
+                element.disabled = true;
+                element.classList.add('loading');
+                const originalText = element.textContent;
+                element.dataset.originalText = originalText;
+                element.textContent = '처리 중...';
+            }
+        },
+
+        hide(element) {
+            if (element) {
+                element.disabled = false;
+                element.classList.remove('loading');
+                if (element.dataset.originalText) {
+                    element.textContent = element.dataset.originalText;
+                    delete element.dataset.originalText;
+                }
             }
         }
-    }
     };
 }
 
 // 알림 표시 유틸리티 (중복 방지)
 if (!window.NotificationManager) {
     window.NotificationManager = {
-    show(message, type = 'info', duration = 5000) {
+        show(message, type = 'info', duration = 5000) {
         // 기존 알림 제거
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
 
-        // 새 알림 생성
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
+            // 새 알림 생성
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
             <span class="notification-message">${message}</span>
             <button class="notification-close">&times;</button>
         `;
 
-        // 스타일 적용
-        notification.style.cssText = `
+            // 스타일 적용
+            notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
@@ -405,49 +405,49 @@ if (!window.NotificationManager) {
             animation: slideInRight 0.3s ease;
         `;
 
-        // 타입별 색상
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            warning: '#ffc107',
-            info: '#007bff'
-        };
-        notification.style.backgroundColor = colors[type] || colors.info;
+            // 타입별 색상
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ffc107',
+                info: '#007bff'
+            };
+            notification.style.backgroundColor = colors[type] || colors.info;
 
-        // 문서에 추가
-        document.body.appendChild(notification);
+            // 문서에 추가
+            document.body.appendChild(notification);
 
-        // 닫기 버튼 이벤트
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            notification.remove();
-        });
+            // 닫기 버튼 이벤트
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => {
+                notification.remove();
+            });
 
-        // 자동 제거
-        if (duration > 0) {
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, duration);
+            // 자동 제거
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, duration);
+            }
+        },
+
+        success(message, duration) {
+            this.show(message, 'success', duration);
+        },
+
+        error(message, duration) {
+            this.show(message, 'error', duration);
+        },
+
+        warning(message, duration) {
+            this.show(message, 'warning', duration);
+        },
+
+        info(message, duration) {
+            this.show(message, 'info', duration);
         }
-    },
-
-    success(message, duration) {
-        this.show(message, 'success', duration);
-    },
-
-    error(message, duration) {
-        this.show(message, 'error', duration);
-    },
-
-    warning(message, duration) {
-        this.show(message, 'warning', duration);
-    },
-
-    info(message, duration) {
-        this.show(message, 'info', duration);
-    }
     };
 }
 

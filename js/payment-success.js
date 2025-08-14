@@ -3,16 +3,16 @@ let paymentData = null;
 let orderData = null;
 let userInfo = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 인증 확인
     checkAuthentication();
-    
+
     // URL 파라미터 확인
     checkUrlParams();
-    
+
     // 결제 정보 로드
     loadPaymentInfo();
-    
+
     // 알림 설정 이벤트
     initNotificationSettings();
 });
@@ -30,9 +30,9 @@ async function checkAuthentication() {
         if (!response.success) {
             throw new Error('인증 실패');
         }
-        
+
         userInfo = response.data.user;
-        
+
         // 사용자 정보 업데이트
         const navUserName = document.getElementById('navUserName');
         if (navUserName) {
@@ -66,11 +66,11 @@ async function handleTossPaymentSuccess(paymentKey, orderId, amount) {
     try {
         // 결제 승인 및 주문 생성
         const result = await paymentManager.handlePaymentSuccess(paymentKey, orderId, parseInt(amount));
-        
+
         if (result.success && result.data) {
             paymentData = result.data.payment;
             orderData = result.data.order;
-            
+
             // 결제 성공 알림 발송
             await sendPaymentSuccessNotification();
         }
@@ -104,12 +104,12 @@ async function loadPaymentInfo() {
     try {
         // 최근 결제 내역 조회 (필요한 경우)
         const response = await api.getPayments({ limit: 1, status: 'completed' });
-        
+
         if (response.success && response.data.payments.length > 0) {
             const recentPayment = response.data.payments[0];
             paymentData = recentPayment;
             displayPaymentInfo(recentPayment);
-            
+
             // 결제 정보 로드 후 알림 발송 (필요한 경우)
             await sendPaymentSuccessNotification();
         } else {
@@ -127,7 +127,7 @@ function displayPaymentInfo(payment) {
     if (!paymentDetails) return;
 
     paymentData = payment;
-    
+
     const paymentTime = new Date(payment.createdAt || Date.now());
     const paymentMethod = PaymentUtils.getPaymentMethodName(payment.paymentMethod || 'card');
 
@@ -151,7 +151,8 @@ function displayPaymentInfo(payment) {
             </div>
         </div>
 
-        ${payment.cardInfo ? `
+        ${payment.cardInfo
+        ? `
             <div class="detail-grid" style="margin-top: 25px;">
                 <div class="detail-item">
                     <div class="detail-label">카드사</div>
@@ -170,9 +171,11 @@ function displayPaymentInfo(payment) {
                     <div class="detail-value">${payment.cardInfo.approveNo}</div>
                 </div>
             </div>
-        ` : ''}
+        `
+        : ''}
 
-        ${payment.orderInfo ? `
+        ${payment.orderInfo
+        ? `
             <div class="order-info" style="margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
                 <h4 style="margin: 0 0 15px; color: #333;">주문 정보</h4>
                 <div class="detail-grid">
@@ -198,7 +201,8 @@ function displayPaymentInfo(payment) {
                     </div>
                 </div>
             </div>
-        ` : ''}
+        `
+        : ''}
     `;
 
     // 영수증 생성
@@ -211,7 +215,7 @@ function generateReceipt(payment) {
     if (!receiptContent) return;
 
     const receiptTime = new Date(payment.createdAt || Date.now());
-    
+
     receiptContent.innerHTML = `
         <div class="receipt-header">
             <h3>MarketGrow</h3>
@@ -236,12 +240,14 @@ function generateReceipt(payment) {
                 <span>소계</span>
                 <span>${PaymentUtils.formatAmount(payment.amount || payment.totalPrice)}</span>
             </div>
-            ${payment.discount ? `
+            ${payment.discount
+        ? `
                 <div class="receipt-item">
                     <span>할인</span>
                     <span>-${PaymentUtils.formatAmount(payment.discount)}</span>
                 </div>
-            ` : ''}
+            `
+        : ''}
             <div class="receipt-item">
                 <span>총 결제금액</span>
                 <span>${PaymentUtils.formatAmount(payment.amount || payment.totalPrice)}</span>
@@ -390,7 +396,7 @@ function printReceipt() {
         </body>
         </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -424,10 +430,10 @@ function toggleUserMenu() {
 }
 
 // 외부 클릭 시 사용자 메뉴 닫기
-document.addEventListener('click', function(event) {
+document.addEventListener('click', (event) => {
     const userMenu = document.querySelector('.user-menu');
     const userDropdown = document.getElementById('userDropdown');
-    
+
     if (userMenu && !userMenu.contains(event.target)) {
         userDropdown?.classList.remove('show');
     }
@@ -439,14 +445,14 @@ async function sendPaymentSuccessNotification() {
         console.log('결제 데이터 또는 사용자 정보가 없어 알림을 발송하지 않습니다.');
         return;
     }
-    
+
     // 이미 알림이 발송된 경우 중복 발송 방지
     const notificationSent = localStorage.getItem(`notification_sent_${paymentData.paymentId || paymentData.transactionId}`);
     if (notificationSent) {
         console.log('이미 알림이 발송되었습니다.');
         return;
     }
-    
+
     try {
         // 주문 정보 구성
         const orderInfo = paymentData.orderInfo || {
@@ -455,18 +461,18 @@ async function sendPaymentSuccessNotification() {
             quantity: 1,
             targetUrl: 'N/A'
         };
-        
+
         // 알림 발송
         const notifications = await notificationService.sendPaymentSuccessNotification(
             paymentData,
             orderInfo,
             userInfo
         );
-        
+
         // 발송 결과 처리
         let successCount = 0;
         let failCount = 0;
-        
+
         notifications.forEach(notification => {
             if (notification.success) {
                 successCount++;
@@ -476,12 +482,12 @@ async function sendPaymentSuccessNotification() {
                 console.error(`${notification.type} 알림 발송 실패:`, notification.error);
             }
         });
-        
+
         // 알림 발송 완료 표시
         if (successCount > 0) {
             // 중복 발송 방지를 위해 플래그 설정
             localStorage.setItem(`notification_sent_${paymentData.paymentId || paymentData.transactionId}`, 'true');
-            
+
             // 사용자에게 알림 발송 완료 메시지 표시
             if (successCount === notifications.length) {
                 showNotificationSuccess('결제 완료 알림이 발송되었습니다.');
@@ -491,7 +497,6 @@ async function sendPaymentSuccessNotification() {
         } else if (notifications.length > 0) {
             showNotificationError('알림 발송에 실패했습니다.');
         }
-        
     } catch (error) {
         console.error('결제 성공 알림 발송 오류:', error);
         showNotificationError('알림 발송 중 오류가 발생했습니다.');
@@ -506,7 +511,7 @@ function showNotificationSuccess(message) {
         <i class="fas fa-check-circle"></i>
         <span>${message}</span>
     `;
-    
+
     addNotificationStatusToPage(notificationStatus);
 }
 
@@ -518,7 +523,7 @@ function showNotificationWarning(message) {
         <i class="fas fa-exclamation-triangle"></i>
         <span>${message}</span>
     `;
-    
+
     addNotificationStatusToPage(notificationStatus);
 }
 
@@ -530,7 +535,7 @@ function showNotificationError(message) {
         <i class="fas fa-times-circle"></i>
         <span>${message}</span>
     `;
-    
+
     addNotificationStatusToPage(notificationStatus);
 }
 
@@ -539,13 +544,13 @@ function addNotificationStatusToPage(element) {
     const paymentInfoCard = document.querySelector('.payment-info-card');
     if (paymentInfoCard) {
         paymentInfoCard.appendChild(element);
-        
+
         // 3초 후 자동 제거
         setTimeout(() => {
             element.remove();
         }, 3000);
     }
-    
+
     // 스타일 추가 (한 번만)
     if (!document.querySelector('#notification-status-styles')) {
         const style = document.createElement('style');
@@ -600,7 +605,7 @@ function addNotificationStatusToPage(element) {
 }
 
 // 페이지 나갈 때 결제 데이터 정리 (알림 플래그는 유지)
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', () => {
     // 완료된 결제 데이터 정리
     localStorage.removeItem('currentPaymentData');
     localStorage.removeItem('completedPayment');

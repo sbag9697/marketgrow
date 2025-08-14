@@ -21,12 +21,12 @@ class RefundSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/orders/${orderId}/refund-check`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 return {
                     eligible: data.data.eligible,
@@ -35,7 +35,7 @@ class RefundSystem {
                     refundDeadline: data.data.refundDeadline
                 };
             }
-            
+
             return {
                 eligible: false,
                 reason: data.message || '환불 불가'
@@ -53,10 +53,10 @@ class RefundSystem {
     async requestRefund(orderId, refundData) {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             // 환불 요청 데이터
             const requestData = {
-                orderId: orderId,
+                orderId,
                 reason: refundData.reason,
                 amount: refundData.amount,
                 bankAccount: refundData.bankAccount || null,
@@ -67,7 +67,7 @@ class RefundSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(requestData)
             });
@@ -116,7 +116,7 @@ class RefundSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify(refundData)
             });
@@ -159,7 +159,7 @@ class RefundSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/refunds/${refundId}/status`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -168,7 +168,7 @@ class RefundSystem {
             if (data.success) {
                 return data.data;
             }
-            
+
             return null;
         } catch (error) {
             console.error('환불 상태 조회 오류:', error);
@@ -182,7 +182,7 @@ class RefundSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/refunds/history`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -191,7 +191,7 @@ class RefundSystem {
             if (data.success) {
                 return data.data.refunds;
             }
-            
+
             return [];
         } catch (error) {
             console.error('환불 내역 조회 오류:', error);
@@ -204,7 +204,7 @@ class RefundSystem {
         // 서비스 진행 상태에 따른 환불 금액 계산
         const totalAmount = order.totalPrice;
         const deliveredPercentage = (order.delivered || 0) / order.quantity;
-        
+
         // 환불 정책
         if (order.status === 'pending') {
             // 대기중: 100% 환불
@@ -226,21 +226,21 @@ class RefundSystem {
     validateRefundReason(reason) {
         const minLength = 10;
         const maxLength = 500;
-        
+
         if (!reason || reason.trim().length < minLength) {
             return {
                 valid: false,
                 message: `환불 사유는 최소 ${minLength}자 이상 입력해주세요.`
             };
         }
-        
+
         if (reason.length > maxLength) {
             return {
                 valid: false,
                 message: `환불 사유는 ${maxLength}자를 초과할 수 없습니다.`
             };
         }
-        
+
         return {
             valid: true
         };
@@ -317,9 +317,11 @@ class RefundUI {
                             <span class="amount">₩${refundAmount.toLocaleString()}</span>
                             <small>최대 환불 가능 금액</small>
                         </div>
-                        ${eligibility.refundDeadline ? `
+                        ${eligibility.refundDeadline
+        ? `
                             <p class="deadline">환불 가능 기한: ${new Date(eligibility.refundDeadline).toLocaleDateString()}</p>
-                        ` : ''}
+                        `
+        : ''}
                     </div>
                     
                     <div class="refund-reason">
@@ -399,14 +401,14 @@ class RefundUI {
     onReasonTypeChange() {
         const reasonType = document.getElementById('refundReasonType').value;
         const reasonDetail = document.getElementById('refundReasonDetail');
-        
+
         const templates = {
-            'service_issue': '서비스 진행 중 문제가 발생했습니다. ',
-            'wrong_order': '잘못된 서비스를 주문했습니다. ',
-            'delay': '처리가 너무 지연되고 있습니다. ',
-            'change_mind': '개인 사정으로 인해 서비스가 더 이상 필요하지 않습니다. '
+            service_issue: '서비스 진행 중 문제가 발생했습니다. ',
+            wrong_order: '잘못된 서비스를 주문했습니다. ',
+            delay: '처리가 너무 지연되고 있습니다. ',
+            change_mind: '개인 사정으로 인해 서비스가 더 이상 필요하지 않습니다. '
         };
-        
+
         if (templates[reasonType]) {
             reasonDetail.value = templates[reasonType];
         }
@@ -417,39 +419,39 @@ class RefundUI {
         // 입력값 검증
         const reasonType = document.getElementById('refundReasonType').value;
         const reasonDetail = document.getElementById('refundReasonDetail').value;
-        
+
         if (!reasonType) {
             alert('환불 사유를 선택해주세요.');
             return;
         }
-        
+
         const validation = this.refundSystem.validateRefundReason(reasonDetail);
         if (!validation.valid) {
             alert(validation.message);
             return;
         }
-        
+
         // 환불 방법
         const refundMethod = document.querySelector('input[name="refundMethod"]:checked').value;
         let bankAccount = null;
-        
+
         if (refundMethod === 'bank') {
             const bankName = document.getElementById('bankName').value;
             const accountNumber = document.getElementById('accountNumber').value;
             const accountHolder = document.getElementById('accountHolder').value;
-            
+
             if (!bankName || !accountNumber || !accountHolder) {
                 alert('계좌 정보를 모두 입력해주세요.');
                 return;
             }
-            
+
             bankAccount = {
                 bankName,
                 accountNumber,
                 accountHolder
             };
         }
-        
+
         // 환불 요청
         const refundData = {
             reason: `[${reasonType}] ${reasonDetail}`,
@@ -457,13 +459,13 @@ class RefundUI {
             type: 'full',
             bankAccount
         };
-        
+
         const result = await this.refundSystem.requestRefund(orderId, refundData);
-        
+
         if (result.success) {
             alert('환불 요청이 접수되었습니다.\n검토 후 처리 결과를 알려드리겠습니다.');
             this.closeModal();
-            
+
             // 페이지 새로고침
             if (window.location.pathname.includes('order-tracking')) {
                 window.refreshTracking();
@@ -484,10 +486,10 @@ class RefundUI {
     // 상태 텍스트
     getStatusText(status) {
         const statusMap = {
-            'pending': '대기중',
-            'processing': '처리중',
-            'in_progress': '진행중',
-            'completed': '완료'
+            pending: '대기중',
+            processing: '처리중',
+            in_progress: '진행중',
+            completed: '완료'
         };
         return statusMap[status] || status;
     }

@@ -34,16 +34,16 @@ const htmlFiles = fs.readdirSync(__dirname).filter(file => file.endsWith('.html'
 
 htmlFiles.forEach(file => {
     let content = fs.readFileSync(path.join(__dirname, file), 'utf8');
-    
+
     // API URL 교체
     content = content.replace(/http:\/\/localhost:5001/g, '${API_URL}');
-    
+
     // 개발용 콘솔 로그 제거
     content = content.replace(/console\.(log|debug|info)/g, '// console.$1');
-    
+
     // 프로덕션 config.js 사용
     content = content.replace('js/config.js', 'config.js');
-    
+
     fs.writeFileSync(path.join(buildDir, file), content);
 });
 
@@ -95,7 +95,7 @@ function copyRecursive(src, dest) {
     files.forEach(file => {
         const srcPath = path.join(src, file);
         const destPath = path.join(dest, file);
-        
+
         if (fs.statSync(srcPath).isDirectory()) {
             fs.mkdirSync(destPath, { recursive: true });
             copyRecursive(srcPath, destPath);

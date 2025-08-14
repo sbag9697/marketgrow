@@ -80,7 +80,7 @@ const createOrder = async (req, res) => {
                 const smmResult = await smmPanel.createOrder({
                     service: service.smmServiceId || service.name, // SMM 서비스 ID 사용
                     link: targetUrl,
-                    quantity: quantity,
+                    quantity,
                     customData: targetUsername
                 });
 
@@ -104,7 +104,6 @@ const createOrder = async (req, res) => {
             message: '주문이 생성되었습니다.',
             data: { order }
         });
-
     } catch (error) {
         logger.error('Create order error:', error);
         res.status(500).json({
@@ -120,7 +119,7 @@ const getUserOrders = async (req, res) => {
         const { page = 1, limit = 10, status, search } = req.query;
 
         const query = { user: req.user.id };
-        
+
         if (status && status !== 'all') {
             query.status = status;
         }
@@ -153,7 +152,6 @@ const getUserOrders = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get user orders error:', error);
         res.status(500).json({
@@ -189,7 +187,6 @@ const getOrderById = async (req, res) => {
             success: true,
             data: { order }
         });
-
     } catch (error) {
         logger.error('Get order by ID error:', error);
         res.status(500).json({
@@ -239,7 +236,6 @@ const updateOrderProgress = async (req, res) => {
             message: '주문 상태가 업데이트되었습니다.',
             data: { order }
         });
-
     } catch (error) {
         logger.error('Update order progress error:', error);
         res.status(500).json({
@@ -303,7 +299,6 @@ const cancelOrder = async (req, res) => {
             message: '주문이 취소되었습니다.',
             data: { order }
         });
-
     } catch (error) {
         logger.error('Cancel order error:', error);
         res.status(500).json({
@@ -377,7 +372,6 @@ const requestRefund = async (req, res) => {
             message: '환불 요청이 접수되었습니다. 검토 후 처리됩니다.',
             data: { order }
         });
-
     } catch (error) {
         logger.error('Request refund error:', error);
         res.status(500).json({
@@ -422,7 +416,6 @@ const getOrderStatistics = async (req, res) => {
                 totalRevenue: totalRevenue[0]?.total || 0
             }
         });
-
     } catch (error) {
         logger.error('Get order statistics error:', error);
         res.status(500).json({

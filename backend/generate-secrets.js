@@ -9,7 +9,7 @@ console.log(jwtSecret);
 console.log('');
 
 // 관리자 비밀번호 생성 (강력한 비밀번호)
-const adminPassword = crypto.randomBytes(12).toString('base64').replace(/[+/=]/g, '') + '!@#';
+const adminPassword = `${crypto.randomBytes(12).toString('base64').replace(/[+/=]/g, '')}!@#`;
 console.log('ADMIN_PASSWORD (제안):');
 console.log(adminPassword);
 console.log('');

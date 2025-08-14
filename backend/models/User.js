@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: function() {
+        required: function () {
             return !this.socialProvider; // 소셜 로그인이 아닌 경우에만 필수
         },
         minlength: [8, '비밀번호는 최소 8자 이상이어야 합니다'],
@@ -36,8 +36,7 @@ const userSchema = new mongoose.Schema({
     },
     socialId: {
         type: String,
-        sparse: true,
-        unique: true
+        sparse: true
     },
     profileImage: {
         type: String,
@@ -152,9 +151,9 @@ userSchema.index({ phone: 1 });
 userSchema.index({ referralCode: 1 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
-    
+
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
@@ -165,7 +164,7 @@ userSchema.pre('save', async function(next) {
 });
 
 // Generate referral code
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     if (!this.referralCode && this.isNew) {
         this.referralCode = this.username.toUpperCase() + Math.random().toString(36).substring(2, 8).toUpperCase();
     }
@@ -173,17 +172,17 @@ userSchema.pre('save', async function(next) {
 });
 
 // Compare password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Generate JWT token
-userSchema.methods.generateAuthToken = function() {
+userSchema.methods.generateAuthToken = function () {
     return jwt.sign(
-        { 
-            id: this._id, 
+        {
+            id: this._id,
             email: this.email,
-            role: this.role 
+            role: this.role
         },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRE }
@@ -191,7 +190,7 @@ userSchema.methods.generateAuthToken = function() {
 };
 
 // Update membership level based on total spent
-userSchema.methods.updateMembershipLevel = function() {
+userSchema.methods.updateMembershipLevel = function () {
     if (this.totalSpent >= 10000000) {
         this.membershipLevel = 'diamond';
     } else if (this.totalSpent >= 5000000) {
@@ -206,7 +205,7 @@ userSchema.methods.updateMembershipLevel = function() {
 };
 
 // Get discount rate based on membership level
-userSchema.methods.getDiscountRate = function() {
+userSchema.methods.getDiscountRate = function () {
     const discountRates = {
         bronze: 0,
         silver: 0.05,

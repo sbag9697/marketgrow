@@ -9,17 +9,19 @@ module.exports = {
             ],
             grid: true
         }),
-        ...(process.env.NODE_ENV === 'production' ? [
-            require('cssnano')({
-                preset: ['default', {
-                    discardComments: {
-                        removeAll: true
-                    },
-                    normalizeWhitespace: false,
-                    colormin: false,
-                    minifySelectors: false
-                }]
-            })
-        ] : [])
+        ...(process.env.NODE_ENV === 'production'
+            ? [
+                require('cssnano')({
+                    preset: ['default', {
+                        discardComments: {
+                            removeAll: true
+                        },
+                        normalizeWhitespace: false,
+                        colormin: false,
+                        minifySelectors: false
+                    }]
+                })
+            ]
+            : [])
     ]
 };

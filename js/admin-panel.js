@@ -6,7 +6,7 @@ let isAdmin = false;
 let adminToken = null;
 
 // 페이지 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     checkAdminAuth();
     initializeAdminPanel();
 });
@@ -14,19 +14,19 @@ document.addEventListener('DOMContentLoaded', function() {
 // 관리자 인증 확인
 async function checkAdminAuth() {
     adminToken = localStorage.getItem('adminToken');
-    
+
     if (!adminToken) {
         window.location.href = '/admin-login.html';
         return false;
     }
-    
+
     try {
         const response = await fetch(`${API_URL}/admin/verify`, {
             headers: {
-                'Authorization': `Bearer ${adminToken}`
+                Authorization: `Bearer ${adminToken}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.data.role === 'admin') {
@@ -38,7 +38,7 @@ async function checkAdminAuth() {
     } catch (error) {
         console.error('관리자 인증 오류:', error);
     }
-    
+
     localStorage.removeItem('adminToken');
     window.location.href = '/admin-login.html';
     return false;
@@ -64,10 +64,10 @@ async function loadDashboardStats() {
     try {
         const response = await fetch(`${API_URL}/admin/stats`, {
             headers: {
-                'Authorization': `Bearer ${adminToken}`
+                Authorization: `Bearer ${adminToken}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
@@ -84,21 +84,21 @@ function displayStats(stats) {
     // 사용자 통계
     const totalUsers = document.getElementById('totalUsers');
     if (totalUsers) totalUsers.textContent = stats.totalUsers || 0;
-    
+
     const newUsers = document.getElementById('newUsers');
     if (newUsers) newUsers.textContent = stats.newUsers || 0;
-    
+
     // 주문 통계
     const totalOrders = document.getElementById('totalOrders');
     if (totalOrders) totalOrders.textContent = stats.totalOrders || 0;
-    
+
     const pendingOrders = document.getElementById('pendingOrders');
     if (pendingOrders) pendingOrders.textContent = stats.pendingOrders || 0;
-    
+
     // 매출 통계
     const totalRevenue = document.getElementById('totalRevenue');
     if (totalRevenue) totalRevenue.textContent = `₩${(stats.totalRevenue || 0).toLocaleString()}`;
-    
+
     const monthlyRevenue = document.getElementById('monthlyRevenue');
     if (monthlyRevenue) monthlyRevenue.textContent = `₩${(stats.monthlyRevenue || 0).toLocaleString()}`;
 }
@@ -106,15 +106,15 @@ function displayStats(stats) {
 // 메뉴 네비게이션 설정
 function setupMenuNavigation() {
     const menuItems = document.querySelectorAll('.admin-menu-item');
-    
+
     menuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
-            
+
             // 활성 메뉴 변경
             menuItems.forEach(mi => mi.classList.remove('active'));
             this.classList.add('active');
-            
+
             // 콘텐츠 로드
             const section = this.dataset.section;
             loadContent(section);
@@ -126,11 +126,11 @@ function setupMenuNavigation() {
 async function loadContent(section) {
     const contentArea = document.getElementById('adminContent');
     if (!contentArea) return;
-    
+
     // 로딩 표시
     contentArea.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> 로딩중...</div>';
-    
-    switch(section) {
+
+    switch (section) {
         case 'dashboard':
             await loadDashboard();
             break;
@@ -157,7 +157,7 @@ async function loadContent(section) {
 // 대시보드 로드
 async function loadDashboard() {
     const contentArea = document.getElementById('adminContent');
-    
+
     contentArea.innerHTML = `
         <div class="admin-dashboard">
             <h2>대시보드</h2>
@@ -199,7 +199,7 @@ async function loadDashboard() {
             </div>
         </div>
     `;
-    
+
     await loadDashboardStats();
     await loadRecentActivities();
 }
@@ -207,7 +207,7 @@ async function loadDashboard() {
 // 사용자 관리 로드
 async function loadUsersManagement() {
     const contentArea = document.getElementById('adminContent');
-    
+
     contentArea.innerHTML = `
         <div class="users-management">
             <div class="section-header">
@@ -253,7 +253,7 @@ async function loadUsersManagement() {
             <div class="pagination" id="usersPagination"></div>
         </div>
     `;
-    
+
     await loadUsers();
 }
 
@@ -261,18 +261,18 @@ async function loadUsersManagement() {
 async function loadUsers(page = 1, search = '', filter = 'all') {
     try {
         const params = new URLSearchParams({
-            page: page,
-            search: search,
-            filter: filter,
+            page,
+            search,
+            filter,
             limit: 20
         });
-        
+
         const response = await fetch(`${API_URL}/admin/users?${params}`, {
             headers: {
-                'Authorization': `Bearer ${adminToken}`
+                Authorization: `Bearer ${adminToken}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
@@ -289,12 +289,12 @@ async function loadUsers(page = 1, search = '', filter = 'all') {
 function displayUsers(users) {
     const tbody = document.getElementById('usersTableBody');
     if (!tbody) return;
-    
+
     if (users.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">사용자가 없습니다.</td></tr>';
         return;
     }
-    
+
     tbody.innerHTML = users.map(user => `
         <tr>
             <td>${user._id.slice(-6)}</td>
@@ -325,7 +325,7 @@ function displayUsers(users) {
 // 주문 관리 로드
 async function loadOrdersManagement() {
     const contentArea = document.getElementById('adminContent');
-    
+
     contentArea.innerHTML = `
         <div class="orders-management">
             <div class="section-header">
@@ -377,14 +377,14 @@ async function loadOrdersManagement() {
             <div class="pagination" id="ordersPagination"></div>
         </div>
     `;
-    
+
     await loadOrders();
 }
 
 // 서비스 관리 로드
 async function loadServicesManagement() {
     const contentArea = document.getElementById('adminContent');
-    
+
     contentArea.innerHTML = `
         <div class="services-management">
             <div class="section-header">
@@ -399,7 +399,7 @@ async function loadServicesManagement() {
             </div>
         </div>
     `;
-    
+
     await loadServices();
 }
 
@@ -408,10 +408,10 @@ async function loadRecentActivities() {
     try {
         const response = await fetch(`${API_URL}/admin/activities`, {
             headers: {
-                'Authorization': `Bearer ${adminToken}`
+                Authorization: `Bearer ${adminToken}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
@@ -427,7 +427,7 @@ async function loadRecentActivities() {
 function displayActivities(activities) {
     const container = document.getElementById('recentActivities');
     if (!container) return;
-    
+
     container.innerHTML = activities.map(activity => `
         <div class="activity-item">
             <div class="activity-icon">
@@ -445,61 +445,61 @@ function displayActivities(activities) {
 function displayPagination(containerId, pagination, callback) {
     const container = document.getElementById(containerId);
     if (!container) return;
-    
+
     const { current, total } = pagination;
     let html = '';
-    
+
     // 이전 버튼
     if (current > 1) {
         html += `<button onclick="(${callback})(${current - 1})">이전</button>`;
     }
-    
+
     // 페이지 번호
     for (let i = Math.max(1, current - 2); i <= Math.min(total, current + 2); i++) {
         html += `<button class="${i === current ? 'active' : ''}" onclick="(${callback})(${i})">${i}</button>`;
     }
-    
+
     // 다음 버튼
     if (current < total) {
         html += `<button onclick="(${callback})(${current + 1})">다음</button>`;
     }
-    
+
     container.innerHTML = html;
 }
 
 // 유틸리티 함수
 function getStatusText(status) {
     const statusMap = {
-        'active': '활성',
-        'inactive': '비활성',
-        'blocked': '차단',
-        'pending': '대기중',
-        'processing': '처리중',
-        'completed': '완료',
-        'cancelled': '취소'
+        active: '활성',
+        inactive: '비활성',
+        blocked: '차단',
+        pending: '대기중',
+        processing: '처리중',
+        completed: '완료',
+        cancelled: '취소'
     };
     return statusMap[status] || status;
 }
 
 function getActivityIcon(type) {
     const iconMap = {
-        'user_signup': 'user-plus',
-        'order_created': 'shopping-cart',
-        'payment_completed': 'credit-card',
-        'service_updated': 'edit',
-        'user_login': 'sign-in-alt'
+        user_signup: 'user-plus',
+        order_created: 'shopping-cart',
+        payment_completed: 'credit-card',
+        service_updated: 'edit',
+        user_login: 'sign-in-alt'
     };
     return iconMap[type] || 'circle';
 }
 
 function formatTimeAgo(date) {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    
+
     if (seconds < 60) return '방금 전';
     if (seconds < 3600) return `${Math.floor(seconds / 60)}분 전`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}시간 전`;
     if (seconds < 604800) return `${Math.floor(seconds / 86400)}일 전`;
-    
+
     return new Date(date).toLocaleDateString('ko-KR');
 }
 

@@ -68,9 +68,9 @@ async function handleProcessOrder(event, headers, smmturkAPI) {
 
         // 2. SMMTurk에 주문 전송
         const result = await smmturkAPI.createOrder({
-            serviceType: serviceType,
-            targetUrl: targetUrl,
-            quantity: quantity
+            serviceType,
+            targetUrl,
+            quantity
         });
 
         if (result.success) {
@@ -114,7 +114,7 @@ async function handleProcessOrder(event, headers, smmturkAPI) {
                 headers,
                 body: JSON.stringify({
                     success: false,
-                    error: '주문 처리 실패: ' + result.error
+                    error: `주문 처리 실패: ${result.error}`
                 })
             };
         }
@@ -189,8 +189,8 @@ async function handleSyncOrderStatus(event, headers, smmturkAPI) {
                     syncResults.push({
                         orderId: order.id,
                         status: ourStatus,
-                        progress: progress,
-                        providerStatus: providerStatus
+                        progress,
+                        providerStatus
                     });
                 }
             } catch (error) {
@@ -222,7 +222,7 @@ async function handleGetProviderServices(event, headers, smmturkAPI) {
 
     try {
         const result = await smmturkAPI.getServices({ category, limit });
-        
+
         return {
             statusCode: 200,
             headers,
@@ -241,7 +241,7 @@ async function handleGetProviderServices(event, headers, smmturkAPI) {
 async function handleCheckBalance(event, headers, smmturkAPI) {
     try {
         const result = await smmturkAPI.getBalance();
-        
+
         return {
             statusCode: 200,
             headers,

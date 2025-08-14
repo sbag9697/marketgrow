@@ -14,7 +14,7 @@ class NotificationSystem {
         this.maxNotifications = 50;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
-        
+
         this.init();
     }
 
@@ -23,22 +23,22 @@ class NotificationSystem {
         // 로그인 확인
         const token = localStorage.getItem('authToken');
         if (!token) return;
-        
+
         // 알림 권한 확인
         await this.checkPermission();
-        
+
         // 저장된 알림 로드
         this.loadStoredNotifications();
-        
+
         // WebSocket 연결
         this.connectWebSocket();
-        
+
         // UI 생성
         this.createNotificationUI();
-        
+
         // 이벤트 리스너 설정
         this.setupEventListeners();
-        
+
         // 읽지 않은 알림 수 표시
         this.updateUnreadBadge();
     }
@@ -50,28 +50,28 @@ class NotificationSystem {
 
         try {
             this.socket = new WebSocket(`${WS_URL}/notifications?token=${token}`);
-            
+
             this.socket.onopen = () => {
                 console.log('알림 서버 연결됨');
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
-                
+
                 // 연결 시 사용자 인증
                 this.socket.send(JSON.stringify({
                     type: 'auth',
-                    token: token
+                    token
                 }));
             };
-            
+
             this.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 this.handleNotification(data);
             };
-            
+
             this.socket.onerror = (error) => {
                 console.error('WebSocket 오류:', error);
             };
-            
+
             this.socket.onclose = () => {
                 console.log('알림 서버 연결 종료');
                 this.isConnected = false;
@@ -119,12 +119,12 @@ class NotificationSystem {
     // 주문 상태 변경 알림 처리
     handleOrderStatusNotification(data) {
         const statusMessages = {
-            'pending': '주문이 접수되었습니다',
-            'processing': '주문 처리가 시작되었습니다',
-            'in_progress': '서비스가 진행중입니다',
-            'completed': '서비스가 완료되었습니다',
-            'cancelled': '주문이 취소되었습니다',
-            'refunded': '환불이 완료되었습니다'
+            pending: '주문이 접수되었습니다',
+            processing: '주문 처리가 시작되었습니다',
+            in_progress: '서비스가 진행중입니다',
+            completed: '서비스가 완료되었습니다',
+            cancelled: '주문이 취소되었습니다',
+            refunded: '환불이 완료되었습니다'
         };
 
         const notification = {
@@ -146,12 +146,12 @@ class NotificationSystem {
         };
 
         this.addNotification(notification);
-        
+
         // 데스크톱 알림
         if (this.desktopEnabled) {
             this.showDesktopNotification(notification);
         }
-        
+
         // 사운드 재생
         if (this.soundEnabled) {
             this.playNotificationSound();
@@ -236,24 +236,24 @@ class NotificationSystem {
 
         // 알림 추가
         this.notifications.unshift(notification);
-        
+
         // 최대 개수 유지
         if (this.notifications.length > this.maxNotifications) {
             this.notifications = this.notifications.slice(0, this.maxNotifications);
         }
-        
+
         // 읽지 않은 알림 수 증가
         if (!notification.read) {
             this.unreadCount++;
         }
-        
+
         // 로컬 스토리지 저장
         this.saveNotifications();
-        
+
         // UI 업데이트
         this.updateNotificationList();
         this.updateUnreadBadge();
-        
+
         // 토스트 알림 표시
         this.showToastNotification(notification);
     }
@@ -261,7 +261,7 @@ class NotificationSystem {
     // 데스크톱 알림 표시
     showDesktopNotification(notification) {
         if (!('Notification' in window)) return;
-        
+
         if (Notification.permission === 'granted') {
             const desktopNotif = new Notification(notification.title, {
                 body: notification.message,
@@ -271,7 +271,7 @@ class NotificationSystem {
                 requireInteraction: false,
                 silent: !this.soundEnabled
             });
-            
+
             desktopNotif.onclick = () => {
                 window.focus();
                 if (notification.action && notification.action.url) {
@@ -279,7 +279,7 @@ class NotificationSystem {
                 }
                 desktopNotif.close();
             };
-            
+
             // 자동 닫기
             setTimeout(() => {
                 desktopNotif.close();
@@ -298,24 +298,26 @@ class NotificationSystem {
             <div class="toast-content">
                 <div class="toast-title">${notification.title}</div>
                 <div class="toast-message">${notification.message}</div>
-                ${notification.action ? `
+                ${notification.action
+        ? `
                     <a href="${notification.action.url}" class="toast-action">
                         ${notification.action.text} →
                     </a>
-                ` : ''}
+                `
+        : ''}
             </div>
             <button class="toast-close" onclick="this.parentElement.remove()">
                 <i class="fas fa-times"></i>
             </button>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         // 애니메이션
         setTimeout(() => {
             toast.classList.add('show');
         }, 10);
-        
+
         // 자동 제거
         setTimeout(() => {
             toast.classList.remove('show');
@@ -339,7 +341,7 @@ class NotificationSystem {
             `;
             navMenu.insertBefore(notificationBtn, navMenu.lastElementChild);
         }
-        
+
         // 알림 패널
         if (!document.getElementById('notificationPanel')) {
             const panel = document.createElement('div');
@@ -372,7 +374,7 @@ class NotificationSystem {
     updateNotificationList() {
         const list = document.getElementById('notificationList');
         if (!list) return;
-        
+
         if (this.notifications.length === 0) {
             list.innerHTML = `
                 <div class="no-notifications">
@@ -382,7 +384,7 @@ class NotificationSystem {
             `;
             return;
         }
-        
+
         const recentNotifications = this.notifications.slice(0, 10);
         list.innerHTML = recentNotifications.map(notif => `
             <div class="notification-item ${notif.read ? 'read' : 'unread'}" 
@@ -418,7 +420,7 @@ class NotificationSystem {
     handleNotificationClick(notificationId) {
         const notification = this.notifications.find(n => n.id === notificationId);
         if (!notification) return;
-        
+
         // 읽음 처리
         if (!notification.read) {
             notification.read = true;
@@ -427,7 +429,7 @@ class NotificationSystem {
             this.updateNotificationList();
             this.updateUnreadBadge();
         }
-        
+
         // 액션 실행
         if (notification.action && notification.action.url) {
             window.location.href = notification.action.url;
@@ -476,7 +478,7 @@ class NotificationSystem {
             const data = JSON.parse(saved);
             // 24시간 이내 알림만 로드
             const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            this.notifications = data.notifications.filter(n => 
+            this.notifications = data.notifications.filter(n =>
                 new Date(n.timestamp) > dayAgo
             );
             this.unreadCount = this.notifications.filter(n => !n.read).length;
@@ -486,7 +488,7 @@ class NotificationSystem {
     // 권한 확인
     async checkPermission() {
         if (!('Notification' in window)) return;
-        
+
         if (Notification.permission === 'default') {
             const permission = await Notification.requestPermission();
             this.desktopEnabled = permission === 'granted';
@@ -505,12 +507,12 @@ class NotificationSystem {
     // 상태별 아이콘
     getStatusIcon(status) {
         const icons = {
-            'pending': 'fa-clock',
-            'processing': 'fa-cog',
-            'in_progress': 'fa-spinner',
-            'completed': 'fa-check-circle',
-            'cancelled': 'fa-times-circle',
-            'refunded': 'fa-undo'
+            pending: 'fa-clock',
+            processing: 'fa-cog',
+            in_progress: 'fa-spinner',
+            completed: 'fa-check-circle',
+            cancelled: 'fa-times-circle',
+            refunded: 'fa-undo'
         };
         return icons[status] || 'fa-info-circle';
     }
@@ -518,12 +520,12 @@ class NotificationSystem {
     // 상태별 색상
     getStatusColor(status) {
         const colors = {
-            'pending': '#f59e0b',
-            'processing': '#3b82f6',
-            'in_progress': '#8b5cf6',
-            'completed': '#10b981',
-            'cancelled': '#ef4444',
-            'refunded': '#6b7280'
+            pending: '#f59e0b',
+            processing: '#3b82f6',
+            in_progress: '#8b5cf6',
+            completed: '#10b981',
+            cancelled: '#ef4444',
+            refunded: '#6b7280'
         };
         return colors[status] || '#3b82f6';
     }
@@ -533,12 +535,12 @@ class NotificationSystem {
         const now = new Date();
         const time = new Date(timestamp);
         const diff = Math.floor((now - time) / 1000);
-        
+
         if (diff < 60) return '방금 전';
         if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
         if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
         if (diff < 604800) return `${Math.floor(diff / 86400)}일 전`;
-        
+
         return time.toLocaleDateString('ko-KR');
     }
 
@@ -556,15 +558,15 @@ class NotificationSystem {
                 e.preventDefault();
                 this.toggleNotificationPanel();
             }
-            
+
             // 패널 외부 클릭 시 닫기
             const panel = document.getElementById('notificationPanel');
-            if (panel && panel.classList.contains('show') && 
+            if (panel && panel.classList.contains('show') &&
                 !panel.contains(e.target) && !notificationBtn) {
                 panel.classList.remove('show');
             }
         });
-        
+
         // 페이지 포커스 시 알림 새로고침
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -589,7 +591,7 @@ class NotificationSystem {
         const testData = {
             order: {
                 type: 'order_status',
-                orderId: 'TEST_' + Date.now(),
+                orderId: `TEST_${Date.now()}`,
                 status: 'completed',
                 serviceName: '인스타그램 팔로워 1000개'
             },
@@ -604,7 +606,7 @@ class NotificationSystem {
                 url: '/promotions'
             }
         };
-        
+
         this.handleNotification(testData[type]);
     }
 }

@@ -94,13 +94,13 @@ function getMockServices() {
     ];
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async () => {
     // 서비스 목록 로드
     await loadServices();
-    
+
     // 필터 초기화
     initFilters();
-    
+
     // 검색 기능 초기화
     initSearch();
 });
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadServices() {
     const servicesGrid = document.getElementById('servicesGrid');
     if (!servicesGrid) return;
-    
+
     // 로딩 상태 표시
     servicesGrid.innerHTML = `
         <div class="loading-spinner">
@@ -117,7 +117,7 @@ async function loadServices() {
             <p>서비스를 불러오는 중...</p>
         </div>
     `;
-    
+
     // Mock 데이터 사용 (백엔드 없이 동작)
     setTimeout(() => {
         console.log('Mock 데이터를 사용합니다.');
@@ -129,7 +129,7 @@ async function loadServices() {
 // 서비스 목록 표시
 function displayServices(services) {
     const servicesGrid = document.getElementById('servicesGrid');
-    
+
     servicesGrid.innerHTML = services.map(service => `
         <div class="service-card ${service.isPopular ? 'popular' : ''}" data-platform="${service.platform}" data-category="${service.category}">
             ${service.isPopular ? '<div class="popular-badge">인기</div>' : ''}
@@ -177,13 +177,13 @@ function initFilters() {
     if (platformFilter) {
         platformFilter.addEventListener('change', applyFilters);
     }
-    
+
     // 카테고리 필터
     const categoryFilter = document.getElementById('categoryFilter');
     if (categoryFilter) {
         categoryFilter.addEventListener('change', applyFilters);
     }
-    
+
     // 정렬 필터
     const sortFilter = document.getElementById('sortFilter');
     if (sortFilter) {
@@ -196,23 +196,23 @@ function applyFilters() {
     const platform = document.getElementById('platformFilter')?.value || 'all';
     const category = document.getElementById('categoryFilter')?.value || 'all';
     const sort = document.getElementById('sortFilter')?.value || 'default';
-    
+
     const cards = document.querySelectorAll('.service-card');
-    
+
     cards.forEach(card => {
         const cardPlatform = card.dataset.platform;
         const cardCategory = card.dataset.category;
-        
+
         const platformMatch = platform === 'all' || cardPlatform === platform;
         const categoryMatch = category === 'all' || cardCategory === category;
-        
+
         if (platformMatch && categoryMatch) {
             card.style.display = 'block';
         } else {
             card.style.display = 'none';
         }
     });
-    
+
     // 정렬 적용
     if (sort !== 'default') {
         sortServices(sort);
@@ -223,7 +223,7 @@ function applyFilters() {
 function sortServices(sortType) {
     const grid = document.getElementById('servicesGrid');
     const cards = Array.from(grid.children);
-    
+
     cards.sort((a, b) => {
         switch (sortType) {
             case 'price-low':
@@ -236,7 +236,7 @@ function sortServices(sortType) {
                 return 0;
         }
     });
-    
+
     // 정렬된 순서로 다시 추가
     cards.forEach(card => grid.appendChild(card));
 }
@@ -261,11 +261,11 @@ function initSearch() {
 // 검색어로 서비스 필터링
 function filterServicesBySearch(searchTerm) {
     const cards = document.querySelectorAll('.service-card');
-    
+
     cards.forEach(card => {
         const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
         const description = card.querySelector('.service-description')?.textContent.toLowerCase() || '';
-        
+
         if (title.includes(searchTerm) || description.includes(searchTerm)) {
             card.style.display = 'block';
         } else {
@@ -288,9 +288,9 @@ function viewServiceDetail(serviceId) {
 // 시간 단위 변환
 function getTimeUnit(unit) {
     const units = {
-        'hours': '시간',
-        'days': '일',
-        'minutes': '분'
+        hours: '시간',
+        days: '일',
+        minutes: '분'
     };
     return units[unit] || unit;
 }

@@ -11,7 +11,7 @@ const smsService = require('../services/sms.service');
 const checkUsername = async (req, res) => {
     try {
         const { username } = req.body;
-        
+
         if (!username) {
             return res.status(400).json({
                 success: false,
@@ -19,7 +19,7 @@ const checkUsername = async (req, res) => {
                 available: false
             });
         }
-        
+
         // 아이디 형식 검증 (영문, 숫자만 4-16자)
         const usernameRegex = /^[a-zA-Z0-9]{4,16}$/;
         if (!usernameRegex.test(username)) {
@@ -29,10 +29,10 @@ const checkUsername = async (req, res) => {
                 available: false
             });
         }
-        
+
         // 데이터베이스에서 중복 확인
         const existingUser = await User.findOne({ username });
-        
+
         if (existingUser) {
             return res.json({
                 success: true,
@@ -40,13 +40,12 @@ const checkUsername = async (req, res) => {
                 message: '이미 사용 중인 아이디입니다.'
             });
         }
-        
+
         return res.json({
             success: true,
             available: true,
             message: '사용 가능한 아이디입니다.'
         });
-        
     } catch (error) {
         logger.error('Username check error:', error);
         return res.status(500).json({
@@ -90,7 +89,7 @@ const register = async (req, res) => {
             } else if (existingUser.phone === phone) {
                 message = '이미 사용 중인 전화번호입니다.';
             }
-            
+
             return res.status(400).json({
                 success: false,
                 message
@@ -152,7 +151,6 @@ const register = async (req, res) => {
                 emailVerificationRequired: true
             }
         });
-
     } catch (error) {
         logger.error('Register error:', error);
         res.status(500).json({
@@ -233,7 +231,6 @@ const login = async (req, res) => {
                 token
             }
         });
-
     } catch (error) {
         logger.error('Login error:', error);
         res.status(500).json({
@@ -318,7 +315,6 @@ const updateProfile = async (req, res) => {
             message: '프로필이 업데이트되었습니다.',
             data: { user }
         });
-
     } catch (error) {
         logger.error('Update profile error:', error);
         res.status(500).json({
@@ -328,12 +324,11 @@ const updateProfile = async (req, res) => {
     }
 };
 
-
 // Check email availability
 const checkEmail = async (req, res) => {
     try {
         const { email } = req.params;
-        
+
         if (!email || !email.includes('@')) {
             return res.status(400).json({
                 success: false,
@@ -343,7 +338,7 @@ const checkEmail = async (req, res) => {
         }
 
         const existingUser = await User.findOne({ email: email.toLowerCase() });
-        
+
         if (existingUser) {
             return res.json({
                 success: true,
@@ -357,7 +352,6 @@ const checkEmail = async (req, res) => {
             available: true,
             message: '사용 가능한 이메일입니다.'
         });
-
     } catch (error) {
         logger.error('Check email error:', error);
         res.status(500).json({
@@ -403,7 +397,6 @@ const changePassword = async (req, res) => {
             success: true,
             message: '비밀번호가 변경되었습니다.'
         });
-
     } catch (error) {
         logger.error('Change password error:', error);
         res.status(500).json({
@@ -441,7 +434,6 @@ const requestPasswordReset = async (req, res) => {
             message: '비밀번호 재설정 링크가 이메일로 전송되었습니다.',
             ...(process.env.NODE_ENV === 'development' && { resetToken })
         });
-
     } catch (error) {
         logger.error('Request password reset error:', error);
         res.status(500).json({
@@ -480,7 +472,6 @@ const resetPassword = async (req, res) => {
             success: true,
             message: '비밀번호가 재설정되었습니다.'
         });
-
     } catch (error) {
         logger.error('Reset password error:', error);
         res.status(500).json({
@@ -519,7 +510,6 @@ const verifyEmail = async (req, res) => {
             success: true,
             message: '이메일 인증이 완료되었습니다.'
         });
-
     } catch (error) {
         logger.error('Verify email error:', error);
         res.status(500).json({
@@ -555,7 +545,6 @@ const resendEmailVerification = async (req, res) => {
             message: '인증 이메일이 재전송되었습니다.',
             ...(process.env.NODE_ENV === 'development' && { verificationToken: emailVerificationToken })
         });
-
     } catch (error) {
         logger.error('Resend email verification error:', error);
         res.status(500).json({
@@ -569,7 +558,7 @@ const resendEmailVerification = async (req, res) => {
 const sendEmailVerification = async (req, res) => {
     try {
         const { email, username } = req.body;
-        
+
         if (!email) {
             return res.status(400).json({
                 success: false,
@@ -588,7 +577,7 @@ const sendEmailVerification = async (req, res) => {
 
         // 이메일 인증 코드 발송
         const result = await emailService.sendVerificationCode(email, username);
-        
+
         if (!result.success) {
             logger.error('Email verification send failed:', result.error);
             return res.status(500).json({
@@ -601,7 +590,6 @@ const sendEmailVerification = async (req, res) => {
             success: true,
             message: '인증 코드가 이메일로 발송되었습니다. 이메일을 확인해주세요.'
         });
-        
     } catch (error) {
         logger.error('Send email verification error:', error);
         res.status(500).json({
@@ -615,7 +603,7 @@ const sendEmailVerification = async (req, res) => {
 const verifyEmailCode = async (req, res) => {
     try {
         const { email, code } = req.body;
-        
+
         if (!email || !code) {
             return res.status(400).json({
                 success: false,
@@ -625,9 +613,8 @@ const verifyEmailCode = async (req, res) => {
 
         // 인증 코드 검증
         const result = emailService.verifyCode(email, code);
-        
+
         res.json(result);
-        
     } catch (error) {
         logger.error('Verify email code error:', error);
         res.status(500).json({
@@ -641,7 +628,7 @@ const verifyEmailCode = async (req, res) => {
 const sendSMSVerification = async (req, res) => {
     try {
         const { phoneNumber } = req.body;
-        
+
         if (!phoneNumber) {
             return res.status(400).json({
                 success: false,
@@ -652,7 +639,7 @@ const sendSMSVerification = async (req, res) => {
         // 전화번호 형식 검증 (한국 번호)
         const phoneRegex = /^01[0-9]{1}[0-9]{3,4}[0-9]{4}$/;
         const cleaned = phoneNumber.replace(/\D/g, '');
-        
+
         if (!phoneRegex.test(cleaned)) {
             return res.status(400).json({
                 success: false,
@@ -662,7 +649,7 @@ const sendSMSVerification = async (req, res) => {
 
         // SMS 인증 코드 발송
         const result = await smsService.sendVerificationSMS(phoneNumber);
-        
+
         if (!result.success) {
             logger.error('SMS verification send failed:', result.error);
             return res.status(500).json({
@@ -676,7 +663,6 @@ const sendSMSVerification = async (req, res) => {
             message: '인증번호가 발송되었습니다.',
             ...(result.devMode && { code: result.code }) // 개발 모드에서만 코드 반환
         });
-        
     } catch (error) {
         logger.error('Send SMS verification error:', error);
         res.status(500).json({
@@ -690,7 +676,7 @@ const sendSMSVerification = async (req, res) => {
 const verifySMSCode = async (req, res) => {
     try {
         const { phoneNumber, code } = req.body;
-        
+
         if (!phoneNumber || !code) {
             return res.status(400).json({
                 success: false,
@@ -700,9 +686,8 @@ const verifySMSCode = async (req, res) => {
 
         // 인증 코드 검증
         const result = smsService.verifyCode(phoneNumber, code);
-        
+
         res.json(result);
-        
     } catch (error) {
         logger.error('Verify SMS code error:', error);
         res.status(500).json({

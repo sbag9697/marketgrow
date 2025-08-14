@@ -4,14 +4,14 @@ const logger = require('../utils/logger');
 // Get all services
 const getServices = async (req, res) => {
     try {
-        const { 
-            platform, 
-            category, 
-            search, 
+        const {
+            platform,
+            category,
+            search,
             isActive = 'true',
             isPopular,
             isPremium,
-            page = 1, 
+            page = 1,
             limit = 20,
             sortBy = 'createdAt',
             sortOrder = 'desc'
@@ -19,7 +19,7 @@ const getServices = async (req, res) => {
 
         // Build query
         const query = {};
-        
+
         if (isActive === 'true') {
             query.isActive = true;
         }
@@ -78,7 +78,6 @@ const getServices = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get services error:', error);
         res.status(500).json({
@@ -111,7 +110,6 @@ const getServiceById = async (req, res) => {
             success: true,
             data: { service }
         });
-
     } catch (error) {
         logger.error('Get service by ID error:', error);
         res.status(500).json({
@@ -160,7 +158,6 @@ const getServicesByPlatform = async (req, res) => {
                 servicesByCategory
             }
         });
-
     } catch (error) {
         logger.error('Get services by platform error:', error);
         res.status(500).json({
@@ -229,7 +226,6 @@ const calculatePrice = async (req, res) => {
                 guaranteePeriod: service.guaranteePeriod
             }
         });
-
     } catch (error) {
         logger.error('Calculate price error:', error);
         res.status(500).json({
@@ -266,7 +262,6 @@ const getPlatformStats = async (req, res) => {
             success: true,
             data: { stats }
         });
-
     } catch (error) {
         logger.error('Get platform stats error:', error);
         res.status(500).json({

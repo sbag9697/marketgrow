@@ -18,7 +18,7 @@ class ServiceManager {
             'instagram-impressions': { name: '인스타그램 노출수', basePrice: 0.8, category: 'instagram' },
             'instagram-reach': { name: '인스타그램 도달률', basePrice: 1.2, category: 'instagram' },
             'instagram-profile-visits': { name: '인스타그램 프로필 방문', basePrice: 3, category: 'instagram' },
-            
+
             // YouTube 서비스
             'youtube-subscribers': { name: '유튜브 구독자 (글로벌)', basePrice: 60, category: 'youtube' },
             'youtube-subscribers-kr': { name: '유튜브 구독자 (한국)', basePrice: 125, category: 'youtube' },
@@ -34,7 +34,7 @@ class ServiceManager {
             'youtube-channel-members': { name: '유튜브 채널 멤버십', basePrice: 95, category: 'youtube' },
             'youtube-community-likes': { name: '유튜브 커뮤니티 좋아요', basePrice: 4, category: 'youtube' },
             'youtube-playlist-views': { name: '유튜브 플레이리스트 조회수', basePrice: 15, category: 'youtube' },
-            
+
             // TikTok 서비스
             'tiktok-followers': { name: '틱톡 팔로워 (글로벌)', basePrice: 30, category: 'tiktok' },
             'tiktok-followers-kr': { name: '틱톡 팔로워 (한국)', basePrice: 90, category: 'tiktok' },
@@ -46,7 +46,7 @@ class ServiceManager {
             'tiktok-live-viewers': { name: '틱톡 라이브 시청자', basePrice: 175, category: 'tiktok' },
             'tiktok-duets': { name: '틱톡 듀엣', basePrice: 12, category: 'tiktok' },
             'tiktok-profile-visits': { name: '틱톡 프로필 방문', basePrice: 2.5, category: 'tiktok' },
-            
+
             // Facebook 서비스
             'facebook-page-likes': { name: '페이스북 페이지 좋아요', basePrice: 20, category: 'facebook' },
             'facebook-post-likes': { name: '페이스북 게시물 좋아요', basePrice: 3, category: 'facebook' },
@@ -60,7 +60,7 @@ class ServiceManager {
             'facebook-event-attendees': { name: '페이스북 이벤트 참석자', basePrice: 18, category: 'facebook' },
             'facebook-story-views': { name: '페이스북 스토리 조회수', basePrice: 2, category: 'facebook' },
             'facebook-live-viewers': { name: '페이스북 라이브 시청자', basePrice: 120, category: 'facebook' },
-            
+
             // Twitter/X 서비스
             'twitter-followers': { name: '트위터 팔로워 (글로벌)', basePrice: 45, category: 'twitter' },
             'twitter-followers-kr': { name: '트위터 팔로워 (한국)', basePrice: 110, category: 'twitter' },
@@ -72,7 +72,7 @@ class ServiceManager {
             'twitter-bookmarks': { name: '트위터 북마크', basePrice: 4, category: 'twitter' },
             'twitter-video-views': { name: '트위터 영상 조회수', basePrice: 1.5, category: 'twitter' },
             'twitter-poll-votes': { name: '트위터 투표', basePrice: 8, category: 'twitter' },
-            
+
             // Telegram 서비스
             'telegram-members': { name: '텔레그램 멤버', basePrice: 15, category: 'telegram' },
             'telegram-views': { name: '텔레그램 조회수', basePrice: 0.5, category: 'telegram' },
@@ -82,7 +82,7 @@ class ServiceManager {
             'telegram-votes': { name: '텔레그램 투표', basePrice: 6, category: 'telegram' },
             'telegram-premium-members': { name: '텔레그램 프리미엄 멤버', basePrice: 55, category: 'telegram' },
             'telegram-auto-views': { name: '텔레그램 자동 조회수 (30일)', basePrice: 450, category: 'telegram' },
-            
+
             // LinkedIn 서비스
             'linkedin-connections': { name: '링크드인 연결', basePrice: 75, category: 'linkedin' },
             'linkedin-followers': { name: '링크드인 팔로워', basePrice: 90, category: 'linkedin' },
@@ -93,7 +93,7 @@ class ServiceManager {
             'linkedin-page-followers': { name: '링크드인 회사 페이지 팔로워', basePrice: 95, category: 'linkedin' },
             'linkedin-post-views': { name: '링크드인 게시물 조회수', basePrice: 5, category: 'linkedin' },
             'linkedin-video-views': { name: '링크드인 영상 조회수', basePrice: 8, category: 'linkedin' },
-            
+
             // Threads 서비스
             'threads-followers': { name: 'Threads 팔로워', basePrice: 60, category: 'threads' },
             'threads-likes': { name: 'Threads 좋아요', basePrice: 4, category: 'threads' },
@@ -101,7 +101,7 @@ class ServiceManager {
             'threads-comments': { name: 'Threads 댓글', basePrice: 45, category: 'threads' },
             'threads-views': { name: 'Threads 조회수', basePrice: 1.2, category: 'threads' },
             'threads-mentions': { name: 'Threads 멘션', basePrice: 15, category: 'threads' },
-            
+
             // Discord 서비스
             'discord-members': { name: '디스코드 멤버', basePrice: 20, category: 'discord' },
             'discord-online-members': { name: '디스코드 온라인 멤버', basePrice: 60, category: 'discord' },
@@ -109,7 +109,7 @@ class ServiceManager {
             'discord-voice-members': { name: '디스코드 음성 채널 참여자', basePrice: 85, category: 'discord' },
             'discord-server-boosts': { name: '디스코드 서버 부스트', basePrice: 250, category: 'discord' },
             'discord-message-reactions': { name: '디스코드 메시지 반응', basePrice: 5, category: 'discord' },
-            
+
             // Spotify 서비스
             'spotify-followers': { name: 'Spotify 팔로워', basePrice: 40, category: 'spotify' },
             'spotify-plays': { name: 'Spotify 재생수', basePrice: 20, category: 'spotify' },
@@ -118,7 +118,7 @@ class ServiceManager {
             'spotify-playlist-followers': { name: 'Spotify 플레이리스트 팔로워', basePrice: 45, category: 'spotify' },
             'spotify-artist-followers': { name: 'Spotify 아티스트 팔로워', basePrice: 65, category: 'spotify' },
             'spotify-track-likes': { name: 'Spotify 트랙 좋아요', basePrice: 25, category: 'spotify' },
-            
+
             // Twitch 서비스
             'twitch-followers': { name: 'Twitch 팔로워', basePrice: 35, category: 'twitch' },
             'twitch-viewers': { name: 'Twitch 시청자', basePrice: 125, category: 'twitch' },
@@ -127,12 +127,12 @@ class ServiceManager {
             'twitch-bits': { name: 'Twitch 비트 후원', basePrice: 350, category: 'twitch' },
             'twitch-clip-views': { name: 'Twitch 클립 조회수', basePrice: 12, category: 'twitch' },
             'twitch-channel-points': { name: 'Twitch 채널 포인트 사용', basePrice: 15, category: 'twitch' },
-            
+
             // WhatsApp Business 서비스
             'whatsapp-status-views': { name: '왓츠앱 상태 조회수', basePrice: 3, category: 'whatsapp' },
             'whatsapp-broadcast-views': { name: '왓츠앱 브로드캐스트 조회수', basePrice: 5, category: 'whatsapp' },
             'whatsapp-group-members': { name: '왓츠앱 그룹 멤버', basePrice: 25, category: 'whatsapp' },
-            
+
             // Pinterest 서비스
             'pinterest-followers': { name: 'Pinterest 팔로워', basePrice: 35, category: 'pinterest' },
             'pinterest-saves': { name: 'Pinterest 저장', basePrice: 8, category: 'pinterest' },
@@ -140,7 +140,7 @@ class ServiceManager {
             'pinterest-comments': { name: 'Pinterest 댓글', basePrice: 30, category: 'pinterest' },
             'pinterest-impressions': { name: 'Pinterest 노출수', basePrice: 1, category: 'pinterest' },
             'pinterest-board-followers': { name: 'Pinterest 보드 팔로워', basePrice: 22, category: 'pinterest' },
-            
+
             // Reddit 서비스
             'reddit-upvotes': { name: 'Reddit 업보트', basePrice: 6, category: 'reddit' },
             'reddit-downvotes': { name: 'Reddit 다운보트', basePrice: 4, category: 'reddit' },
@@ -148,19 +148,19 @@ class ServiceManager {
             'reddit-followers': { name: 'Reddit 팔로워', basePrice: 45, category: 'reddit' },
             'reddit-karma': { name: 'Reddit 카르마', basePrice: 12, category: 'reddit' },
             'reddit-awards': { name: 'Reddit 어워드', basePrice: 85, category: 'reddit' },
-            
+
             // Snapchat 서비스
             'snapchat-followers': { name: 'Snapchat 팔로워', basePrice: 50, category: 'snapchat' },
             'snapchat-story-views': { name: 'Snapchat 스토리 조회수', basePrice: 3.5, category: 'snapchat' },
             'snapchat-snap-views': { name: 'Snapchat 스냅 조회수', basePrice: 2.8, category: 'snapchat' },
             'snapchat-spotlight-views': { name: 'Snapchat 스포트라이트 조회수', basePrice: 6, category: 'snapchat' },
-            
+
             // 카카오톡 서비스
             'kakaotalk-channel-followers': { name: '카카오톡 채널 친구', basePrice: 95, category: 'kakaotalk' },
             'kakaotalk-story-views': { name: '카카오스토리 조회수', basePrice: 8, category: 'kakaotalk' },
             'kakaotalk-story-likes': { name: '카카오스토리 좋아요', basePrice: 12, category: 'kakaotalk' },
             'kakaotalk-story-comments': { name: '카카오스토리 댓글', basePrice: 45, category: 'kakaotalk' },
-            
+
             // 네이버 서비스
             'naver-blog-views': { name: '네이버 블로그 조회수', basePrice: 2, category: 'naver' },
             'naver-blog-likes': { name: '네이버 블로그 좋아요', basePrice: 8, category: 'naver' },
@@ -169,20 +169,20 @@ class ServiceManager {
             'naver-band-members': { name: '네이버 밴드 멤버', basePrice: 32, category: 'naver' },
             'naver-tv-views': { name: '네이버TV 조회수', basePrice: 3, category: 'naver' },
             'naver-tv-likes': { name: '네이버TV 좋아요', basePrice: 6, category: 'naver' },
-            
+
             // 틱톡 라이브 서비스
             'tiktok-live-gifts': { name: '틱톡 라이브 선물', basePrice: 220, category: 'tiktok' },
             'tiktok-live-comments': { name: '틱톡 라이브 댓글', basePrice: 15, category: 'tiktok' },
-            
+
             // 유튜브 특화 서비스
             'youtube-subscribers-targeted': { name: '유튜브 타겟팅 구독자', basePrice: 150, category: 'youtube' },
             'youtube-end-screen-clicks': { name: '유튜브 종료화면 클릭', basePrice: 18, category: 'youtube' },
             'youtube-cards-clicks': { name: '유튜브 카드 클릭', basePrice: 20, category: 'youtube' }
         };
-        
+
         this.orders = JSON.parse(localStorage.getItem('orders') || '[]');
         this.currentService = null;
-        
+
         this.init();
     }
 
@@ -191,7 +191,7 @@ class ServiceManager {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.filterServices(e.target.dataset.category);
-                
+
                 // 활성 탭 업데이트
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -217,7 +217,7 @@ class ServiceManager {
     // 서비스 필터링
     filterServices(category) {
         const serviceCards = document.querySelectorAll('.service-card');
-        
+
         serviceCards.forEach(card => {
             if (category === 'all' || card.dataset.category === category) {
                 card.classList.remove('hidden');
@@ -263,23 +263,23 @@ class ServiceManager {
     // 가격 업데이트
     updatePrice() {
         if (!this.currentService) return;
-        
+
         const service = this.services[this.currentService];
         const quantity = parseInt(document.getElementById('quantity').value);
-        
+
         // 품질과 시간 옵션 제거 - 단순화된 가격 계산
         const totalPrice = Math.round(service.basePrice * quantity);
-        
+
         // 최소 가격 설정 (100원)
         const finalPrice = Math.max(totalPrice, 100);
-        
+
         document.getElementById('totalPrice').textContent = `₩${finalPrice.toLocaleString()}`;
     }
 
     // 주문 처리
     processOrder() {
         const orderData = {
-            id: 'ORDER_' + Date.now(),
+            id: `ORDER_${Date.now()}`,
             userId: authManager.getCurrentUser().id,
             serviceType: this.currentService,
             serviceName: this.services[this.currentService].name,
@@ -303,13 +303,12 @@ class ServiceManager {
             // 세션 스토리지에 주문 정보 저장
             sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
             sessionStorage.setItem('orderName', orderData.serviceName);
-            
+
             // 모달 닫기
             this.closeOrderModal();
-            
+
             // 결제 페이지로 이동
             window.location.href = 'payment.html';
-            
         } catch (error) {
             console.error('결제 페이지 이동 실패:', error);
             alert('결제 페이지로 이동할 수 없습니다. 다시 시도해주세요.');
@@ -328,7 +327,7 @@ class ServiceManager {
         const paymentMethod = orderData.paymentMethod;
         let paymentTime = 2000; // 기본 2초
 
-        switch(paymentMethod) {
+        switch (paymentMethod) {
             case 'card':
                 paymentTime = 3000; // 신용카드 3초
                 break;
@@ -346,47 +345,46 @@ class ServiceManager {
         setTimeout(() => {
             // 결제 성공 시뮬레이션 (90% 성공률)
             const isSuccess = Math.random() > 0.1;
-            
+
             if (isSuccess) {
                 this.processSuccessfulPayment(orderData, submitBtn, originalText);
             } else {
                 this.processFailedPayment(submitBtn, originalText);
             }
-            
         }, paymentTime);
     }
 
     // 결제 성공 처리
     processSuccessfulPayment(orderData, submitBtn, originalText) {
         // 결제 정보 추가
-        orderData.paymentId = 'PAY_' + Date.now();
+        orderData.paymentId = `PAY_${Date.now()}`;
         orderData.paidAt = new Date().toISOString();
-        
+
         this.orders.push(orderData);
         localStorage.setItem('orders', JSON.stringify(this.orders));
-        
+
         // 사용자 주문 목록에 추가
         const user = authManager.getCurrentUser();
         user.orders.push(orderData.id);
-        
+
         // 포인트 적립 (결제 금액의 1%)
         const points = Math.floor(orderData.totalPrice * 0.01);
         user.points += points;
-        
+
         localStorage.setItem('currentUser', JSON.stringify(user));
-        
+
         // UI 복원
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        
+
         this.closeOrderModal();
-        
+
         // 성공 메시지
         this.showSuccessMessage(orderData, points);
-        
+
         // 주문 진행 시뮬레이션 시작
         this.startOrderProgress(orderData.id);
-        
+
         // 결제 영수증 생성
         this.generateReceipt(orderData);
     }
@@ -395,8 +393,8 @@ class ServiceManager {
     processFailedPayment(submitBtn, originalText) {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        
-        alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.\n\n오류 코드: PAYMENT_ERROR_' + Math.floor(Math.random() * 1000));
+
+        alert(`결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.\n\n오류 코드: PAYMENT_ERROR_${Math.floor(Math.random() * 1000)}`);
     }
 
     // 성공 메시지 표시
@@ -414,14 +412,14 @@ class ServiceManager {
             📊 주문 진행상황은 대시보드에서 확인하실 수 있습니다.
             📧 결제 영수증이 이메일로 발송됩니다.
         `;
-        
+
         alert(message);
     }
 
     // 결제 영수증 생성
     generateReceipt(orderData) {
         const receipt = {
-            id: 'RECEIPT_' + Date.now(),
+            id: `RECEIPT_${Date.now()}`,
             orderId: orderData.id,
             paymentId: orderData.paymentId,
             amount: orderData.totalPrice,
@@ -488,10 +486,10 @@ class ServiceManager {
     // 결제 방법 이름 반환
     getPaymentMethodName(method) {
         const methodNames = {
-            'card': '신용카드',
-            'bank': '계좌이체',
-            'kakaopay': '카카오페이',
-            'paypal': 'PayPal'
+            card: '신용카드',
+            bank: '계좌이체',
+            kakaopay: '카카오페이',
+            paypal: 'PayPal'
         };
         return methodNames[method] || method;
     }
@@ -502,17 +500,17 @@ class ServiceManager {
         if (!order) return;
 
         order.status = 'processing';
-        
+
         // 진행률을 점진적으로 증가
         const progressInterval = setInterval(() => {
             order.progress += Math.random() * 10;
-            
+
             if (order.progress >= 100) {
                 order.progress = 100;
                 order.status = 'completed';
                 order.completedAt = new Date().toISOString();
                 clearInterval(progressInterval);
-                
+
                 // 완료 알림 (실제 서비스에서는 이메일/SMS 등으로)
                 if (authManager.getCurrentUser()?.id === order.userId) {
                     setTimeout(() => {
@@ -520,7 +518,7 @@ class ServiceManager {
                     }, 1000);
                 }
             }
-            
+
             localStorage.setItem('orders', JSON.stringify(this.orders));
         }, 5000); // 5초마다 진행률 업데이트
     }
@@ -530,16 +528,16 @@ class ServiceManager {
         // 간단한 로그인 프롬프트
         const username = prompt('아이디를 입력하세요:');
         if (!username) return;
-        
+
         const password = prompt('비밀번호를 입력하세요:');
         if (!password) return;
-        
+
         try {
             authManager.login(username, password);
             alert('로그인되었습니다.');
         } catch (error) {
             alert(error.message);
-            
+
             // 회원가입 제안
             if (confirm('회원가입을 하시겠습니까?')) {
                 this.showRegisterModal();
@@ -551,23 +549,22 @@ class ServiceManager {
     showRegisterModal() {
         const username = prompt('사용하실 아이디를 입력하세요:');
         if (!username) return;
-        
+
         const email = prompt('이메일을 입력하세요:');
         if (!email) return;
-        
+
         const password = prompt('비밀번호를 입력하세요 (6자 이상):');
         if (!password) return;
-        
+
         const confirmPassword = prompt('비밀번호를 다시 입력하세요:');
         if (!confirmPassword) return;
-        
+
         try {
             authManager.register({ username, email, password, confirmPassword });
             alert('회원가입이 완료되었습니다. 로그인해주세요.');
-            
+
             // 자동 로그인
             authManager.login(username, password);
-            
         } catch (error) {
             alert(error.message);
         }
@@ -581,7 +578,7 @@ class ServiceManager {
     // 주문 상태 조회
     getOrderStatus(orderId) {
         const order = this.orders.find(o => o.id === orderId);
-        return order ? order : null;
+        return order || null;
     }
 }
 
@@ -604,7 +601,7 @@ function showDashboard() {
         alert('로그인이 필요합니다.');
         return;
     }
-    
+
     window.location.href = 'dashboard.html';
 }
 
@@ -614,7 +611,7 @@ function showProfile() {
         alert('로그인이 필요합니다.');
         return;
     }
-    
+
     const user = authManager.getCurrentUser();
     const profileInfo = `
         사용자 정보:
@@ -625,7 +622,7 @@ function showProfile() {
         총 주문 수: ${user.orders.length}개
         보유 포인트: ${user.points}P
     `;
-    
+
     alert(profileInfo);
 }
 
@@ -633,9 +630,9 @@ function showProfile() {
 const serviceManager = new ServiceManager();
 
 // 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 모달 외부 클릭시 닫기
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('orderModal');
         if (event.target === modal) {
             closeOrderModal();

@@ -10,9 +10,9 @@ let orderInfo = null;
 let selectedPaymentMethod = 'Card';
 
 // 페이지 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     if (!checkAuth()) return;
-    
+
     loadOrderInfo();
     setupPaymentMethods();
     initInicisPayments();
@@ -34,7 +34,7 @@ async function loadOrderInfo() {
     // URL 파라미터에서 주문 ID 가져오기
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order');
-    
+
     if (!orderId) {
         // 임시 주문 정보 (세션스토리지에서)
         const tempOrder = sessionStorage.getItem('pendingOrder');
@@ -47,15 +47,15 @@ async function loadOrderInfo() {
         }
         return;
     }
-    
+
     try {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/orders/${orderId}`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             orderInfo = data.data;
@@ -77,29 +77,29 @@ function displayOrderInfo(order) {
     if (serviceName) {
         serviceName.textContent = order.serviceName || '서비스';
     }
-    
+
     // 수량
     const quantity = document.getElementById('orderQuantity');
     if (quantity) {
         quantity.textContent = `수량: ${(order.quantity || 0).toLocaleString()}개`;
     }
-    
+
     // URL
     const url = document.getElementById('orderUrl');
     if (url) {
         url.textContent = `대상 URL: ${order.targetUrl || ''}`;
     }
-    
+
     // 가격 정보
     const serviceAmount = order.price || order.totalPrice || 0;
     const vatAmount = Math.round(serviceAmount * 0.1);
     const finalAmount = serviceAmount + vatAmount;
-    
+
     document.getElementById('serviceAmount').textContent = `₩${serviceAmount.toLocaleString()}`;
     document.getElementById('vatAmount').textContent = `₩${vatAmount.toLocaleString()}`;
     document.getElementById('finalAmount').textContent = `₩${finalAmount.toLocaleString()}`;
     document.getElementById('orderTotalPrice').textContent = `₩${serviceAmount.toLocaleString()}`;
-    
+
     // 주문 정보 업데이트
     orderInfo.finalAmount = finalAmount;
 }
@@ -107,9 +107,9 @@ function displayOrderInfo(order) {
 // 결제 방법 설정
 function setupPaymentMethods() {
     const methodItems = document.querySelectorAll('.payment-method-item');
-    
+
     methodItems.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             // 모든 아이템에서 selected 클래스 제거
             methodItems.forEach(el => el.classList.remove('selected'));
             // 클릭한 아이템에 selected 클래스 추가
@@ -140,16 +140,16 @@ async function processPayment() {
         alert('주문 정보가 없습니다.');
         return;
     }
-    
+
     // 약관 동의 확인
     const agreeTerms = document.getElementById('agreeTerms');
     const agreePrivacy = document.getElementById('agreePrivacy');
-    
+
     if (!agreeTerms.checked || !agreePrivacy.checked) {
         alert('모든 약관에 동의해주세요.');
         return;
     }
-    
+
     // 결제 요청 데이터
     const paymentData = {
         orderId: orderInfo._id || generateOrderId(),
@@ -159,7 +159,7 @@ async function processPayment() {
         customerEmail: orderInfo.customerEmail || '',
         paymentMethod: selectedPaymentMethod
     };
-    
+
     try {
         // 백엔드에 결제 요청
         const token = localStorage.getItem('authToken');
@@ -167,13 +167,13 @@ async function processPayment() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(paymentData)
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // KG이니시스 결제창 호출
             if (window.INIStdPay) {
@@ -182,7 +182,7 @@ async function processPayment() {
                 payForm.id = 'inicisPayForm';
                 payForm.method = 'POST';
                 payForm.acceptCharset = 'UTF-8';
-                
+
                 // 필수 파라미터 설정
                 const payParams = {
                     version: '1.0',
@@ -201,7 +201,7 @@ async function processPayment() {
                     acceptmethod: 'CARDPOINT:HPP(1):below1000',
                     currency: 'WON'
                 };
-                
+
                 // 폼에 파라미터 추가
                 Object.keys(payParams).forEach(key => {
                     const input = document.createElement('input');
@@ -210,9 +210,9 @@ async function processPayment() {
                     input.value = payParams[key];
                     payForm.appendChild(input);
                 });
-                
+
                 document.body.appendChild(payForm);
-                
+
                 // KG이니시스 결제창 호출
                 INIStdPay.pay('inicisPayForm');
             } else {
@@ -235,14 +235,14 @@ async function processVirtualAccount() {
         alert('주문 정보가 없습니다.');
         return;
     }
-    
+
     try {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/payments/virtual-account`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 orderId: orderInfo._id || generateOrderId(),
@@ -250,9 +250,9 @@ async function processVirtualAccount() {
                 customerName: orderInfo.customerName || '고객'
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // 가상계좌 정보 표시
             displayVirtualAccountInfo(data.data);
@@ -298,7 +298,7 @@ function displayVirtualAccountInfo(accountInfo) {
             <button onclick="closeVirtualAccountModal()">확인</button>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 }
 
@@ -326,28 +326,28 @@ async function applyCoupon() {
         alert('쿠폰 코드를 입력해주세요.');
         return;
     }
-    
+
     try {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/coupons/validate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 code: couponCode,
                 amount: orderInfo.finalAmount
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // 할인 적용
             const discount = data.data.discount;
             const newAmount = orderInfo.finalAmount - discount;
-            
+
             // UI 업데이트
             const discountRow = document.createElement('div');
             discountRow.className = 'total-row discount';
@@ -355,14 +355,14 @@ async function applyCoupon() {
                 <span>쿠폰 할인</span>
                 <span class="discount-amount">-₩${discount.toLocaleString()}</span>
             `;
-            
+
             const finalTotalRow = document.querySelector('.final-total');
             finalTotalRow.parentNode.insertBefore(discountRow, finalTotalRow);
-            
+
             // 최종 금액 업데이트
             orderInfo.finalAmount = newAmount;
             document.getElementById('finalAmount').textContent = `₩${newAmount.toLocaleString()}`;
-            
+
             alert('쿠폰이 적용되었습니다!');
         } else {
             alert(data.message || '유효하지 않은 쿠폰입니다.');
@@ -377,33 +377,33 @@ async function applyCoupon() {
 async function usePoints() {
     const pointsInput = document.getElementById('usePoints');
     const points = parseInt(pointsInput.value) || 0;
-    
+
     if (points <= 0) {
         alert('사용할 포인트를 입력해주세요.');
         return;
     }
-    
+
     try {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/users/points/check`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             const availablePoints = data.data.points;
-            
+
             if (points > availablePoints) {
                 alert(`사용 가능한 포인트는 ${availablePoints}포인트입니다.`);
                 return;
             }
-            
+
             // 포인트 적용
             const newAmount = Math.max(0, orderInfo.finalAmount - points);
-            
+
             // UI 업데이트
             const pointsRow = document.createElement('div');
             pointsRow.className = 'total-row points';
@@ -411,15 +411,15 @@ async function usePoints() {
                 <span>포인트 사용</span>
                 <span class="points-amount">-₩${points.toLocaleString()}</span>
             `;
-            
+
             const finalTotalRow = document.querySelector('.final-total');
             finalTotalRow.parentNode.insertBefore(pointsRow, finalTotalRow);
-            
+
             // 최종 금액 업데이트
             orderInfo.finalAmount = newAmount;
             orderInfo.usedPoints = points;
             document.getElementById('finalAmount').textContent = `₩${newAmount.toLocaleString()}`;
-            
+
             alert('포인트가 적용되었습니다!');
         }
     } catch (error) {
@@ -431,13 +431,13 @@ async function usePoints() {
 // 결제 방법 변환 (KG이니시스 형식)
 function convertPaymentMethod(method) {
     const methodMap = {
-        'Card': 'Card',           // 신용카드
-        'DirectBank': 'DirectBank', // 실시간계좌이체
-        'VBank': 'VBank',          // 가상계좌
-        'HPP': 'HPP',              // 휴대폰
-        'KAKAOPAY': 'onlykakaopay', // 카카오페이
-        'PAYCO': 'onlypayco',      // 페이코
-        'SSGPAY': 'onlyssp'        // SSG페이
+        Card: 'Card', // 신용카드
+        DirectBank: 'DirectBank', // 실시간계좌이체
+        VBank: 'VBank', // 가상계좌
+        HPP: 'HPP', // 휴대폰
+        KAKAOPAY: 'onlykakaopay', // 카카오페이
+        PAYCO: 'onlypayco', // 페이코
+        SSGPAY: 'onlyssp' // SSG페이
     };
     return methodMap[method] || 'Card';
 }
@@ -460,7 +460,7 @@ function processMobilePayment() {
         alert('주문 정보가 없습니다.');
         return;
     }
-    
+
     // 모바일 웹 결제는 리다이렉트 방식 사용
     const paymentData = {
         mid: INICIS_MID,
@@ -473,12 +473,12 @@ function processMobilePayment() {
         returnurl: `${window.location.origin}/payment-success.html`,
         paymethod: selectedPaymentMethod
     };
-    
+
     // 모바일 결제 페이지로 이동
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'https://mobile.inicis.com/smart/payment/';
-    
+
     Object.keys(paymentData).forEach(key => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -486,7 +486,7 @@ function processMobilePayment() {
         input.value = paymentData[key];
         form.appendChild(input);
     });
-    
+
     document.body.appendChild(form);
     form.submit();
 }

@@ -1,7 +1,7 @@
 // API 설정
 const API_CONFIG = {
     // Railway 배포 URL (실제 배포 URL로 변경 필요)
-    BASE_URL: window.location.hostname === 'localhost' 
+    BASE_URL: window.location.hostname === 'localhost'
         ? 'http://localhost:5001/api'
         : 'https://marketgrow-production-c586.up.railway.app/api',
     TIMEOUT: 30000,
@@ -23,8 +23,8 @@ const INICIS_CONFIG = {
     TEST_MID: 'INIpayTest',
     PRODUCTION_MID: '', // 실제 가맹점 ID 입력 필요
     // 결제 완료 후 리다이렉트 URL
-    RETURN_URL: window.location.origin + '/payment-success.html',
-    CLOSE_URL: window.location.origin + '/payment-fail.html'
+    RETURN_URL: `${window.location.origin}/payment-success.html`,
+    CLOSE_URL: `${window.location.origin}/payment-fail.html`
 };
 
 // 로컬 스토리지 키 (통일된 키 사용)
@@ -46,7 +46,7 @@ const ENV_CONFIG = {
     // 기능 플래그
     FEATURES: {
         ENABLE_CHAT: false, // 채팅 기능 (추후 활성화)
-        ENABLE_SOCIAL_LOGIN: false, // 소셜 로그인 (추후 활성화)
+        ENABLE_SOCIAL_LOGIN: true, // 소셜 로그인 활성화
         ENABLE_PWA: true, // PWA 기능
         ENABLE_ANALYTICS: true, // 분석 기능
         ENABLE_AB_TESTING: true // A/B 테스팅
@@ -75,8 +75,8 @@ const MONITORING_CONFIG = {
     THRESHOLDS: {
         FCP: 2000, // First Contentful Paint
         LCP: 2500, // Largest Contentful Paint
-        FID: 100,  // First Input Delay
-        CLS: 0.1   // Cumulative Layout Shift
+        FID: 100, // First Input Delay
+        CLS: 0.1 // Cumulative Layout Shift
     },
     // 에러 보고
     ERROR_REPORTING: {

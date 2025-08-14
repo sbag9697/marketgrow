@@ -134,11 +134,11 @@ serviceSchema.index({ tags: 1 });
 serviceSchema.index({ name: 'text', description: 'text' });
 
 // Calculate price for quantity
-serviceSchema.methods.calculatePrice = function(quantity, userLevel = 'bronze') {
+serviceSchema.methods.calculatePrice = function (quantity, userLevel = 'bronze') {
     // Find the appropriate pricing tier
     const sortedPricing = this.pricing.sort((a, b) => a.quantity - b.quantity);
     let applicablePricing = sortedPricing[0];
-    
+
     for (const pricing of sortedPricing) {
         if (quantity >= pricing.quantity) {
             applicablePricing = pricing;
@@ -146,16 +146,16 @@ serviceSchema.methods.calculatePrice = function(quantity, userLevel = 'bronze') 
             break;
         }
     }
-    
+
     // Calculate base price
     const pricePerUnit = applicablePricing.price / applicablePricing.quantity;
     let totalPrice = pricePerUnit * quantity;
-    
+
     // Apply quantity discount
     if (applicablePricing.discountRate > 0) {
         totalPrice = totalPrice * (1 - applicablePricing.discountRate);
     }
-    
+
     // Apply user level discount
     const userDiscounts = {
         bronze: 0,
@@ -164,15 +164,15 @@ serviceSchema.methods.calculatePrice = function(quantity, userLevel = 'bronze') 
         platinum: 0.15,
         diamond: 0.20
     };
-    
+
     const userDiscount = userDiscounts[userLevel] || 0;
     totalPrice = totalPrice * (1 - userDiscount);
-    
+
     return Math.round(totalPrice);
 };
 
 // Update statistics
-serviceSchema.methods.updateStats = async function(order) {
+serviceSchema.methods.updateStats = async function (order) {
     this.totalOrders += 1;
     this.totalRevenue += order.totalAmount;
     await this.save();

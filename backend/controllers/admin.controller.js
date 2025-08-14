@@ -132,7 +132,6 @@ const getDashboardStats = async (req, res) => {
                 revenueGrowthData
             }
         });
-
     } catch (error) {
         logger.error('Get dashboard stats error:', error);
         res.status(500).json({
@@ -204,7 +203,6 @@ const getUsers = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get users error:', error);
         res.status(500).json({
@@ -246,7 +244,6 @@ const updateUser = async (req, res) => {
             message: '사용자 정보가 업데이트되었습니다.',
             data: { user }
         });
-
     } catch (error) {
         logger.error('Update user error:', error);
         res.status(500).json({
@@ -318,7 +315,6 @@ const getAllOrders = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get all orders error:', error);
         res.status(500).json({
@@ -389,7 +385,6 @@ const getAllPayments = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get all payments error:', error);
         res.status(500).json({
@@ -459,7 +454,6 @@ const getServicesForAdmin = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get services for admin error:', error);
         res.status(500).json({
@@ -505,7 +499,6 @@ const upsertService = async (req, res) => {
             message: id ? '서비스가 업데이트되었습니다.' : '서비스가 생성되었습니다.',
             data: { service }
         });
-
     } catch (error) {
         logger.error('Upsert service error:', error);
         res.status(500).json({
@@ -550,7 +543,6 @@ const deleteService = async (req, res) => {
             success: true,
             message: '서비스가 삭제되었습니다.'
         });
-
     } catch (error) {
         logger.error('Delete service error:', error);
         res.status(500).json({
@@ -583,7 +575,6 @@ const getSystemLogs = async (req, res) => {
                 total: logs.length
             }
         });
-
     } catch (error) {
         logger.error('Get system logs error:', error);
         res.status(500).json({

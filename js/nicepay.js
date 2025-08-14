@@ -1,23 +1,23 @@
 // 나이스페이먼츠 결제 시스템
 const NICEPAY_CONFIG = {
     // 테스트 설정 (실제 운영시 변경 필요)
-    merchantID: 'nicepaytest',  // 실제 상점 ID로 변경 필요
+    merchantID: 'nicepaytest', // 실제 상점 ID로 변경 필요
     merchantKey: '33F49GnCMS1mFYlGXisbUDzVf2ATWCl9k3R++d5hDd3Frmuos/XLx8XhXpe+LDYAbpGKZYSwtlyyLOtS/8aD7A==', // 테스트 키
-    
+
     // 운영 URL (실제 운영시 변경)
-    // scriptUrl: 'https://pay.nicepay.co.kr/v1/js/', 
-    
+    // scriptUrl: 'https://pay.nicepay.co.kr/v1/js/',
+
     // 테스트 URL
     scriptUrl: 'https://pay.nicepay.co.kr/v1/js/',
-    
+
     // 결제 설정
-    payMethod: 'CARD',  // CARD(신용카드), BANK(계좌이체), VBANK(가상계좌)
+    payMethod: 'CARD', // CARD(신용카드), BANK(계좌이체), VBANK(가상계좌)
     currency: 'KRW',
     charset: 'utf-8',
-    
+
     // 콜백 URL
-    returnUrl: window.location.origin + '/payment-success.html',
-    cancelUrl: window.location.origin + '/payment-fail.html'
+    returnUrl: `${window.location.origin}/payment-success.html`,
+    cancelUrl: `${window.location.origin}/payment-fail.html`
 };
 
 class NicepaySystem {
@@ -47,7 +47,7 @@ class NicepaySystem {
             }
 
             const script = document.createElement('script');
-            script.src = NICEPAY_CONFIG.scriptUrl + 'nicepay-pgweb.js';
+            script.src = `${NICEPAY_CONFIG.scriptUrl}nicepay-pgweb.js`;
             script.type = 'text/javascript';
             script.onload = () => {
                 console.log('나이스페이 스크립트 로드 완료');
@@ -94,22 +94,22 @@ class NicepaySystem {
             BuyerTel: buyerTel,
             BuyerEmail: buyerEmail,
             Moid: orderNumber,
-            
+
             // 결제 방법
             PayMethod: payMethod,
-            
+
             // 인증 정보
             EdiDate: ediDate,
             SignData: signData,
-            
+
             // 결제창 설정
             CharSet: NICEPAY_CONFIG.charset,
             ReturnURL: NICEPAY_CONFIG.returnUrl,
-            
+
             // 추가 옵션
-            GoodsCl: '1',  // 상품구분(1:실물, 0:디지털)
+            GoodsCl: '1', // 상품구분(1:실물, 0:디지털)
             TransType: '0', // 일반결제
-            
+
             // 가상계좌 추가 설정 (필요시)
             VbankExpDate: payMethod === 'VBANK' ? this.getVbankExpDate() : ''
         };
@@ -180,7 +180,7 @@ class NicepaySystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify(vbankData)
             });
@@ -195,14 +195,14 @@ class NicepaySystem {
                     accountNumber: result.vbankNum,
                     accountHolder: result.vbankName,
                     expireDate: result.expDate,
-                    amount: amount
+                    amount
                 };
             } else {
                 throw new Error(result.message || '가상계좌 발급 실패');
             }
         } catch (error) {
             console.error('가상계좌 발급 오류:', error);
-            
+
             // 임시 테스트용 응답
             return {
                 success: true,
@@ -211,7 +211,7 @@ class NicepaySystem {
                 accountNumber: '123-456-789012',
                 accountHolder: 'SNS그로우',
                 expireDate: this.getVbankExpDate(7),
-                amount: amount
+                amount
             };
         }
     }
@@ -223,7 +223,7 @@ class NicepaySystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({ tid, amount })
             });
@@ -243,7 +243,7 @@ class NicepaySystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                    Authorization: `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({ tid, amount, reason })
             });
@@ -261,13 +261,13 @@ class NicepaySystem {
         // 서버에서 생성해야 하는 보안 데이터
         // 임시로 테스트용 서명 반환
         const data = ediDate + NICEPAY_CONFIG.merchantID + price + NICEPAY_CONFIG.merchantKey;
-        
+
         // SHA-256 해시 (실제로는 서버에서)
         const msgBuffer = new TextEncoder().encode(data);
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
+
         return hashHex;
     }
 
@@ -278,7 +278,7 @@ class NicepaySystem {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-        
+
         return `MG${year}${month}${day}${random}`;
     }
 
@@ -291,7 +291,7 @@ class NicepaySystem {
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const seconds = String(date.getSeconds()).padStart(2, '0');
-        
+
         return `${year}${month}${day}${hours}${minutes}${seconds}`;
     }
 
@@ -299,11 +299,11 @@ class NicepaySystem {
     getVbankExpDate(days = 7) {
         const date = new Date();
         date.setDate(date.getDate() + days);
-        
+
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-        
+
         return `${year}${month}${day}`;
     }
 
@@ -337,32 +337,32 @@ class NicepaySystem {
             '090': '카카오뱅크',
             '092': '토스뱅크'
         };
-        
+
         return banks[code] || '기타은행';
     }
 
     // 결제 상태 확인
     getPaymentStatus(resultCode) {
         const statuses = {
-            '3001': '카드결제 성공',
-            '4000': '계좌이체 성공',
-            '4100': '가상계좌 발급 성공',
-            'A000': '휴대폰 결제 성공',
-            '7001': '현금영수증 발급 성공'
+            3001: '카드결제 성공',
+            4000: '계좌이체 성공',
+            4100: '가상계좌 발급 성공',
+            A000: '휴대폰 결제 성공',
+            7001: '현금영수증 발급 성공'
         };
-        
+
         return statuses[resultCode] || '결제 처리중';
     }
 
     // 오류 메시지
     getErrorMessage(resultCode) {
         const errors = {
-            '7031': '사용자 취소',
-            '7034': '결제 시간 초과',
-            '8000': '결제 실패',
-            '9000': '시스템 오류'
+            7031: '사용자 취소',
+            7034: '결제 시간 초과',
+            8000: '결제 실패',
+            9000: '시스템 오류'
         };
-        
+
         return errors[resultCode] || '알 수 없는 오류';
     }
 }

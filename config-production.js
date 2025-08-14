@@ -11,11 +11,11 @@ const PRODUCTION_CONFIG = {
             mid: 'YOUR_ACTUAL_MID', // 예: SIGNsns001
             signKey: 'YOUR_ACTUAL_SIGN_KEY',
             apiKey: 'YOUR_ACTUAL_API_KEY',
-            
+
             // 운영 URL (테스트 완료 후 변경)
             scriptUrl: 'https://stdpay.inicis.com/stdjs/INIStdPay.js',
             apiUrl: 'https://iniapi.inicis.com/api/v1',
-            
+
             // 웹훅 URL
             webhookUrl: 'https://YOUR_DOMAIN/api/payments/inicis/webhook'
         }
@@ -33,7 +33,7 @@ const PRODUCTION_CONFIG = {
             clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET', // Backend에서 필요
             redirectUri: 'https://YOUR_DOMAIN/auth/google/callback'
         },
-        
+
         // Kakao 로그인
         kakao: {
             // ✅ Kakao 설정 완료
@@ -42,7 +42,7 @@ const PRODUCTION_CONFIG = {
             appSecret: 'YOUR_KAKAO_APP_SECRET', // REST API 키 (필요시)
             redirectUri: 'https://YOUR_DOMAIN/auth/kakao/callback'
         },
-        
+
         // Naver 로그인
         naver: {
             // ✅ Naver 설정 완료
@@ -63,7 +63,7 @@ const PRODUCTION_CONFIG = {
             apiKey: 'YOUR_ALIGO_API_KEY',
             userId: 'YOUR_ALIGO_USER_ID',
             sender: '010-5772-8658', // 발신번호 (사전 등록 필요)
-            
+
             // API 엔드포인트
             sendUrl: 'https://apis.aligo.in/send/',
             checkUrl: 'https://apis.aligo.in/check/'
@@ -80,7 +80,7 @@ const PRODUCTION_CONFIG = {
             fromEmail: 'marketgrow.kr@gmail.com',
             fromName: 'SNS그로우'
         },
-        
+
         // 또는 AWS SES
         aws: {
             accessKeyId: 'YOUR_AWS_ACCESS_KEY',
@@ -96,10 +96,10 @@ const PRODUCTION_CONFIG = {
         // API 서버
         apiUrl: 'https://marketgrow-production-c586.up.railway.app/api',
         wsUrl: 'wss://marketgrow-production-c586.up.railway.app',
-        
+
         // 실제 도메인 (구매 후 설정)
         domain: 'https://marketgrow.kr',
-        
+
         // CDN (선택사항)
         cdnUrl: 'https://cdn.marketgrow.kr'
     },
@@ -110,10 +110,10 @@ const PRODUCTION_CONFIG = {
     security: {
         // JWT 시크릿 (백엔드와 동일하게)
         jwtSecret: 'YOUR_SUPER_SECRET_JWT_KEY_CHANGE_THIS',
-        
+
         // 암호화 키
         encryptionKey: 'YOUR_ENCRYPTION_KEY',
-        
+
         // CORS 허용 도메인
         allowedOrigins: [
             'https://marketgrow.kr',
@@ -129,12 +129,12 @@ const PRODUCTION_CONFIG = {
         googleAnalytics: {
             trackingId: 'G-XXXXXXXXXX'
         },
-        
+
         // Facebook Pixel
         facebookPixel: {
             pixelId: 'YOUR_FACEBOOK_PIXEL_ID'
         },
-        
+
         // Naver Analytics
         naverAnalytics: {
             accountId: 'YOUR_NAVER_ANALYTICS_ID'
@@ -150,7 +150,7 @@ const PRODUCTION_CONFIG = {
         registrationNumber: '154-38-01411',
         phone: '010-5772-8658',
         email: 'marketgrow.kr@gmail.com',
-        address: '', // 필요시 추가
+        address: '' // 필요시 추가
     }
 };
 
@@ -166,30 +166,30 @@ if (typeof module !== 'undefined' && module.exports) {
 // ============================================
 function validateConfig() {
     const errors = [];
-    
+
     // 필수 설정 확인
     if (PRODUCTION_CONFIG.payment.inicis.mid === 'YOUR_ACTUAL_MID') {
         errors.push('KG이니시스 MID가 설정되지 않았습니다');
     }
-    
+
     if (PRODUCTION_CONFIG.social.google.clientId.includes('YOUR_')) {
         errors.push('Google Client ID가 설정되지 않았습니다');
     }
-    
+
     if (PRODUCTION_CONFIG.social.kakao.appKey === 'YOUR_KAKAO_APP_KEY') {
         errors.push('Kakao App Key가 설정되지 않았습니다');
     }
-    
+
     if (PRODUCTION_CONFIG.sms.aligo.apiKey === 'YOUR_ALIGO_API_KEY') {
         errors.push('Aligo API Key가 설정되지 않았습니다');
     }
-    
+
     if (errors.length > 0) {
         console.warn('⚠️ 운영 설정 경고:');
         errors.forEach(error => console.warn(`  - ${error}`));
         return false;
     }
-    
+
     console.log('✅ 모든 운영 설정이 완료되었습니다');
     return true;
 }

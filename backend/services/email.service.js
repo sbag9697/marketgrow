@@ -38,7 +38,7 @@ class EmailService {
     // 인증 코드 검증
     verifyCode(email, code) {
         const stored = this.verificationCodes.get(email);
-        
+
         if (!stored) {
             return { success: false, message: '인증 코드가 만료되었거나 존재하지 않습니다.' };
         }
@@ -71,7 +71,7 @@ class EmailService {
             // 인증 코드 생성
             const code = this.generateVerificationCode();
             this.saveVerificationCode(email, code);
-            
+
             const mailOptions = {
                 from: `"MarketGrow" <${process.env.EMAIL_USER || 'noreply@marketgrow.com'}>`,
                 to: email,
@@ -123,18 +123,18 @@ class EmailService {
 
             const info = await this.transporter.sendMail(mailOptions);
             console.log('Verification email sent:', info.messageId);
-            
-            return { 
-                success: true, 
+
+            return {
+                success: true,
                 message: '인증 이메일이 발송되었습니다.',
-                messageId: info.messageId 
+                messageId: info.messageId
             };
         } catch (error) {
             console.error('Email sending error:', error);
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
-                error: error.message 
+                error: error.message
             };
         }
     }
@@ -196,18 +196,18 @@ class EmailService {
 
             const info = await this.transporter.sendMail(mailOptions);
             console.log('Verification email sent:', info.messageId);
-            
-            return { 
-                success: true, 
+
+            return {
+                success: true,
                 message: '인증 코드가 이메일로 발송되었습니다.',
-                messageId: info.messageId 
+                messageId: info.messageId
             };
         } catch (error) {
             console.error('Email sending error:', error);
-            return { 
-                success: false, 
+            return {
+                success: false,
                 message: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
-                error: error.message 
+                error: error.message
             };
         }
     }

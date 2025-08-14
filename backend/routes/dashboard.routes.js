@@ -12,26 +12,26 @@ router.get('/dashboard', auth, async (req, res) => {
 
         // 전체 주문 수
         const totalOrders = await Order.countDocuments({ user: userId });
-        
+
         // 진행중인 주문
-        const activeOrders = await Order.countDocuments({ 
-            user: userId, 
-            status: { $in: ['pending', 'processing'] } 
+        const activeOrders = await Order.countDocuments({
+            user: userId,
+            status: { $in: ['pending', 'processing'] }
         });
-        
+
         // 완료된 주문
-        const completedOrders = await Order.countDocuments({ 
-            user: userId, 
-            status: 'completed' 
+        const completedOrders = await Order.countDocuments({
+            user: userId,
+            status: 'completed'
         });
-        
+
         // 총 사용 금액
         const totalSpentResult = await Order.aggregate([
             { $match: { user: mongoose.Types.ObjectId(userId) } },
             { $group: { _id: null, total: { $sum: '$totalAmount' } } }
         ]);
         const totalSpent = totalSpentResult[0]?.total || 0;
-        
+
         // 최근 주문 5개
         const recentOrders = await Order.find({ user: userId })
             .populate('service', 'name platform')

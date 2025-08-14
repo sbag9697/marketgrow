@@ -19,32 +19,32 @@ class EnhancedAnalytics {
 
         // Google Analytics 4 초기화
         this.initGA4();
-        
+
         // Google Tag Manager 초기화
         this.initGTM();
-        
+
         // 성능 모니터링 설정
         this.setupPerformanceMonitoring();
-        
+
         // 이벤트 추적 설정
         this.setupEventTracking();
-        
+
         // 사용자 행동 추적
         this.setupUserBehaviorTracking();
-        
+
         // 에러 추적 설정
         this.setupErrorTracking();
-        
+
         // 전자상거래 추적
         this.setupEcommerceTracking();
-        
+
         this.initialized = true;
         console.log('Enhanced Analytics 초기화 완료');
     }
 
     // 세션 ID 생성
     generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // 사용자 ID 가져오기
@@ -56,7 +56,7 @@ class EnhancedAnalytics {
 
     // 익명 사용자 ID 생성
     createAnonymousUserId() {
-        const id = 'anon_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        const id = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         localStorage.setItem('anonymous_user_id', id);
         return id;
     }
@@ -71,26 +71,26 @@ class EnhancedAnalytics {
 
         // gtag 초기화
         window.dataLayer = window.dataLayer || [];
-        window.gtag = function() {
+        window.gtag = function () {
             window.dataLayer.push(arguments);
         };
-        
+
         gtag('js', new Date());
-        
+
         // 기본 설정
         gtag('config', ANALYTICS_CONFIG.GA_MEASUREMENT_ID, {
-            'user_id': this.userId,
+            user_id: this.userId,
             'custom_map.dimension1': 'user_type',
             'custom_map.dimension2': 'session_id',
             'custom_map.dimension3': 'ab_test_variants',
-            'send_page_view': false // 수동으로 페이지뷰 전송
+            send_page_view: false // 수동으로 페이지뷰 전송
         });
 
         // 향상된 측정 설정
         gtag('set', {
-            'user_properties': {
-                'user_type': this.getUserType(),
-                'registration_date': this.getRegistrationDate()
+            user_properties: {
+                user_type: this.getUserType(),
+                registration_date: this.getRegistrationDate()
             }
         });
 
@@ -124,13 +124,13 @@ class EnhancedAnalytics {
     setupPerformanceMonitoring() {
         // Web Vitals 측정
         this.measureWebVitals();
-        
+
         // 리소스 타이밍 측정
         this.measureResourceTiming();
-        
+
         // 네비게이션 타이밍 측정
         this.measureNavigationTiming();
-        
+
         // 주기적 성능 체크 (5분마다)
         setInterval(() => {
             this.checkPerformanceThresholds();
@@ -210,7 +210,7 @@ class EnhancedAnalytics {
     measureResourceTiming() {
         window.addEventListener('load', () => {
             const resources = performance.getEntriesByType('resource');
-            
+
             // 리소스별 로딩 시간 집계
             const resourceStats = {
                 scripts: [],
@@ -237,7 +237,7 @@ class EnhancedAnalytics {
             });
 
             this.performanceData.resources = resourceStats;
-            
+
             // 느린 리소스 보고
             this.reportSlowResources(resourceStats);
         });
@@ -247,7 +247,7 @@ class EnhancedAnalytics {
     measureNavigationTiming() {
         window.addEventListener('load', () => {
             const navigation = performance.getEntriesByType('navigation')[0];
-            
+
             if (navigation) {
                 this.performanceData.navigation = {
                     domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
@@ -348,7 +348,7 @@ class EnhancedAnalytics {
     trackFormSubmissions() {
         document.addEventListener('submit', (e) => {
             const form = e.target;
-            
+
             const eventData = {
                 event_name: 'form_submit',
                 form_id: form.id,
@@ -380,7 +380,7 @@ class EnhancedAnalytics {
                 checkpoints.forEach(checkpoint => {
                     if (scrollPercent >= checkpoint && !reached.has(checkpoint)) {
                         reached.add(checkpoint);
-                        
+
                         this.trackEvent('scroll_depth', {
                             percentage: checkpoint,
                             pixels: window.scrollY,
@@ -428,7 +428,7 @@ class EnhancedAnalytics {
         // 주기적 전송 (30초마다)
         setInterval(() => {
             updateActiveTime();
-            
+
             this.trackEvent('time_on_page', {
                 total_time: Date.now() - startTime,
                 active_time: activeTime,
@@ -439,7 +439,7 @@ class EnhancedAnalytics {
         // 페이지 떠날 때
         window.addEventListener('beforeunload', () => {
             updateActiveTime();
-            
+
             this.trackEvent('page_exit', {
                 total_time: Date.now() - startTime,
                 active_time: activeTime,
@@ -452,10 +452,10 @@ class EnhancedAnalytics {
     setupUserBehaviorTracking() {
         // 마우스 이동 히트맵
         this.trackMouseMovement();
-        
+
         // 클릭 히트맵
         this.trackClickHeatmap();
-        
+
         // 세션 리플레이 (샘플링)
         if (Math.random() < 0.01) { // 1% 샘플링
             this.startSessionRecording();
@@ -489,7 +489,7 @@ class EnhancedAnalytics {
     trackClickHeatmap() {
         document.addEventListener('click', (e) => {
             const rect = document.documentElement.getBoundingClientRect();
-            
+
             this.trackEvent('click_heatmap', {
                 x: e.pageX,
                 y: e.pageY,
@@ -540,10 +540,10 @@ class EnhancedAnalytics {
     setupEcommerceTracking() {
         // 제품 조회
         this.trackProductViews();
-        
+
         // 장바구니 추가
         this.trackAddToCart();
-        
+
         // 구매 추적
         this.trackPurchases();
     }
@@ -614,7 +614,7 @@ class EnhancedAnalytics {
         // 로컬 저장 (분석용)
         this.events.push({
             name: eventName,
-            parameters: parameters,
+            parameters,
             timestamp: Date.now()
         });
 
@@ -702,7 +702,7 @@ class EnhancedAnalytics {
             resourceStats[type].forEach(resource => {
                 if (resource.duration > slowThreshold) {
                     slowResources.push({
-                        type: type,
+                        type,
                         name: resource.name,
                         duration: resource.duration
                     });
@@ -721,7 +721,7 @@ class EnhancedAnalytics {
     // 성능 위반 보고
     reportPerformanceViolations(violations) {
         this.trackEvent('performance_violation', {
-            violations: violations,
+            violations,
             page_path: window.location.pathname
         });
     }
@@ -729,7 +729,7 @@ class EnhancedAnalytics {
     // 마우스 이동 데이터 전송
     sendMouseMovements(movements) {
         this.trackEvent('mouse_movement', {
-            movements: movements,
+            movements,
             page_path: window.location.pathname
         });
     }
@@ -783,7 +783,7 @@ window.Analytics = {
     track: (eventName, parameters) => {
         window.enhancedAnalytics.trackEvent(eventName, parameters);
     },
-    
+
     // 전환 추적
     trackConversion: (conversionType, value) => {
         window.enhancedAnalytics.trackEvent('conversion', {
@@ -791,14 +791,14 @@ window.Analytics = {
             conversion_value: value
         });
     },
-    
+
     // 사용자 속성 설정
     setUserProperty: (name, value) => {
         if (typeof gtag !== 'undefined') {
             gtag('set', 'user_properties', { [name]: value });
         }
     },
-    
+
     // 데이터 내보내기
     export: () => window.enhancedAnalytics.exportAnalyticsData()
 };

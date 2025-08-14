@@ -2,17 +2,17 @@
 let payments = [];
 let filteredPayments = [];
 let currentPage = 1;
-let itemsPerPage = 10;
+const itemsPerPage = 10;
 let currentView = 'list';
 let selectedPayment = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 인증 확인
     checkAuthentication();
-    
+
     // 결제 내역 로드
     loadPaymentHistory();
-    
+
     // 이벤트 리스너 초기화
     initEventListeners();
 });
@@ -30,7 +30,7 @@ async function checkAuthentication() {
         if (!response.success) {
             throw new Error('인증 실패');
         }
-        
+
         // 사용자 정보 업데이트
         const navUserName = document.getElementById('navUserName');
         if (navUserName) {
@@ -46,15 +46,15 @@ async function checkAuthentication() {
 // 결제 내역 로드
 async function loadPaymentHistory() {
     try {
-        const response = await api.getPayments({ 
+        const response = await api.getPayments({
             limit: 100, // 충분한 데이터 로드
-            sort: '-createdAt' 
+            sort: '-createdAt'
         });
-        
+
         if (response.success) {
             payments = response.data.payments || [];
             filteredPayments = [...payments];
-            
+
             updateStatistics();
             renderPaymentList();
             renderPagination();
@@ -90,17 +90,17 @@ function updateStatistics() {
 function animateCountUp(elementId, finalValue) {
     const element = document.getElementById(elementId);
     if (!element || finalValue === 0) return;
-    
+
     let currentValue = 0;
     const increment = Math.ceil(finalValue / 30);
-    
+
     const timer = setInterval(() => {
         currentValue += increment;
         if (currentValue >= finalValue) {
             currentValue = finalValue;
             clearInterval(timer);
         }
-        
+
         element.textContent = currentValue.toLocaleString();
     }, 50);
 }
@@ -132,7 +132,7 @@ function renderPaymentList() {
 function renderListView(payments) {
     const paymentList = document.getElementById('paymentList');
     paymentList.className = 'payment-list list-view';
-    
+
     let listHTML = '';
     payments.forEach(payment => {
         const statusClass = getPaymentStatusClass(payment.status);
@@ -140,7 +140,7 @@ function renderListView(payments) {
         const methodIcon = getPaymentMethodIcon(payment.paymentMethod);
         const methodText = PaymentUtils.getPaymentMethodName(payment.paymentMethod);
         const paymentDate = new Date(payment.createdAt).toLocaleDateString('ko-KR');
-        
+
         listHTML += `
             <div class="payment-item" onclick="showPaymentDetail('${payment._id}')">
                 <div class="payment-main">
@@ -160,7 +160,7 @@ function renderListView(payments) {
             </div>
         `;
     });
-    
+
     paymentList.innerHTML = listHTML;
 }
 
@@ -168,13 +168,13 @@ function renderListView(payments) {
 function renderGridView(payments) {
     const paymentList = document.getElementById('paymentList');
     paymentList.className = 'payment-list grid-view';
-    
+
     let gridHTML = '';
     payments.forEach(payment => {
         const statusClass = getPaymentStatusClass(payment.status);
         const statusText = getPaymentStatusText(payment.status);
         const paymentDate = new Date(payment.createdAt).toLocaleDateString('ko-KR');
-        
+
         gridHTML += `
             <div class="payment-card" onclick="showPaymentDetail('${payment._id}')">
                 <div class="payment-card-header">
@@ -192,7 +192,7 @@ function renderGridView(payments) {
             </div>
         `;
     });
-    
+
     paymentList.innerHTML = gridHTML;
 }
 
@@ -202,7 +202,7 @@ function renderPagination() {
     if (!pagination) return;
 
     const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
-    
+
     if (totalPages <= 1) {
         pagination.innerHTML = '';
         return;
@@ -216,13 +216,13 @@ function renderPagination() {
     `;
 
     // 페이지 번호 표시 로직
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, currentPage + 2);
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
 
     if (startPage > 1) {
-        paginationHTML += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+        paginationHTML += '<button class="page-btn" onclick="changePage(1)">1</button>';
         if (startPage > 2) {
-            paginationHTML += `<span class="page-ellipsis">...</span>`;
+            paginationHTML += '<span class="page-ellipsis">...</span>';
         }
     }
 
@@ -235,7 +235,7 @@ function renderPagination() {
 
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            paginationHTML += `<span class="page-ellipsis">...</span>`;
+            paginationHTML += '<span class="page-ellipsis">...</span>';
         }
         paginationHTML += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
     }
@@ -255,7 +255,7 @@ function renderPagination() {
 function showEmptyState(message = '결제 내역이 없습니다.') {
     const paymentList = document.getElementById('paymentList');
     const pagination = document.getElementById('pagination');
-    
+
     paymentList.innerHTML = `
         <div class="empty-state">
             <i class="fas fa-credit-card"></i>
@@ -267,7 +267,7 @@ function showEmptyState(message = '결제 내역이 없습니다.') {
             </button>
         </div>
     `;
-    
+
     pagination.innerHTML = '';
 }
 
@@ -302,7 +302,7 @@ function applyFilters() {
                 payment.orderInfo?.orderNumber,
                 payment.orderInfo?.serviceName
             ].filter(Boolean).join(' ').toLowerCase();
-            
+
             if (!searchFields.includes(searchQuery)) {
                 return false;
             }
@@ -348,7 +348,7 @@ function resetFilters() {
     document.getElementById('methodFilter').value = '';
     document.getElementById('dateRange').value = 'all';
     document.getElementById('searchInput').value = '';
-    
+
     filteredPayments = [...payments];
     currentPage = 1;
     renderPaymentList();
@@ -365,13 +365,13 @@ function handleSearch(event) {
 // 뷰 전환
 function switchView(view) {
     currentView = view;
-    
+
     // 버튼 상태 업데이트
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.querySelector(`[data-view="${view}"]`).classList.add('active');
-    
+
     // 리스트 다시 렌더링
     renderPaymentList();
 }
@@ -379,13 +379,13 @@ function switchView(view) {
 // 페이지 변경
 function changePage(page) {
     const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
-    
+
     if (page < 1 || page > totalPages) return;
-    
+
     currentPage = page;
     renderPaymentList();
     renderPagination();
-    
+
     // 스크롤을 상단으로
     document.querySelector('.payment-list-card').scrollIntoView({ behavior: 'smooth' });
 }
@@ -402,10 +402,9 @@ async function showPaymentDetail(paymentId) {
         // 모달 콘텐츠 생성
         const modalContent = generatePaymentDetailContent(selectedPayment);
         document.getElementById('paymentDetailContent').innerHTML = modalContent;
-        
+
         // 모달 표시
         document.getElementById('paymentDetailModal').style.display = 'block';
-        
     } catch (error) {
         console.error('결제 상세 정보 로드 오류:', error);
         NotificationManager.error('결제 상세 정보를 불러올 수 없습니다.');
@@ -445,7 +444,8 @@ function generatePaymentDetailContent(payment) {
                 </div>
             </div>
 
-            ${payment.cardInfo ? `
+            ${payment.cardInfo
+        ? `
                 <div class="detail-section">
                     <h4>카드 정보</h4>
                     <div class="detail-grid">
@@ -467,9 +467,11 @@ function generatePaymentDetailContent(payment) {
                         </div>
                     </div>
                 </div>
-            ` : ''}
+            `
+        : ''}
 
-            ${payment.orderInfo ? `
+            ${payment.orderInfo
+        ? `
                 <div class="detail-section">
                     <h4>주문 정보</h4>
                     <div class="detail-grid">
@@ -495,9 +497,11 @@ function generatePaymentDetailContent(payment) {
                         </div>
                     </div>
                 </div>
-            ` : ''}
+            `
+        : ''}
 
-            ${payment.failureReason ? `
+            ${payment.failureReason
+        ? `
                 <div class="detail-section failure">
                     <h4>실패 정보</h4>
                     <div class="detail-item">
@@ -505,7 +509,8 @@ function generatePaymentDetailContent(payment) {
                         <div class="detail-value error">${payment.failureReason}</div>
                     </div>
                 </div>
-            ` : ''}
+            `
+        : ''}
         </div>
     `;
 }
@@ -521,7 +526,7 @@ function printPaymentReceipt() {
     if (!selectedPayment) return;
 
     const receiptContent = generateReceiptContent(selectedPayment);
-    
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -542,7 +547,7 @@ function printPaymentReceipt() {
         </body>
         </html>
     `);
-    
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
@@ -554,7 +559,7 @@ function printPaymentReceipt() {
 // 영수증 콘텐츠 생성
 function generateReceiptContent(payment) {
     const paymentDate = new Date(payment.createdAt).toLocaleString('ko-KR');
-    
+
     return `
         <div class="receipt-header">
             <h3>MarketGrow</h3>
@@ -597,16 +602,16 @@ function exportPaymentHistory() {
 
     // CSV 데이터 생성
     const csvData = generateCSVData(filteredPayments);
-    
+
     // 파일 다운로드
     const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute('href', url);
     link.setAttribute('download', `결제내역_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -630,13 +635,13 @@ function generateCSVData(payments) {
         .map(row => row.map(field => `"${field}"`).join(','))
         .join('\n');
 
-    return '\ufeff' + csvContent; // UTF-8 BOM 추가
+    return `\ufeff${csvContent}`; // UTF-8 BOM 추가
 }
 
 // 이벤트 리스너 초기화
 function initEventListeners() {
     // 모달 외부 클릭 시 닫기
-    window.addEventListener('click', function(event) {
+    window.addEventListener('click', (event) => {
         const modal = document.getElementById('paymentDetailModal');
         if (event.target === modal) {
             closePaymentDetailModal();
@@ -644,17 +649,17 @@ function initEventListeners() {
     });
 
     // 키보드 이벤트
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
             closePaymentDetailModal();
         }
     });
 
     // 사용자 메뉴 초기화
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', (event) => {
         const userMenu = document.querySelector('.user-menu');
         const userDropdown = document.getElementById('userDropdown');
-        
+
         if (userMenu && !userMenu.contains(event.target)) {
             userDropdown?.classList.remove('show');
         }
@@ -697,7 +702,7 @@ function getPaymentMethodIcon(method) {
 
 function formatUrl(url) {
     if (url.length > 40) {
-        return url.substring(0, 40) + '...';
+        return `${url.substring(0, 40)}...`;
     }
     return url;
 }

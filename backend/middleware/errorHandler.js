@@ -16,7 +16,7 @@ const errorHandler = (err, req, res, next) => {
     // Mongoose duplicate key
     if (err.code === 11000) {
         let message = '중복된 데이터입니다.';
-        
+
         // Extract field name from error
         const field = Object.keys(err.keyValue)[0];
         if (field === 'email') {
@@ -26,7 +26,7 @@ const errorHandler = (err, req, res, next) => {
         } else if (field === 'phone') {
             message = '이미 사용 중인 전화번호입니다.';
         }
-        
+
         error = { message, statusCode: 400 };
     }
 
@@ -84,9 +84,9 @@ const errorHandler = (err, req, res, next) => {
     res.status(error.statusCode || 500).json({
         success: false,
         message: error.message || '서버 내부 오류가 발생했습니다.',
-        ...(process.env.NODE_ENV === 'development' && { 
+        ...(process.env.NODE_ENV === 'development' && {
             stack: err.stack,
-            error: err 
+            error: err
         })
     });
 };

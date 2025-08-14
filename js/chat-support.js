@@ -16,7 +16,7 @@ class ChatSupport {
         this.isTyping = false;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
-        
+
         this.init();
     }
 
@@ -24,16 +24,16 @@ class ChatSupport {
     init() {
         // 사용자 정보 확인
         this.loadUserInfo();
-        
+
         // 채팅 위젯 생성
         this.createChatWidget();
-        
+
         // WebSocket 연결
         this.connectWebSocket();
-        
+
         // 이벤트 리스너 설정
         this.setupEventListeners();
-        
+
         // 저장된 채팅 기록 로드
         this.loadChatHistory();
     }
@@ -42,13 +42,13 @@ class ChatSupport {
     loadUserInfo() {
         const token = localStorage.getItem('authToken');
         const userInfo = localStorage.getItem('userInfo');
-        
+
         if (token && userInfo) {
             this.userInfo = JSON.parse(userInfo);
         } else {
             // 비로그인 사용자도 채팅 가능
             this.userInfo = {
-                id: 'guest_' + Date.now(),
+                id: `guest_${Date.now()}`,
                 name: '방문자',
                 type: 'guest'
             };
@@ -132,7 +132,7 @@ class ChatSupport {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(widget);
         this.chatWidget = widget;
     }
@@ -141,12 +141,12 @@ class ChatSupport {
     connectWebSocket() {
         try {
             this.socket = new WebSocket(`${WS_URL}/chat`);
-            
+
             this.socket.onopen = () => {
                 console.log('채팅 서버 연결됨');
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
-                
+
                 // 인증 정보 전송
                 this.socket.send(JSON.stringify({
                     type: 'auth',
@@ -154,25 +154,25 @@ class ChatSupport {
                     userName: this.userInfo.name,
                     userType: this.userInfo.type
                 }));
-                
+
                 this.updateConnectionStatus(true);
             };
-            
+
             this.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 this.handleMessage(data);
             };
-            
+
             this.socket.onerror = (error) => {
                 console.error('WebSocket 오류:', error);
                 this.updateConnectionStatus(false);
             };
-            
+
             this.socket.onclose = () => {
                 console.log('채팅 서버 연결 종료');
                 this.isConnected = false;
                 this.updateConnectionStatus(false);
-                
+
                 // 재연결 시도
                 if (this.reconnectAttempts < this.maxReconnectAttempts) {
                     setTimeout(() => {
@@ -193,7 +193,7 @@ class ChatSupport {
             case 'chat_id':
                 this.chatId = data.chatId;
                 break;
-                
+
             case 'message':
                 this.addMessage(data.message, data.sender, data.timestamp);
                 if (!this.isMinimized && data.sender === 'agent') {
@@ -201,25 +201,25 @@ class ChatSupport {
                     this.updateUnreadCount();
                 }
                 break;
-                
+
             case 'typing':
                 this.showTypingIndicator(data.isTyping);
                 break;
-                
+
             case 'agent_connected':
                 this.addSystemMessage('상담원이 연결되었습니다.');
                 this.updateConnectionStatus(true, data.agentName);
                 break;
-                
+
             case 'agent_disconnected':
                 this.addSystemMessage('상담원과의 연결이 종료되었습니다.');
                 this.updateConnectionStatus(false);
                 break;
-                
+
             case 'chat_history':
                 this.loadMessages(data.messages);
                 break;
-                
+
             case 'error':
                 this.addSystemMessage(data.message);
                 break;
@@ -229,23 +229,23 @@ class ChatSupport {
     // 메시지 전송
     sendMessage(message) {
         if (!message.trim()) return;
-        
+
         // UI에 메시지 추가
         this.addMessage(message, 'user');
-        
+
         // WebSocket으로 전송
         if (this.isConnected && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify({
                 type: 'message',
                 chatId: this.chatId,
-                message: message,
+                message,
                 timestamp: new Date().toISOString()
             }));
         } else {
             // 오프라인 모드: API로 전송
             this.sendMessageViaAPI(message);
         }
-        
+
         // 입력 필드 초기화
         document.getElementById('chatInput').value = '';
     }
@@ -258,15 +258,15 @@ class ChatSupport {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
+                    Authorization: token ? `Bearer ${token}` : ''
                 },
                 body: JSON.stringify({
                     chatId: this.chatId,
-                    message: message,
+                    message,
                     userId: this.userInfo.id
                 })
             });
-            
+
             const data = await response.json();
             if (data.success) {
                 // 자동 응답이 있으면 표시
@@ -285,7 +285,7 @@ class ChatSupport {
     // 빠른 답변 전송
     sendQuickReply(text) {
         this.sendMessage(text);
-        
+
         // 빠른 답변 버튼 숨기기
         const quickReplies = document.querySelector('.quick-replies');
         if (quickReplies) {
@@ -298,29 +298,29 @@ class ChatSupport {
         const messagesContainer = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
-        
+
         const time = timestamp ? new Date(timestamp) : new Date();
         const timeString = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`;
-        
+
         messageDiv.innerHTML = `
             <div class="message-content">
                 ${this.escapeHtml(text)}
                 <div class="message-time">${timeString}</div>
             </div>
         `;
-        
+
         messagesContainer.appendChild(messageDiv);
-        
+
         // 메시지 저장
         this.messages.push({
-            text: text,
-            sender: sender,
+            text,
+            sender,
             timestamp: time.toISOString()
         });
-        
+
         // 스크롤 하단으로
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
+
         // 로컬 스토리지에 저장
         this.saveChatHistory();
     }
@@ -353,7 +353,7 @@ class ChatSupport {
     updateConnectionStatus(connected, agentName = null) {
         const statusDot = document.querySelector('.status-dot');
         const statusText = document.querySelector('.status-text');
-        
+
         if (statusDot && statusText) {
             if (connected) {
                 statusDot.className = 'status-dot online';
@@ -392,7 +392,7 @@ class ChatSupport {
         const saved = localStorage.getItem('chatHistory');
         if (saved) {
             const history = JSON.parse(saved);
-            
+
             // 24시간 이내 대화만 복원
             const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
             if (new Date(history.timestamp) > dayAgo) {
@@ -415,29 +415,29 @@ class ChatSupport {
         document.getElementById('chatButton').addEventListener('click', () => {
             this.toggleChat();
         });
-        
+
         // 최소화 버튼
         document.getElementById('minimizeChat').addEventListener('click', () => {
             this.minimizeChat();
         });
-        
+
         // 닫기 버튼
         document.getElementById('closeChat').addEventListener('click', () => {
             this.closeChat();
         });
-        
+
         // 메시지 전송 폼
         document.getElementById('chatForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const input = document.getElementById('chatInput');
             this.sendMessage(input.value);
         });
-        
+
         // 타이핑 감지
         document.getElementById('chatInput').addEventListener('input', () => {
             this.handleTyping();
         });
-        
+
         // 엔터키 전송
         document.getElementById('chatInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -459,7 +459,7 @@ class ChatSupport {
                 }));
             }
         }
-        
+
         clearTimeout(this.typingTimeout);
         this.typingTimeout = setTimeout(() => {
             this.isTyping = false;
@@ -477,14 +477,14 @@ class ChatSupport {
     toggleChat() {
         const container = document.getElementById('chatContainer');
         const button = document.getElementById('chatButton');
-        
+
         if (container.style.display === 'none') {
             container.style.display = 'flex';
             button.style.display = 'none';
             this.isMinimized = false;
             this.unreadCount = 0;
             document.getElementById('unreadBadge').style.display = 'none';
-            
+
             // 입력 필드에 포커스
             setTimeout(() => {
                 document.getElementById('chatInput').focus();
@@ -506,7 +506,7 @@ class ChatSupport {
         document.getElementById('chatContainer').style.display = 'none';
         document.getElementById('chatButton').style.display = 'flex';
         this.isMinimized = false;
-        
+
         // WebSocket 연결 종료
         if (this.socket) {
             this.socket.close();
@@ -860,7 +860,7 @@ let chatSupport = null;
 document.addEventListener('DOMContentLoaded', () => {
     // 채팅 위젯 초기화
     chatSupport = new ChatSupport();
-    
+
     // 전역 함수 등록
     window.chatSupport = chatSupport;
 });

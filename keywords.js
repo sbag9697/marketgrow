@@ -1,6 +1,6 @@
 // Keywords Pages JavaScript (Video & Live Keywords)
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     initializePlatformTabs();
     initializeAnimations();
     initializeModal();
@@ -10,15 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializePlatformTabs() {
     const platformTabs = document.querySelectorAll('.platform-tab');
     const platformContents = document.querySelectorAll('.platform-content');
-    
+
     platformTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function () {
             const targetPlatform = this.getAttribute('data-platform');
-            
+
             // Remove active class from all tabs and contents
             platformTabs.forEach(t => t.classList.remove('active'));
             platformContents.forEach(c => c.classList.remove('active'));
-            
+
             // Add active class to clicked tab and corresponding content
             this.classList.add('active');
             const targetContent = document.querySelector(`[data-platform="${targetPlatform}"].platform-content`);
@@ -35,27 +35,27 @@ function initializeAnimations() {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
     };
-    
-    const observer = new IntersectionObserver(function(entries) {
+
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
-                
+
                 // Add staggered animation for grid items
-                if (entry.target.classList.contains('work-item') || 
-                    entry.target.classList.contains('package-card') || 
+                if (entry.target.classList.contains('work-item') ||
+                    entry.target.classList.contains('package-card') ||
                     entry.target.classList.contains('story-card')) {
                     const delay = Array.from(entry.target.parentNode.children).indexOf(entry.target) * 100;
-                    entry.target.style.transitionDelay = delay + 'ms';
+                    entry.target.style.transitionDelay = `${delay}ms`;
                 }
             }
         });
     }, observerOptions);
-    
+
     // Observe elements for animation
     const animatedElements = document.querySelectorAll('.work-item, .package-card, .story-card, .guarantee-item');
-    
+
     animatedElements.forEach(element => {
         element.style.opacity = '0';
         element.style.transform = 'translateY(30px)';
@@ -68,16 +68,16 @@ function initializeAnimations() {
 function initializeModal() {
     const modal = document.getElementById('consultationModal');
     const form = document.getElementById('consultationForm');
-    
+
     if (form) {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
             handleConsultationSubmit();
         });
     }
-    
+
     // Close modal when clicking outside
-    window.addEventListener('click', function(e) {
+    window.addEventListener('click', (e) => {
         if (e.target === modal) {
             closeConsultation();
         }
@@ -90,7 +90,7 @@ function openConsultation() {
     if (modal) {
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
-        
+
         // Focus on first input
         setTimeout(() => {
             const firstInput = modal.querySelector('input');
@@ -107,7 +107,7 @@ function closeConsultation() {
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
-        
+
         // Reset form
         const form = document.getElementById('consultationForm');
         if (form) {
@@ -120,12 +120,12 @@ function closeConsultation() {
 function handleConsultationSubmit() {
     const form = document.getElementById('consultationForm');
     const submitBtn = form.querySelector('.submit-btn');
-    
+
     // Show loading state
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 전송 중...';
     submitBtn.disabled = true;
-    
+
     // Get form data
     const formData = new FormData(form);
     const consultationData = {
@@ -135,19 +135,19 @@ function handleConsultationSubmit() {
         platform: formData.get('consultPlatform') || document.getElementById('consultPlatform').value,
         keywords: formData.get('consultKeywords') || document.getElementById('consultKeywords').value
     };
-    
+
     // Simulate API call
     setTimeout(() => {
         // Reset button
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
-        
+
         // Show success message
         showNotification('상담 신청이 완료되었습니다! 24시간 내에 연락드리겠습니다.', 'success');
-        
+
         // Close modal
         closeConsultation();
-        
+
         // In real implementation, you would send this data to your backend
         console.log('Consultation request:', consultationData);
     }, 2000);
@@ -157,11 +157,11 @@ function handleConsultationSubmit() {
 function selectPackage(packageType, platform) {
     // Show confirmation
     const confirmMessage = `${platform} ${packageType} 패키지를 선택하시겠습니까?`;
-    
+
     if (confirm(confirmMessage)) {
         // In real implementation, redirect to order page or open order modal
         showNotification('주문 페이지로 이동합니다...', 'info');
-        
+
         setTimeout(() => {
             // Redirect to order page with package info
             window.location.href = `order-method.html?package=${packageType}&platform=${platform}`;
@@ -176,7 +176,7 @@ function showNotification(message, type = 'info') {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
@@ -189,7 +189,7 @@ function showNotification(message, type = 'info') {
             </button>
         </div>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -204,10 +204,10 @@ function showNotification(message, type = 'info') {
         animation: slideInRight 0.3s ease;
         max-width: 400px;
     `;
-    
+
     // Add to page
     document.body.appendChild(notification);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
         if (notification.parentNode) {
@@ -286,12 +286,12 @@ notificationStyles.textContent = `
 document.head.appendChild(notificationStyles);
 
 // Package button click handlers
-document.addEventListener('click', function(e) {
+document.addEventListener('click', (e) => {
     if (e.target.classList.contains('package-btn')) {
         const packageCard = e.target.closest('.package-card');
         const packageName = packageCard.querySelector('.package-header h4').textContent;
         const platform = packageCard.closest('.platform-content').getAttribute('data-platform');
-        
+
         selectPackage(packageName, platform);
     }
 });
@@ -300,7 +300,7 @@ document.addEventListener('click', function(e) {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
             target.scrollIntoView({
@@ -312,27 +312,27 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // Add hover effects for interactive elements
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // Add ripple effect to buttons
     const buttons = document.querySelectorAll('.package-btn, .cta-btn, .submit-btn');
-    
+
     buttons.forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', function (e) {
             if (this.querySelector('.ripple')) {
                 this.querySelector('.ripple').remove();
             }
-            
+
             const circle = document.createElement('span');
             const diameter = Math.max(this.clientWidth, this.clientHeight);
             const radius = diameter / 2;
-            
-            circle.style.width = circle.style.height = diameter + 'px';
-            circle.style.left = (e.clientX - this.offsetLeft - radius) + 'px';
-            circle.style.top = (e.clientY - this.offsetTop - radius) + 'px';
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - this.offsetLeft - radius}px`;
+            circle.style.top = `${e.clientY - this.offsetTop - radius}px`;
             circle.classList.add('ripple');
-            
+
             this.appendChild(circle);
-            
+
             setTimeout(() => circle.remove(), 600);
         });
     });
@@ -369,7 +369,7 @@ function validateConsultationForm() {
     const form = document.getElementById('consultationForm');
     const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
     let isValid = true;
-    
+
     inputs.forEach(input => {
         if (!input.value.trim()) {
             input.style.borderColor = '#e53e3e';
@@ -378,7 +378,7 @@ function validateConsultationForm() {
             input.style.borderColor = '#e2e8f0';
         }
     });
-    
+
     // Email validation
     const emailInput = document.getElementById('consultEmail');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -386,7 +386,7 @@ function validateConsultationForm() {
         emailInput.style.borderColor = '#e53e3e';
         isValid = false;
     }
-    
+
     // Phone validation
     const phoneInput = document.getElementById('consultPhone');
     const phoneRegex = /^[0-9-+\s()]+$/;
@@ -394,22 +394,22 @@ function validateConsultationForm() {
         phoneInput.style.borderColor = '#e53e3e';
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 // Real-time form validation
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('consultationForm');
     if (form) {
         const inputs = form.querySelectorAll('input, select, textarea');
-        
+
         inputs.forEach(input => {
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', () => {
                 validateConsultationForm();
             });
-            
-            input.addEventListener('input', function() {
+
+            input.addEventListener('input', function () {
                 if (this.style.borderColor === 'rgb(229, 62, 62)') {
                     this.style.borderColor = '#e2e8f0';
                 }
@@ -419,14 +419,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Keyboard navigation
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', (e) => {
     const modal = document.getElementById('consultationModal');
-    
+
     // Close modal with Escape key
     if (e.key === 'Escape' && modal && modal.style.display === 'block') {
         closeConsultation();
     }
-    
+
     // Submit form with Ctrl+Enter
     if (e.ctrlKey && e.key === 'Enter' && modal && modal.style.display === 'block') {
         const form = document.getElementById('consultationForm');
@@ -446,7 +446,7 @@ const lazyAnimationObserver = new IntersectionObserver((entries) => {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const animatableElements = document.querySelectorAll('.work-item, .package-card, .story-card');
     animatableElements.forEach(el => {
         lazyAnimationObserver.observe(el);

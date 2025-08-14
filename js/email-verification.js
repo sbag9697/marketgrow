@@ -18,8 +18,8 @@ class EmailVerification {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    email: email,
-                    purpose: purpose // signup, password-reset, email-change
+                    email,
+                    purpose // signup, password-reset, email-change
                 })
             });
 
@@ -57,7 +57,7 @@ class EmailVerification {
                 },
                 body: JSON.stringify({
                     email: this.email,
-                    code: code
+                    code
                 })
             });
 
@@ -139,7 +139,7 @@ class EmailVerification {
     // 타이머 만료 처리
     onTimerExpired() {
         const expiredMessage = '인증 시간이 만료되었습니다. 다시 시도해주세요.';
-        
+
         // 만료 메시지 표시
         const messageElements = document.querySelectorAll('.verification-message');
         messageElements.forEach(element => {
@@ -309,7 +309,7 @@ class EmailVerificationUI {
         if (result.success) {
             this.showStep('successStep');
             this.showSuccess(result.message);
-            
+
             // 성공 콜백 실행
             if (this.onSuccess) {
                 this.onSuccess(result.token);

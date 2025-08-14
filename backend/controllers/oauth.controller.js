@@ -53,37 +53,64 @@ exports.googleAuth = async (req, res) => {
             });
         }
 
-        const { sub: id, email, name, picture } = ticket;
+        const { sub: googleId, email, name, picture } = ticket;
 
         // 기존 사용자 확인 또는 새 사용자 생성
         let user = await User.findOne({
             $or: [
-                { socialId: id, socialProvider: 'google' },
-                { email: email }
+                { socialId: googleId, socialProvider: 'google' },
+                { email }
             ]
         });
 
         if (!user) {
             // 새 사용자 생성
-            const username = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + '_' + Date.now().toString(36);
-            
-            user = await User.create({
-                username: username.substring(0, 16), // 최대 16자
-                email,
-                name: name || email.split('@')[0],
-                socialProvider: 'google',
-                socialId: id,
-                profileImage: picture,
-                isEmailVerified: true,
-                phone: '0000000000', // 임시 전화번호
-                businessType: 'personal', // 기본 비즈니스 타입
-                termsAcceptedAt: new Date(),
-                marketingConsent: false // 기본값
-            });
+            // username을 더 안전하게 생성
+            const emailPrefix = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
+            const randomSuffix = Math.random().toString(36).substring(2, 6);
+            const username = `${emailPrefix}_${randomSuffix}`;
+
+            try {
+                user = await User.create({
+                    username: username.substring(0, 16), // 최대 16자
+                    email,
+                    name: name || email.split('@')[0],
+                    socialProvider: 'google',
+                    socialId: googleId,
+                    profileImage: picture,
+                    isEmailVerified: true,
+                    phone: '01000000000', // 한국 전화번호 형식
+                    businessType: 'personal', // 기본 비즈니스 타입
+                    termsAcceptedAt: new Date(),
+                    marketingConsent: false // 기본값
+                });
+            } catch (createError) {
+                console.error('User creation error:', createError);
+                
+                // username 중복 시 재시도
+                if (createError.code === 11000 && createError.keyPattern && createError.keyPattern.username) {
+                    const newUsername = `${emailPrefix}_${Date.now().toString(36).substring(-4)}`;
+                    user = await User.create({
+                        username: newUsername.substring(0, 16),
+                        email,
+                        name: name || email.split('@')[0],
+                        socialProvider: 'google',
+                        socialId: googleId,
+                        profileImage: picture,
+                        isEmailVerified: true,
+                        phone: '01000000000',
+                        businessType: 'personal',
+                        termsAcceptedAt: new Date(),
+                        marketingConsent: false
+                    });
+                } else {
+                    throw createError;
+                }
+            }
         } else if (!user.socialProvider) {
             // 이메일로 가입한 사용자가 소셜 로그인 시도
             user.socialProvider = 'google';
-            user.socialId = id;
+            user.socialId = googleId;
             user.profileImage = picture;
             await user.save();
         }
@@ -111,15 +138,14 @@ exports.googleAuth = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Google OAuth Error:', error);
         console.error('Error details:', error.message);
         console.error('Error stack:', error.stack);
-        
+
         // 더 구체적인 에러 메시지 제공
         let errorMessage = '구글 로그인 중 오류가 발생했습니다.';
-        
+
         if (error.message && error.message.includes('duplicate key')) {
             errorMessage = '이미 가입된 이메일입니다.';
         } else if (error.message && error.message.includes('validation')) {
@@ -127,7 +153,7 @@ exports.googleAuth = async (req, res) => {
         } else if (error.message && error.message.includes('network')) {
             errorMessage = '네트워크 오류가 발생했습니다.';
         }
-        
+
         res.status(500).json({
             success: false,
             message: errorMessage,
@@ -167,14 +193,14 @@ exports.kakaoAuth = async (req, res) => {
         let user = await User.findOne({
             $or: [
                 { socialId: id.toString(), socialProvider: 'kakao' },
-                { email: email }
+                { email }
             ]
         });
 
         if (!user) {
             // 새 사용자 생성
-            const username = 'kakao_' + id.toString();
-            
+            const username = `kakao_${id.toString()}`;
+
             user = await User.create({
                 username: username.substring(0, 16), // 최대 16자
                 email,
@@ -219,7 +245,6 @@ exports.kakaoAuth = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Kakao OAuth Error:', error);
         res.status(500).json({
@@ -259,14 +284,14 @@ exports.naverAuth = async (req, res) => {
         let user = await User.findOne({
             $or: [
                 { socialId: id, socialProvider: 'naver' },
-                { email: email }
+                { email }
             ]
         });
 
         if (!user) {
             // 새 사용자 생성
-            const username = 'naver_' + id.substring(0, 10);
-            
+            const username = `naver_${id.substring(0, 10)}`;
+
             user = await User.create({
                 username: username.substring(0, 16), // 최대 16자
                 email: email || `naver_${id}@marketgrow.com`,
@@ -311,7 +336,6 @@ exports.naverAuth = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Naver OAuth Error:', error);
         res.status(500).json({

@@ -20,10 +20,10 @@ class OrderSyncService {
 
             // SMM 패널에서 상태 조회
             const smmStatus = await this.smmPanel.checkOrderStatus(order.providerOrderId);
-            
+
             // 상태 업데이트
             order.providerStatus = smmStatus.status;
-            
+
             // 진행률 업데이트
             if (smmStatus.startCount !== undefined && smmStatus.remains !== undefined) {
                 const delivered = smmStatus.startCount - smmStatus.remains;
@@ -58,9 +58,9 @@ class OrderSyncService {
             }
 
             await order.save();
-            
+
             logger.info(`Order ${order.orderNumber} synced: ${order.status} (${order.progress.percentage}%)`);
-            
+
             return order;
         } catch (error) {
             logger.error(`Order sync failed for ${orderId}:`, error);

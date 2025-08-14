@@ -5,7 +5,7 @@ let currentOrder = null;
 let trackingInterval = null;
 
 // 페이지 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     checkLoginStatus();
     setupTrackingForm();
     checkUrlParams();
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkLoginStatus() {
     const token = localStorage.getItem('authToken');
     const userInfo = localStorage.getItem('userInfo');
-    
+
     if (token && userInfo) {
         const user = JSON.parse(userInfo);
         document.getElementById('userMenuLoggedIn').style.display = 'block';
@@ -36,7 +36,7 @@ function setupTrackingForm() {
 function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order');
-    
+
     if (orderId) {
         document.getElementById('trackingInput').value = orderId;
         trackOrder(orderId);
@@ -46,10 +46,10 @@ function checkUrlParams() {
 // 추적 폼 제출 처리
 async function handleTrackingSubmit(e) {
     e.preventDefault();
-    
+
     const input = document.getElementById('trackingInput').value.trim();
     if (!input) return;
-    
+
     await trackOrder(input);
 }
 
@@ -58,26 +58,28 @@ async function trackOrder(searchValue) {
     try {
         // 로딩 표시
         showLoading();
-        
+
         // API 호출
         const token = localStorage.getItem('authToken');
         let url = `${API_URL}/orders/track?`;
-        
+
         // 이메일인지 주문번호인지 확인
         if (searchValue.includes('@')) {
             url += `email=${encodeURIComponent(searchValue)}`;
         } else {
             url += `orderId=${encodeURIComponent(searchValue)}`;
         }
-        
+
         const response = await fetch(url, {
-            headers: token ? {
-                'Authorization': `Bearer ${token}`
-            } : {}
+            headers: token
+                ? {
+                    Authorization: `Bearer ${token}`
+                }
+                : {}
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success && data.data) {
             currentOrder = data.data;
             displayTrackingResult(data.data);
@@ -96,7 +98,7 @@ function displayTrackingResult(order) {
     // 결과 섹션 표시
     document.getElementById('trackingResult').classList.add('show');
     document.getElementById('noResult').style.display = 'none';
-    
+
     // 기본 정보 표시
     document.getElementById('orderId').textContent = order._id || order.orderId;
     document.getElementById('serviceName').textContent = order.serviceName;
@@ -104,24 +106,24 @@ function displayTrackingResult(order) {
     document.getElementById('orderDate').textContent = formatDate(order.createdAt);
     document.getElementById('totalPrice').textContent = `₩${order.totalPrice.toLocaleString()}`;
     document.getElementById('currentStatus').textContent = getStatusText(order.status);
-    
+
     // 진행률 계산 및 표시
     const progress = calculateProgress(order.status);
     document.getElementById('progressFill').style.width = `${progress}%`;
-    
+
     // 타임라인 생성
     createTimeline(order);
-    
+
     // 예상 완료 시간
     if (order.status === 'processing' || order.status === 'in_progress') {
         showEstimatedTime(order);
     }
-    
+
     // 배송 정보
     if (order.targetUrl) {
         showDeliveryInfo(order);
     }
-    
+
     // 취소 버튼 표시 (대기중/처리중일 때만)
     const cancelBtn = document.getElementById('cancelBtn');
     if (order.status === 'pending' || order.status === 'processing') {
@@ -134,7 +136,7 @@ function displayTrackingResult(order) {
 // 타임라인 생성
 function createTimeline(order) {
     const timeline = document.getElementById('trackingTimeline');
-    
+
     const statuses = [
         {
             key: 'pending',
@@ -167,17 +169,17 @@ function createTimeline(order) {
             icon: 'fa-check'
         }
     ];
-    
+
     const currentStatusIndex = statuses.findIndex(s => s.key === order.status);
-    
+
     let html = '';
     statuses.forEach((status, index) => {
         const isCompleted = index <= currentStatusIndex;
         const isActive = index === currentStatusIndex;
-        
+
         // 해당 상태의 실제 시간 찾기
         const statusTime = getStatusTime(order, status.key);
-        
+
         html += `
             <div class="timeline-item">
                 <div class="timeline-marker ${isCompleted ? (isActive ? 'active' : 'completed') : ''}">
@@ -192,7 +194,7 @@ function createTimeline(order) {
             </div>
         `;
     });
-    
+
     timeline.innerHTML = html;
 }
 
@@ -202,7 +204,7 @@ function getStatusTime(order, status) {
         const history = order.statusHistory.find(h => h.status === status);
         return history ? history.changedAt : null;
     }
-    
+
     // 기본값
     if (status === 'pending') return order.createdAt;
     if (status === order.status) return order.updatedAt || new Date();
@@ -213,12 +215,12 @@ function getStatusTime(order, status) {
 function showEstimatedTime(order) {
     const estimatedDiv = document.getElementById('estimatedTime');
     estimatedDiv.style.display = 'flex';
-    
+
     // 서비스별 예상 시간 (시간 단위)
     const estimatedHours = order.estimatedTime || 24;
     const startTime = new Date(order.createdAt);
     const estimatedComplete = new Date(startTime.getTime() + estimatedHours * 60 * 60 * 1000);
-    
+
     document.getElementById('estimatedComplete').textContent = formatDate(estimatedComplete);
 }
 
@@ -226,13 +228,13 @@ function showEstimatedTime(order) {
 function showDeliveryInfo(order) {
     const deliveryDiv = document.getElementById('deliveryInfo');
     deliveryDiv.style.display = 'block';
-    
+
     document.getElementById('targetUrl').textContent = order.targetUrl;
-    
+
     // 진행률 표시
     if (order.delivered && order.quantity) {
         const percentage = Math.round((order.delivered / order.quantity) * 100);
-        document.getElementById('progressPercentage').textContent = 
+        document.getElementById('progressPercentage').textContent =
             `${order.delivered.toLocaleString()} / ${order.quantity.toLocaleString()} (${percentage}%)`;
     } else {
         document.getElementById('progressPercentage').textContent = '0%';
@@ -242,13 +244,13 @@ function showDeliveryInfo(order) {
 // 진행률 계산
 function calculateProgress(status) {
     const progressMap = {
-        'pending': 20,
-        'payment_confirmed': 40,
-        'processing': 60,
-        'in_progress': 80,
-        'completed': 100,
-        'cancelled': 0,
-        'failed': 0
+        pending: 20,
+        payment_confirmed: 40,
+        processing: 60,
+        in_progress: 80,
+        completed: 100,
+        cancelled: 0,
+        failed: 0
     };
     return progressMap[status] || 0;
 }
@@ -259,7 +261,7 @@ function startAutoRefresh() {
     if (trackingInterval) {
         clearInterval(trackingInterval);
     }
-    
+
     // 진행중인 주문만 자동 새로고침
     if (currentOrder && ['pending', 'processing', 'in_progress'].includes(currentOrder.status)) {
         trackingInterval = setInterval(() => {
@@ -271,7 +273,7 @@ function startAutoRefresh() {
 // 새로고침
 async function refreshTracking() {
     if (!currentOrder) return;
-    
+
     const input = currentOrder._id || currentOrder.orderId;
     await trackOrder(input);
 }
@@ -279,11 +281,11 @@ async function refreshTracking() {
 // 주문 취소 요청
 async function requestCancel() {
     if (!currentOrder) return;
-    
+
     if (!confirm('정말 주문을 취소하시겠습니까?\n취소 후에는 복구할 수 없습니다.')) {
         return;
     }
-    
+
     try {
         const token = localStorage.getItem('authToken');
         if (!token) {
@@ -291,17 +293,17 @@ async function requestCancel() {
             window.location.href = '/login.html';
             return;
         }
-        
+
         const response = await fetch(`${API_URL}/orders/${currentOrder._id}/cancel`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             alert('주문이 취소되었습니다.');
             await refreshTracking();
@@ -319,7 +321,7 @@ function contactSupport() {
     if (currentOrder) {
         const orderId = currentOrder._id || currentOrder.orderId;
         const message = `주문번호: ${orderId}\n문의내용: `;
-        
+
         // 카카오톡 오픈채팅 링크
         window.open(`https://open.kakao.com/o/gmarketgrow?text=${encodeURIComponent(message)}`, '_blank');
     } else {
@@ -348,20 +350,20 @@ function formatDate(date) {
     const day = String(d.getDate()).padStart(2, '0');
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 // 상태 텍스트
 function getStatusText(status) {
     const statusMap = {
-        'pending': '주문 접수',
-        'payment_confirmed': '결제 확인',
-        'processing': '처리중',
-        'in_progress': '진행중',
-        'completed': '완료',
-        'cancelled': '취소됨',
-        'failed': '실패'
+        pending: '주문 접수',
+        payment_confirmed: '결제 확인',
+        processing: '처리중',
+        in_progress: '진행중',
+        completed: '완료',
+        cancelled: '취소됨',
+        failed: '실패'
     };
     return statusMap[status] || status;
 }

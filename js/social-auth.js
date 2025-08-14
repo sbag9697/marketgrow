@@ -6,13 +6,13 @@ const NAVER_CLIENT_ID = 'YOUR_NAVER_CLIENT_ID'; // ⚠️ Naver Developers에서
 // Google 로그인 초기화
 function initGoogleAuth() {
     console.log('Initializing Google Auth with Client ID:', GOOGLE_CLIENT_ID);
-    
+
     // 이미 스크립트가 로드되었는지 확인
     if (document.querySelector('script[src*="accounts.google.com/gsi/client"]')) {
         console.log('Google script already loaded');
         return;
     }
-    
+
     // Google Sign-In 라이브러리 로드
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
@@ -20,7 +20,7 @@ function initGoogleAuth() {
     script.defer = true;
     script.onload = () => {
         console.log('Google Sign-In script loaded');
-        
+
         if (typeof google !== 'undefined' && google.accounts) {
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
@@ -31,9 +31,9 @@ function initGoogleAuth() {
                 context: 'signin',
                 prompt_parent_id: 'g_id_onload'
             });
-            
+
             console.log('Google Sign-In initialized successfully');
-            
+
             // 로그인 버튼이 있는 페이지에서만 렌더링
             if (document.querySelector('.social-btn.google')) {
                 renderGoogleButton();
@@ -52,7 +52,7 @@ function initGoogleAuth() {
 async function handleGoogleResponse(response) {
     try {
         LoadingManager.show();
-        
+
         // ID 토큰을 백엔드로 전송
         const result = await fetch(`${API_CONFIG.BASE_URL}/oauth/google`, {
             method: 'POST',
@@ -70,9 +70,9 @@ async function handleGoogleResponse(response) {
             // 토큰 저장 (api.js와 동일한 키 사용)
             localStorage.setItem('authToken', data.data.token);
             localStorage.setItem('userInfo', JSON.stringify(data.data.user));
-            
+
             NotificationManager.success('구글 로그인 성공!');
-            
+
             // 대시보드로 리다이렉트
             setTimeout(() => {
                 window.location.href = '/dashboard.html';
@@ -91,7 +91,7 @@ async function handleGoogleResponse(response) {
 // Google 로그인 버튼 클릭
 function loginWithGoogle() {
     console.log('Google login button clicked');
-    
+
     if (typeof google !== 'undefined' && google.accounts) {
         console.log('Google accounts object found, showing prompt');
         google.accounts.id.prompt((notification) => {
@@ -132,10 +132,10 @@ function loginWithKakao() {
     }
 
     Kakao.Auth.login({
-        success: async function(authObj) {
+        success: async function (authObj) {
             try {
                 LoadingManager.show();
-                
+
                 // 액세스 토큰을 백엔드로 전송
                 const response = await fetch(`${API_CONFIG.BASE_URL}/oauth/kakao`, {
                     method: 'POST',
@@ -153,9 +153,9 @@ function loginWithKakao() {
                     // 토큰 저장 (api.js와 동일한 키 사용)
                     localStorage.setItem('authToken', data.data.token);
                     localStorage.setItem('userInfo', JSON.stringify(data.data.user));
-                    
+
                     NotificationManager.success('카카오 로그인 성공!');
-                    
+
                     // 대시보드로 리다이렉트
                     setTimeout(() => {
                         window.location.href = '/dashboard.html';
@@ -170,7 +170,7 @@ function loginWithKakao() {
                 LoadingManager.hide();
             }
         },
-        fail: function(err) {
+        fail: function (err) {
             console.error('Kakao login failed:', err);
             NotificationManager.error('카카오 로그인에 실패했습니다.');
         }
@@ -186,12 +186,12 @@ function initNaverAuth() {
     script.onload = () => {
         const naverLogin = new naver.LoginWithNaverId({
             clientId: NAVER_CLIENT_ID,
-            callbackUrl: window.location.origin + '/login.html',
+            callbackUrl: `${window.location.origin}/login.html`,
             isPopup: false,
-            loginButton: { color: "green", type: 3, height: 48 }
+            loginButton: { color: 'green', type: 3, height: 48 }
         });
         naverLogin.init();
-        
+
         // 콜백 처리
         if (window.location.hash) {
             naverLogin.getLoginStatus(async (status) => {
@@ -209,7 +209,7 @@ function initNaverAuth() {
 async function handleNaverLogin(token) {
     try {
         LoadingManager.show();
-        
+
         const response = await fetch(`${API_CONFIG.BASE_URL}/oauth/naver`, {
             method: 'POST',
             headers: {
@@ -223,9 +223,9 @@ async function handleNaverLogin(token) {
         if (data.success) {
             localStorage.setItem('authToken', data.data.token);
             localStorage.setItem('userInfo', JSON.stringify(data.data.user));
-            
+
             NotificationManager.success('네이버 로그인 성공!');
-            
+
             setTimeout(() => {
                 window.location.href = '/dashboard.html';
             }, 1000);
@@ -247,7 +247,7 @@ function loginWithNaver() {
         console.error('Naver Client ID가 설정되지 않았습니다.');
         return;
     }
-    
+
     if (document.getElementById('naverIdLogin_loginButton')) {
         document.getElementById('naverIdLogin_loginButton').click();
     } else {
@@ -265,7 +265,7 @@ function renderGoogleButton() {
         googleButtonDiv.id = 'g_id_signin';
         googleButtonDiv.style.display = 'none'; // 일단 숨김
         googleBtnContainer.parentNode.insertBefore(googleButtonDiv, googleBtnContainer.nextSibling);
-        
+
         // Google 공식 버튼 렌더링
         google.accounts.id.renderButton(
             googleButtonDiv,
@@ -281,17 +281,17 @@ function renderGoogleButton() {
 }
 
 // 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded - Initializing social auth');
-    
+
     // 소셜 로그인 SDK 초기화
     initGoogleAuth(); // Google 초기화
     initKakaoAuth(); // Kakao 초기화
-    
+
     if (NAVER_CLIENT_ID !== 'YOUR_NAVER_CLIENT_ID') {
         initNaverAuth();
     }
-    
+
     // 디버깅을 위한 전역 접근 설정
     window.debugGoogleAuth = () => {
         console.log('Google object:', typeof google !== 'undefined' ? google : 'undefined');

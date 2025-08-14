@@ -431,7 +431,7 @@ class BlogManager {
                 `
             }
         };
-        
+
         this.init();
     }
 
@@ -440,7 +440,7 @@ class BlogManager {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.filterPosts(e.target.dataset.category);
-                
+
                 // 활성 탭 업데이트
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -476,10 +476,10 @@ class BlogManager {
     // 포스트 필터링
     filterPosts(category) {
         const postCards = document.querySelectorAll('.post-card');
-        
+
         postCards.forEach(card => {
             const cardCategories = card.dataset.category.split(' ');
-            
+
             if (category === 'all' || cardCategories.includes(category)) {
                 card.classList.remove('hidden');
             } else {
@@ -511,7 +511,7 @@ class BlogManager {
 
         const modal = document.getElementById('postModal');
         const content = document.getElementById('postContent');
-        
+
         content.innerHTML = `
             <div class="post-full-content">
                 ${post.content}
@@ -536,9 +536,9 @@ class BlogManager {
                 </div>
             </div>
         `;
-        
+
         modal.style.display = 'block';
-        
+
         // 조회수 증가
         this.increaseViews(postId);
     }
@@ -552,7 +552,7 @@ class BlogManager {
     increaseViews(postId) {
         if (this.posts[postId]) {
             this.posts[postId].views++;
-            
+
             // UI 업데이트 (실제 서비스에서는 서버 통신)
             const viewElements = document.querySelectorAll(`[data-post-id="${postId}"] .post-stats span:first-child`);
             viewElements.forEach(el => {
@@ -566,7 +566,7 @@ class BlogManager {
         if (this.posts[postId]) {
             this.posts[postId].likes++;
             alert('좋아요를 눌렀습니다!');
-            
+
             // UI 업데이트
             const likeElements = document.querySelectorAll(`[data-post-id="${postId}"] .post-stats span:nth-child(2)`);
             likeElements.forEach(el => {
@@ -579,16 +579,16 @@ class BlogManager {
     sharePost(postId) {
         const post = this.posts[postId];
         if (!post) return;
-        
+
         if (navigator.share) {
             navigator.share({
                 title: post.title,
                 text: post.title,
-                url: window.location.href + '#' + postId
+                url: `${window.location.href}#${postId}`
             });
         } else {
             // 클립보드 복사
-            const url = window.location.href + '#' + postId;
+            const url = `${window.location.href}#${postId}`;
             navigator.clipboard.writeText(url).then(() => {
                 alert('링크가 클립보드에 복사되었습니다!');
             });
@@ -606,7 +606,7 @@ class BlogManager {
                     ${post.title}
                 </a>
             `);
-        
+
         return related.join('');
     }
 
@@ -616,25 +616,25 @@ class BlogManager {
             alert('이메일을 입력해주세요.');
             return;
         }
-        
+
         // 이메일 유효성 검사
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             alert('올바른 이메일 주소를 입력해주세요.');
             return;
         }
-        
+
         // 구독 처리 (실제 서비스에서는 서버 통신)
         const subscribers = JSON.parse(localStorage.getItem('newsletter_subscribers') || '[]');
-        
+
         if (subscribers.includes(email)) {
             alert('이미 구독중인 이메일입니다.');
             return;
         }
-        
+
         subscribers.push(email);
         localStorage.setItem('newsletter_subscribers', JSON.stringify(subscribers));
-        
+
         alert('뉴스레터 구독이 완료되었습니다!');
         document.querySelector('.newsletter-form input').value = '';
     }
@@ -644,7 +644,7 @@ class BlogManager {
         // 간단한 검색 구현
         const posts = document.querySelectorAll('.post-card');
         let found = false;
-        
+
         posts.forEach(post => {
             const content = post.textContent.toLowerCase();
             if (content.includes(tag.toLowerCase())) {
@@ -654,11 +654,11 @@ class BlogManager {
                 post.style.border = '1px solid #e2e8f0';
             }
         });
-        
+
         if (found) {
             document.querySelector('.posts-grid').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         // 3초 후 하이라이트 제거
         setTimeout(() => {
             posts.forEach(post => {
@@ -670,14 +670,14 @@ class BlogManager {
     // 제목으로 검색
     searchByTitle(title) {
         const posts = document.querySelectorAll('.post-card');
-        
+
         posts.forEach(post => {
             const postTitle = post.querySelector('h2').textContent;
             if (postTitle.includes(title)) {
                 post.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 post.style.transform = 'scale(1.02)';
                 post.style.boxShadow = '0 20px 50px rgba(102, 126, 234, 0.3)';
-                
+
                 setTimeout(() => {
                     post.style.transform = 'scale(1)';
                     post.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
@@ -700,15 +700,15 @@ function closePost() {
 const blogManager = new BlogManager();
 
 // 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 모달 외부 클릭시 닫기
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         const modal = document.getElementById('postModal');
         if (event.target === modal) {
             closePost();
         }
     };
-    
+
     // URL 해시로 특정 포스트 열기
     if (window.location.hash) {
         const postId = window.location.hash.substring(1);

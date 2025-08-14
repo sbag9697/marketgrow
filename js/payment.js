@@ -10,7 +10,7 @@ class PaymentManager {
     initTossPayments() {
         // 토스페이먼츠 클라이언트 키 (테스트용)
         const clientKey = 'test_ck_4yKeq5bgrpWzD1k5BzQ8KfYgZdXJ';
-        
+
         // 토스페이먼츠 SDK 로드 확인
         if (typeof TossPayments !== 'undefined') {
             this.tossPayments = TossPayments(clientKey);
@@ -22,7 +22,7 @@ class PaymentManager {
     // 결제 요청
     async requestPayment(paymentData) {
         const { method, orderData } = paymentData;
-        
+
         switch (method) {
             case 'card':
                 return await this.requestTossCardPayment(orderData);
@@ -49,19 +49,18 @@ class PaymentManager {
                 customerName: orderData.customerName || '고객',
                 customerEmail: orderData.customerEmail || 'customer@example.com',
                 successUrl: `${window.location.origin}/payment-success.html`,
-                failUrl: `${window.location.origin}/payment-fail.html`,
+                failUrl: `${window.location.origin}/payment-fail.html`
             };
 
             // 결제 정보 저장 (결제 완료 후 사용)
             this.currentPaymentData = {
                 ...paymentRequest,
-                orderData: orderData
+                orderData
             };
             localStorage.setItem('currentPaymentData', JSON.stringify(this.currentPaymentData));
 
             // 토스페이먼츠 결제창 호출
             await this.tossPayments.requestPayment('카드', paymentRequest);
-            
         } catch (error) {
             console.error('토스페이먼츠 결제 오류:', error);
             throw new Error('결제 처리 중 오류가 발생했습니다.');
@@ -102,12 +101,11 @@ class PaymentManager {
             const paymentRequest = {
                 amount: orderData.totalPrice,
                 currency: 'KRW',
-                orderData: orderData
+                orderData
             };
 
             // PayPal 결제창 호출 (실제로는 PayPal SDK 사용)
             return await this.processPayPalPayment(paymentRequest);
-            
         } catch (error) {
             console.error('PayPal 결제 오류:', error);
             throw new Error('PayPal 결제 처리 중 오류가 발생했습니다.');
@@ -121,12 +119,12 @@ class PaymentManager {
             setTimeout(() => {
                 // 실제로는 PayPal API 호출
                 const success = Math.random() > 0.1; // 90% 성공률
-                
+
                 if (success) {
                     resolve({
                         success: true,
-                        paymentId: 'PP_' + Date.now(),
-                        transactionId: 'TX_' + Date.now(),
+                        paymentId: `PP_${Date.now()}`,
+                        transactionId: `TX_${Date.now()}`,
                         amount: paymentRequest.amount
                     });
                 } else {
@@ -159,7 +157,7 @@ class PaymentManager {
                 if (orderResponse.success) {
                     // 결제 데이터 정리
                     localStorage.removeItem('currentPaymentData');
-                    
+
                     // 주문 완료 페이지로 이동
                     window.location.href = `order-success.html?orderId=${orderResponse.data.order._id}`;
                 } else {
@@ -178,7 +176,7 @@ class PaymentManager {
     // 결제 실패 처리
     handlePaymentFailure(errorCode, errorMessage, orderId) {
         console.error('결제 실패:', errorCode, errorMessage);
-        
+
         // 결제 실패 정보 저장
         localStorage.setItem('paymentFailure', JSON.stringify({
             errorCode,
@@ -193,14 +191,14 @@ class PaymentManager {
 
     // 주문 ID 생성
     generateOrderId() {
-        return 'MG_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return `MG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // 주문명 생성
     generateOrderName(orderData) {
         const serviceName = orderData.service?.name || '마케팅 서비스';
         const quantity = orderData.quantity || 1;
-        
+
         if (quantity > 1) {
             return `${serviceName} 외 ${quantity - 1}건`;
         } else {
@@ -211,19 +209,19 @@ class PaymentManager {
     // 결제 정보 검증
     validatePaymentData(paymentData) {
         const { orderData } = paymentData;
-        
+
         if (!orderData) {
             throw new Error('주문 정보가 없습니다.');
         }
-        
+
         if (!orderData.totalPrice || orderData.totalPrice <= 0) {
             throw new Error('올바른 결제 금액이 아닙니다.');
         }
-        
+
         if (!orderData.service) {
             throw new Error('선택된 서비스가 없습니다.');
         }
-        
+
         return true;
     }
 
@@ -232,11 +230,11 @@ class PaymentManager {
         try {
             // 사용자 결제 한도 확인
             const response = await api.checkUserPaymentLimit();
-            
+
             if (!response.success) {
                 throw new Error('결제 가능 여부를 확인할 수 없습니다.');
             }
-            
+
             return response.data;
         } catch (error) {
             console.error('결제 가능 여부 확인 오류:', error);
@@ -251,7 +249,7 @@ class PaymentManager {
                 couponCode,
                 orderAmount
             });
-            
+
             return response.data;
         } catch (error) {
             console.error('쿠폰 적용 오류:', error);
@@ -266,7 +264,7 @@ class PaymentManager {
                 pointAmount,
                 orderAmount
             });
-            
+
             return response.data;
         } catch (error) {
             console.error('포인트 사용 오류:', error);
@@ -315,13 +313,13 @@ const PaymentUtils = {
     // 결제 에러 메시지 변환
     getErrorMessage(errorCode) {
         const messages = {
-            'PAY_PROCESS_CANCELED': '사용자가 결제를 취소했습니다.',
-            'PAY_PROCESS_ABORTED': '결제 진행 중 오류가 발생했습니다.',
-            'REJECT_CARD_COMPANY': '카드사에서 거절했습니다.',
-            'INSUFFICIENT_FUNDS': '잔액이 부족합니다.',
-            'INVALID_CARD': '유효하지 않은 카드입니다.',
-            'EXPIRED_CARD': '만료된 카드입니다.',
-            'NETWORK_ERROR': '네트워크 오류가 발생했습니다.'
+            PAY_PROCESS_CANCELED: '사용자가 결제를 취소했습니다.',
+            PAY_PROCESS_ABORTED: '결제 진행 중 오류가 발생했습니다.',
+            REJECT_CARD_COMPANY: '카드사에서 거절했습니다.',
+            INSUFFICIENT_FUNDS: '잔액이 부족합니다.',
+            INVALID_CARD: '유효하지 않은 카드입니다.',
+            EXPIRED_CARD: '만료된 카드입니다.',
+            NETWORK_ERROR: '네트워크 오류가 발생했습니다.'
         };
         return messages[errorCode] || '알 수 없는 오류가 발생했습니다.';
     }

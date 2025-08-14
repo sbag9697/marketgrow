@@ -20,10 +20,10 @@ class ReceiptSystem {
     async requestReceipt(orderId, receiptType = 'simple') {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             const requestData = {
-                orderId: orderId,
-                receiptType: receiptType, // simple, tax, cash
+                orderId,
+                receiptType, // simple, tax, cash
                 businessInfo: receiptType === 'tax' ? this.getBusinessInfo() : null
             };
 
@@ -31,7 +31,7 @@ class ReceiptSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(requestData)
             });
@@ -64,9 +64,9 @@ class ReceiptSystem {
     async issueTaxInvoice(orderId, buyerInfo) {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             const requestData = {
-                orderId: orderId,
+                orderId,
                 buyerInfo: {
                     businessNumber: buyerInfo.businessNumber,
                     companyName: buyerInfo.companyName,
@@ -83,7 +83,7 @@ class ReceiptSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(requestData)
             });
@@ -116,9 +116,9 @@ class ReceiptSystem {
     async issueCashReceipt(orderId, cashReceiptInfo) {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             const requestData = {
-                orderId: orderId,
+                orderId,
                 purpose: cashReceiptInfo.purpose, // income (소득공제), expense (지출증빙)
                 identityNumber: cashReceiptInfo.identityNumber, // 휴대폰번호, 사업자번호, 현금영수증카드번호
                 identityType: cashReceiptInfo.identityType // phone, business, card
@@ -128,7 +128,7 @@ class ReceiptSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(requestData)
             });
@@ -161,10 +161,10 @@ class ReceiptSystem {
     async downloadReceipt(receiptId) {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             const response = await fetch(`${API_URL}/receipts/${receiptId}/download`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -178,7 +178,7 @@ class ReceiptSystem {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                
+
                 return { success: true };
             }
 
@@ -193,12 +193,12 @@ class ReceiptSystem {
     async sendReceiptByEmail(receiptId, email) {
         try {
             const token = localStorage.getItem('authToken');
-            
+
             const response = await fetch(`${API_URL}/receipts/${receiptId}/send-email`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ email })
             });
@@ -215,7 +215,7 @@ class ReceiptSystem {
     generateReceiptPreview(order) {
         const now = new Date();
         const receiptNumber = `MG${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${order._id.slice(-6)}`;
-        
+
         return `
             <div class="receipt-preview">
                 <div class="receipt-header">
@@ -325,7 +325,7 @@ class ReceiptUI {
     // 영수증 모달 표시
     showReceiptModal(order) {
         this.closeModal();
-        
+
         const modal = document.createElement('div');
         modal.className = 'receipt-modal';
         modal.innerHTML = `
@@ -437,9 +437,9 @@ class ReceiptUI {
         const typeRadios = document.querySelectorAll('input[name="receiptType"]');
         typeRadios.forEach(radio => {
             radio.addEventListener('change', (e) => {
-                document.getElementById('taxInvoiceInfo').style.display = 
+                document.getElementById('taxInvoiceInfo').style.display =
                     e.target.value === 'tax' ? 'block' : 'none';
-                document.getElementById('cashReceiptInfo').style.display = 
+                document.getElementById('cashReceiptInfo').style.display =
                     e.target.value === 'cash' ? 'block' : 'none';
             });
         });
@@ -448,7 +448,7 @@ class ReceiptUI {
         const sendEmailCheck = document.getElementById('sendEmail');
         if (sendEmailCheck) {
             sendEmailCheck.addEventListener('change', (e) => {
-                document.getElementById('receiptEmail').style.display = 
+                document.getElementById('receiptEmail').style.display =
                     e.target.checked ? 'block' : 'none';
             });
         }
@@ -478,7 +478,6 @@ class ReceiptUI {
             if (receiptType === 'simple') {
                 // 간이영수증
                 result = await this.receiptSystem.requestReceipt(orderId, 'simple');
-                
             } else if (receiptType === 'tax') {
                 // 세금계산서
                 const taxInfo = {
@@ -497,7 +496,6 @@ class ReceiptUI {
                 }
 
                 result = await this.receiptSystem.issueTaxInvoice(orderId, taxInfo);
-                
             } else if (receiptType === 'cash') {
                 // 현금영수증
                 const cashInfo = {
@@ -565,7 +563,7 @@ class ReceiptUI {
             alert('번호를 입력해주세요.');
             return false;
         }
-        
+
         // 번호 형식 검사
         const cleaned = info.identityNumber.replace(/[^0-9]/g, '');
         if (info.identityType === 'phone' && cleaned.length !== 11) {
@@ -576,7 +574,7 @@ class ReceiptUI {
             alert('사업자번호를 올바르게 입력해주세요.');
             return false;
         }
-        
+
         return true;
     }
 

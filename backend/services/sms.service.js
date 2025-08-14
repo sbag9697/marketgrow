@@ -64,7 +64,7 @@ class SMSService {
     // 인증 코드 검증
     verifyCode(phoneNumber, code) {
         const stored = this.verificationCodes.get(phoneNumber);
-        
+
         if (!stored) {
             return { success: false, message: '인증 코드가 만료되었거나 존재하지 않습니다.' };
         }
@@ -94,23 +94,23 @@ class SMSService {
     // 전화번호 포맷 정규화
     formatPhoneNumber(phoneNumber) {
         // 한국 번호 기준
-        let cleaned = phoneNumber.replace(/\D/g, '');
-        
+        const cleaned = phoneNumber.replace(/\D/g, '');
+
         // 010-1234-5678 형식
         if (cleaned.startsWith('010')) {
             return cleaned;
         }
-        
+
         // +82 10 1234 5678 형식
         if (cleaned.startsWith('8210')) {
-            return '0' + cleaned.slice(2);
+            return `0${cleaned.slice(2)}`;
         }
-        
+
         // 82 없이 10으로 시작
         if (cleaned.startsWith('10')) {
-            return '0' + cleaned;
+            return `0${cleaned}`;
         }
-        
+
         return cleaned;
     }
 
@@ -138,7 +138,7 @@ class SMSService {
     // SMS 발송 (네이버 클라우드 플랫폼 SENS 사용)
     async sendSMSWithNaver(phoneNumber, message) {
         const { accessKey, secretKey, serviceId, sendNumber } = this.naverSmsConfig;
-        
+
         if (!accessKey || !secretKey || !serviceId) {
             throw new Error('네이버 SMS 설정이 완료되지 않았습니다.');
         }
@@ -184,7 +184,7 @@ class SMSService {
         const space = ' ';
         const newLine = '\n';
         const hmac = crypto.createHmac('sha256', secretKey);
-        
+
         hmac.update(method);
         hmac.update(space);
         hmac.update(uri);
@@ -192,7 +192,7 @@ class SMSService {
         hmac.update(timestamp);
         hmac.update(newLine);
         hmac.update(process.env.NAVER_ACCESS_KEY);
-        
+
         return hmac.digest('base64');
     }
 

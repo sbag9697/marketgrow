@@ -11,7 +11,7 @@ try {
     // 1. 빌드 디렉토리 생성
     const buildDir = path.join(__dirname, 'dist');
     console.log(`📁 빌드 디렉토리: ${buildDir}`);
-    
+
     if (fs.existsSync(buildDir)) {
         console.log('🗑️ 기존 빌드 디렉토리 삭제 중...');
         fs.rmSync(buildDir, { recursive: true, force: true });
@@ -34,7 +34,7 @@ try {
     console.log('📜 JavaScript 파일 복사 중...');
     const jsDir = path.join(__dirname, 'js');
     const jsBuildDir = path.join(buildDir, 'js');
-    
+
     if (fs.existsSync(jsDir)) {
         fs.mkdirSync(jsBuildDir, { recursive: true });
         copyDirectory(jsDir, jsBuildDir);
@@ -93,9 +93,8 @@ try {
     console.log('\n환경 변수:');
     console.log(`- BACKEND_URL: ${BACKEND_URL}`);
     console.log(`- TOSSPAYMENTS_CLIENT_KEY: ${TOSSPAYMENTS_CLIENT_KEY ? '설정됨' : '미설정'}`);
-    
-    process.exit(0);
 
+    process.exit(0);
 } catch (error) {
     console.error('\n❌ 빌드 실패!');
     console.error('오류:', error.message);
@@ -108,16 +107,16 @@ function copyDirectory(src, dest) {
     if (!fs.existsSync(src)) {
         return;
     }
-    
+
     if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest, { recursive: true });
     }
-    
+
     const files = fs.readdirSync(src);
     files.forEach(file => {
         const srcPath = path.join(src, file);
         const destPath = path.join(dest, file);
-        
+
         try {
             const stat = fs.statSync(srcPath);
             if (stat.isDirectory()) {

@@ -100,7 +100,7 @@ orderSchema.index({ status: 1 });
 orderSchema.index({ paymentStatus: 1 });
 
 // Generate order number
-orderSchema.pre('save', async function(next) {
+orderSchema.pre('save', async function (next) {
     if (!this.orderNumber && this.isNew) {
         const date = new Date();
         const year = date.getFullYear();
@@ -113,7 +113,7 @@ orderSchema.pre('save', async function(next) {
 });
 
 // Calculate progress percentage
-orderSchema.pre('save', function(next) {
+orderSchema.pre('save', function (next) {
     if (this.progress.total > 0) {
         this.progress.percentage = Math.round((this.progress.current / this.progress.total) * 100);
     }
@@ -121,9 +121,9 @@ orderSchema.pre('save', function(next) {
 });
 
 // Update order status based on progress
-orderSchema.methods.updateProgress = function(current) {
+orderSchema.methods.updateProgress = function (current) {
     this.progress.current = current;
-    
+
     if (current >= this.progress.total) {
         this.status = 'completed';
         this.completedAt = new Date();
@@ -133,39 +133,39 @@ orderSchema.methods.updateProgress = function(current) {
             this.startedAt = new Date();
         }
     }
-    
+
     return this.save();
 };
 
 // Cancel order
-orderSchema.methods.cancel = async function(reason) {
+orderSchema.methods.cancel = async function (reason) {
     if (['completed', 'cancelled', 'refunded'].includes(this.status)) {
         throw new Error('이미 완료되었거나 취소된 주문입니다.');
     }
-    
+
     this.status = 'cancelled';
     this.cancelledAt = new Date();
     this.cancellationReason = reason;
-    
+
     return this.save();
 };
 
 // Process refund
-orderSchema.methods.refund = async function(amount) {
+orderSchema.methods.refund = async function (amount) {
     if (this.status !== 'completed' && this.status !== 'cancelled') {
         throw new Error('완료되거나 취소된 주문만 환불 가능합니다.');
     }
-    
+
     this.status = 'refunded';
     this.paymentStatus = 'refunded';
     this.refundedAt = new Date();
     this.refundAmount = amount || this.finalAmount;
-    
+
     return this.save();
 };
 
 // Virtual for elapsed time
-orderSchema.virtual('elapsedTime').get(function() {
+orderSchema.virtual('elapsedTime').get(function () {
     if (!this.startedAt) return null;
     const endTime = this.completedAt || this.cancelledAt || new Date();
     return endTime - this.startedAt;

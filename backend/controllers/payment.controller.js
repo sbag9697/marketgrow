@@ -94,7 +94,6 @@ const initializePayment = async (req, res) => {
             message: '결제가 초기화되었습니다.',
             data: { payment: paymentData }
         });
-
     } catch (error) {
         logger.error('Initialize payment error:', error);
         res.status(500).json({
@@ -162,7 +161,6 @@ const completePayment = async (req, res) => {
                 message: '결제가 완료되었습니다.',
                 data: { payment, order }
             });
-
         } else if (status === 'failed') {
             // Fail payment
             await payment.fail(providerData?.failureReason, providerData?.failureCode);
@@ -178,7 +176,6 @@ const completePayment = async (req, res) => {
                 message: '결제가 실패했습니다.',
                 data: { payment, order }
             });
-
         } else if (status === 'cancelled') {
             // Cancel payment
             await payment.cancel('사용자가 취소함');
@@ -195,7 +192,6 @@ const completePayment = async (req, res) => {
                 data: { payment, order }
             });
         }
-
     } catch (error) {
         logger.error('Complete payment error:', error);
         res.status(500).json({
@@ -231,7 +227,6 @@ const getPaymentById = async (req, res) => {
             success: true,
             data: { payment }
         });
-
     } catch (error) {
         logger.error('Get payment by ID error:', error);
         res.status(500).json({
@@ -247,7 +242,7 @@ const getUserPayments = async (req, res) => {
         const { page = 1, limit = 10, status, method } = req.query;
 
         const query = { user: req.user.id };
-        
+
         if (status && status !== 'all') {
             query.status = status;
         }
@@ -276,7 +271,6 @@ const getUserPayments = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get user payments error:', error);
         res.status(500).json({
@@ -343,7 +337,6 @@ const requestRefund = async (req, res) => {
             message: '환불 요청이 처리되었습니다.',
             data: { payment }
         });
-
     } catch (error) {
         logger.error('Request refund error:', error);
         res.status(500).json({
@@ -403,7 +396,6 @@ const getPaymentStatistics = async (req, res) => {
                 methodStats
             }
         });
-
     } catch (error) {
         logger.error('Get payment statistics error:', error);
         res.status(500).json({

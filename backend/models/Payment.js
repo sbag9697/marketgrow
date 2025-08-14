@@ -43,21 +43,21 @@ const paymentSchema = new mongoose.Schema({
     },
     providerTransactionId: String,
     providerResponse: mongoose.Schema.Types.Mixed,
-    
+
     // Card payment details
     cardInfo: {
         number: String, // masked card number
         company: String,
         type: String // credit, debit
     },
-    
+
     // Bank transfer details
     bankInfo: {
         bank: String,
         account: String,
         holder: String
     },
-    
+
     // Refund information
     refunds: [{
         amount: {
@@ -77,26 +77,26 @@ const paymentSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
-    
+
     totalRefunded: {
         type: Number,
         default: 0
     },
-    
+
     // Receipt information
     receiptUrl: String,
     receiptNumber: String,
-    
+
     // Failure information
     failureReason: String,
     failureCode: String,
-    
+
     // Processing timestamps
     processedAt: Date,
     completedAt: Date,
     failedAt: Date,
     cancelledAt: Date,
-    
+
     // Additional metadata
     userAgent: String,
     ipAddress: String,
@@ -113,7 +113,7 @@ paymentSchema.index({ status: 1 });
 paymentSchema.index({ provider: 1, providerTransactionId: 1 });
 
 // Generate payment ID
-paymentSchema.pre('save', async function(next) {
+paymentSchema.pre('save', async function (next) {
     if (!this.paymentId && this.isNew) {
         const timestamp = Date.now().toString(36);
         const random = Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -123,88 +123,88 @@ paymentSchema.pre('save', async function(next) {
 });
 
 // Complete payment
-paymentSchema.methods.complete = function(providerData = {}) {
+paymentSchema.methods.complete = function (providerData = {}) {
     this.status = 'completed';
     this.completedAt = new Date();
     this.providerTransactionId = providerData.transactionId;
     this.providerResponse = providerData;
-    
+
     if (providerData.receiptUrl) {
         this.receiptUrl = providerData.receiptUrl;
     }
-    
+
     if (providerData.receiptNumber) {
         this.receiptNumber = providerData.receiptNumber;
     }
-    
+
     return this.save();
 };
 
 // Fail payment
-paymentSchema.methods.fail = function(reason, code) {
+paymentSchema.methods.fail = function (reason, code) {
     this.status = 'failed';
     this.failedAt = new Date();
     this.failureReason = reason;
     this.failureCode = code;
-    
+
     return this.save();
 };
 
 // Cancel payment
-paymentSchema.methods.cancel = function(reason) {
+paymentSchema.methods.cancel = function (reason) {
     if (this.status === 'completed') {
         throw new Error('완료된 결제는 취소할 수 없습니다. 환불을 요청하세요.');
     }
-    
+
     this.status = 'cancelled';
     this.cancelledAt = new Date();
     this.failureReason = reason;
-    
+
     return this.save();
 };
 
 // Process refund
-paymentSchema.methods.addRefund = function(amount, reason) {
+paymentSchema.methods.addRefund = function (amount, reason) {
     if (this.status !== 'completed') {
         throw new Error('완료된 결제만 환불 가능합니다.');
     }
-    
+
     if (this.totalRefunded + amount > this.amount) {
         throw new Error('환불 금액이 결제 금액을 초과할 수 없습니다.');
     }
-    
+
     this.refunds.push({
         amount,
         reason,
         status: 'pending'
     });
-    
+
     this.totalRefunded += amount;
-    
+
     if (this.totalRefunded >= this.amount) {
         this.status = 'refunded';
     } else {
         this.status = 'partial_refunded';
     }
-    
+
     return this.save();
 };
 
 // Complete refund
-paymentSchema.methods.completeRefund = function(refundIndex, providerRefundId) {
+paymentSchema.methods.completeRefund = function (refundIndex, providerRefundId) {
     if (!this.refunds[refundIndex]) {
         throw new Error('환불 요청을 찾을 수 없습니다.');
     }
-    
+
     this.refunds[refundIndex].status = 'completed';
     this.refunds[refundIndex].processedAt = new Date();
     this.refunds[refundIndex].providerRefundId = providerRefundId;
-    
+
     return this.save();
 };
 
 // Virtual for remaining refundable amount
-paymentSchema.virtual('refundableAmount').get(function() {
+paymentSchema.virtual('refundableAmount').get(function () {
     return this.amount - this.totalRefunded;
 });
 

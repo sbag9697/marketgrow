@@ -16,13 +16,13 @@ class ABTestingManager {
 
         // 실험 설정 로드
         this.loadExperiments();
-        
+
         // 사용자 변형 할당
         this.assignUserVariants();
-        
+
         // 변형 적용
         this.applyVariants();
-        
+
         // 이벤트 추적 설정
         this.setupEventTracking();
     }
@@ -39,7 +39,7 @@ class ABTestingManager {
 
     // 사용자 ID 생성
     generateUserId() {
-        return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // 실험 설정 로드
@@ -58,12 +58,12 @@ class ABTestingManager {
         // 각 실험에 대해 변형 할당
         Object.keys(this.experiments).forEach(experimentKey => {
             const experiment = this.experiments[experimentKey];
-            
+
             if (!experiment.enabled) return;
-            
+
             // 이미 할당된 변형이 있으면 사용
             if (this.userVariants[experimentKey]) return;
-            
+
             // 새로운 변형 할당
             this.userVariants[experimentKey] = this.selectVariant(experiment);
         });
@@ -76,7 +76,7 @@ class ABTestingManager {
     selectVariant(experiment) {
         const random = Math.random();
         let cumulativeProbability = 0;
-        
+
         for (let i = 0; i < experiment.variants.length; i++) {
             cumulativeProbability += experiment.traffic_allocation[i];
             if (random < cumulativeProbability) {
@@ -86,7 +86,7 @@ class ABTestingManager {
                 };
             }
         }
-        
+
         // 기본값 (첫 번째 변형)
         return {
             variant: experiment.variants[0],
@@ -115,17 +115,17 @@ class ABTestingManager {
     // CTA 버튼 색상 변형 적용
     applyCTAColorVariant(variant) {
         const colorMap = {
-            'blue': {
+            blue: {
                 primary: '#3b82f6',
                 hover: '#2563eb',
                 text: '#ffffff'
             },
-            'green': {
+            green: {
                 primary: '#10b981',
                 hover: '#059669',
                 text: '#ffffff'
             },
-            'orange': {
+            orange: {
                 primary: '#f59e0b',
                 hover: '#d97706',
                 text: '#ffffff'
@@ -198,13 +198,13 @@ class ABTestingManager {
     setupEventTracking() {
         // 클릭 이벤트 추적
         this.trackClicks();
-        
+
         // 전환 이벤트 추적
         this.trackConversions();
-        
+
         // 스크롤 깊이 추적
         this.trackScrollDepth();
-        
+
         // 페이지 체류 시간 추적
         this.trackTimeOnPage();
     }
@@ -260,7 +260,7 @@ class ABTestingManager {
             event: 'ab_test_conversion',
             conversion_type: type,
             experiments: this.userVariants,
-            details: details,
+            details,
             timestamp: Date.now()
         };
 
@@ -273,8 +273,8 @@ class ABTestingManager {
     // 스크롤 깊이 추적
     trackScrollDepth() {
         let maxScroll = 0;
-        let scrollCheckpoints = [25, 50, 75, 90, 100];
-        let reachedCheckpoints = [];
+        const scrollCheckpoints = [25, 50, 75, 90, 100];
+        const reachedCheckpoints = [];
 
         window.addEventListener('scroll', () => {
             const scrollPercentage = Math.round(
@@ -287,7 +287,7 @@ class ABTestingManager {
                 scrollCheckpoints.forEach(checkpoint => {
                     if (scrollPercentage >= checkpoint && !reachedCheckpoints.includes(checkpoint)) {
                         reachedCheckpoints.push(checkpoint);
-                        
+
                         this.sendEvent({
                             event: 'ab_test_scroll',
                             depth: checkpoint,
@@ -303,11 +303,11 @@ class ABTestingManager {
     // 페이지 체류 시간 추적
     trackTimeOnPage() {
         const startTime = Date.now();
-        
+
         // 페이지 떠날 때 시간 기록
         window.addEventListener('beforeunload', () => {
             const timeOnPage = Math.round((Date.now() - startTime) / 1000);
-            
+
             this.sendEvent({
                 event: 'ab_test_time_on_page',
                 duration: timeOnPage,
@@ -319,7 +319,7 @@ class ABTestingManager {
         // 주기적으로 체류 시간 업데이트 (30초마다)
         setInterval(() => {
             const timeOnPage = Math.round((Date.now() - startTime) / 1000);
-            
+
             if (timeOnPage % 30 === 0) {
                 this.sendEvent({
                     event: 'ab_test_engagement',
@@ -336,10 +336,10 @@ class ABTestingManager {
         // Google Analytics로 전송
         if (typeof gtag !== 'undefined') {
             gtag('event', eventData.event, {
-                'event_category': 'AB_Testing',
-                'event_label': JSON.stringify(eventData.experiments),
-                'value': eventData.value || 0,
-                'custom_data': JSON.stringify(eventData)
+                event_category: 'AB_Testing',
+                event_label: JSON.stringify(eventData.experiments),
+                value: eventData.value || 0,
+                custom_data: JSON.stringify(eventData)
             });
         }
 
@@ -366,16 +366,16 @@ class ABTestingManager {
     // 전환 저장
     saveConversion(type) {
         const conversions = JSON.parse(localStorage.getItem('ab_conversions') || '{}');
-        
+
         if (!conversions[type]) {
             conversions[type] = [];
         }
-        
+
         conversions[type].push({
             experiments: this.userVariants,
             timestamp: Date.now()
         });
-        
+
         localStorage.setItem('ab_conversions', JSON.stringify(conversions));
     }
 
@@ -432,13 +432,13 @@ window.abTestingManager = new ABTestingManager();
 window.ABTesting = {
     // 현재 사용자의 변형 가져오기
     getUserVariants: () => window.abTestingManager.userVariants,
-    
+
     // 전환 추적
     trackConversion: (type, details) => window.abTestingManager.trackConversion(type, details),
-    
+
     // 실험 결과 가져오기
     getResults: () => window.abTestingManager.getExperimentResults(),
-    
+
     // 변형 재설정
     reset: () => window.abTestingManager.resetVariants()
 };

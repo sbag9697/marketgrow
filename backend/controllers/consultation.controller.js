@@ -37,7 +37,6 @@ const createConsultation = async (req, res) => {
                 estimatedResponseTime: '24시간 이내'
             }
         });
-
     } catch (error) {
         logger.error('Create consultation error:', error);
         res.status(500).json({
@@ -65,7 +64,6 @@ const getConsultationById = async (req, res) => {
             success: true,
             data: { consultation }
         });
-
     } catch (error) {
         logger.error('Get consultation by ID error:', error);
         res.status(500).json({
@@ -142,7 +140,6 @@ const getConsultations = async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         logger.error('Get consultations error:', error);
         res.status(500).json({
@@ -192,7 +189,6 @@ const updateConsultationStatus = async (req, res) => {
             message: '상담 상태가 업데이트되었습니다.',
             data: { consultation }
         });
-
     } catch (error) {
         logger.error('Update consultation status error:', error);
         res.status(500).json({
@@ -235,7 +231,6 @@ const addFollowUp = async (req, res) => {
             message: '팔로우업이 추가되었습니다.',
             data: { consultation }
         });
-
     } catch (error) {
         logger.error('Add follow-up error:', error);
         res.status(500).json({
@@ -276,7 +271,6 @@ const scheduleCall = async (req, res) => {
             message: '통화가 예약되었습니다.',
             data: { consultation }
         });
-
     } catch (error) {
         logger.error('Schedule call error:', error);
         res.status(500).json({
@@ -315,7 +309,6 @@ const completeConsultation = async (req, res) => {
             message: '상담이 완료되었습니다.',
             data: { consultation }
         });
-
     } catch (error) {
         logger.error('Complete consultation error:', error);
         res.status(500).json({
@@ -388,13 +381,13 @@ const getConsultationStatistics = async (req, res) => {
                 completedConsultations,
                 convertedConsultations,
                 totalConversionValue: totalConversionValue[0]?.total || 0,
-                conversionRate: completedConsultations > 0 ? 
-                    ((convertedConsultations / completedConsultations) * 100).toFixed(2) : 0,
+                conversionRate: completedConsultations > 0
+                    ? ((convertedConsultations / completedConsultations) * 100).toFixed(2)
+                    : 0,
                 businessTypeStats,
                 monthlyStats
             }
         });
-
     } catch (error) {
         logger.error('Get consultation statistics error:', error);
         res.status(500).json({

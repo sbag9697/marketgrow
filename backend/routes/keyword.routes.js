@@ -239,7 +239,6 @@ router.get('/packages', (req, res) => {
             success: true,
             data: { packages }
         });
-
     } catch (error) {
         console.error('Get keyword packages error:', error);
         res.status(500).json({
@@ -333,7 +332,7 @@ router.post('/order', auth, [
         res.status(201).json({
             success: true,
             message: '키워드 캠페인 주문이 생성되었습니다.',
-            data: { 
+            data: {
                 order,
                 package: selectedPackage,
                 originalPrice,
@@ -341,7 +340,6 @@ router.post('/order', auth, [
                 discountRate: discountRate * 100
             }
         });
-
     } catch (error) {
         console.error('Create keyword order error:', error);
         res.status(500).json({
@@ -380,7 +378,7 @@ router.post('/calculate-price', auth, [
         const User = require('../models/User');
         const user = await User.findById(req.user.id);
         const discountRate = user.getDiscountRate();
-        
+
         const originalPrice = selectedPackage.price;
         const discount = Math.round(originalPrice * discountRate);
         const finalPrice = originalPrice - discount;
@@ -396,7 +394,6 @@ router.post('/calculate-price', auth, [
                 userLevel: user.membershipLevel
             }
         });
-
     } catch (error) {
         console.error('Calculate keyword price error:', error);
         res.status(500).json({
@@ -449,7 +446,6 @@ router.get('/orders', auth, async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Get keyword orders error:', error);
         res.status(500).json({
@@ -510,7 +506,6 @@ router.get('/admin/orders', auth, adminAuth, async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Get admin keyword orders error:', error);
         res.status(500).json({

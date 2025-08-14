@@ -2,7 +2,7 @@
 const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
 
 // 대시보드 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     loadDashboardData();
     setupEventListeners();
@@ -12,17 +12,17 @@ document.addEventListener('DOMContentLoaded', function() {
 function checkAuth() {
     const token = localStorage.getItem('authToken');
     const userInfo = localStorage.getItem('userInfo');
-    
+
     if (!token || !userInfo) {
         alert('로그인이 필요합니다');
         window.location.href = '/login.html';
         return false;
     }
-    
+
     // 사용자 정보 표시
     const user = JSON.parse(userInfo);
     updateUserDisplay(user);
-    
+
     return true;
 }
 
@@ -33,26 +33,26 @@ function updateUserDisplay(user) {
     if (welcomeUserName) {
         welcomeUserName.textContent = user.name || user.username || '사용자';
     }
-    
+
     // 네비게이션 사용자명
     const navUserName = document.getElementById('navUserName');
     if (navUserName) {
         navUserName.textContent = user.name || user.username || '사용자';
     }
-    
+
     // 계정 정보
     const userEmail = document.getElementById('userEmail');
     if (userEmail) {
         userEmail.textContent = user.email || '-';
     }
-    
+
     // 가입일
     const userJoinDate = document.getElementById('userJoinDate');
     if (userJoinDate && user.createdAt) {
         const date = new Date(user.createdAt);
         userJoinDate.textContent = date.toLocaleDateString('ko-KR');
     }
-    
+
     // 추천 코드
     const userReferralCode = document.getElementById('userReferralCode');
     if (userReferralCode) {
@@ -69,12 +69,11 @@ async function loadDashboardData() {
             fetchRecentOrders(),
             fetchUserProfile()
         ]);
-        
+
         // 데이터 표시
         if (stats) displayStats(stats);
         if (orders) displayRecentOrders(orders);
         if (profile) updateMembershipInfo(profile);
-        
     } catch (error) {
         console.error('대시보드 데이터 로드 오류:', error);
     }
@@ -86,10 +85,10 @@ async function fetchUserStats() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/users/stats`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             return data.data;
@@ -114,10 +113,10 @@ async function fetchRecentOrders() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/orders?limit=5`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             return data.data;
@@ -134,10 +133,10 @@ async function fetchUserProfile() {
         const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_URL}/users/profile`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             return data.data;
@@ -155,25 +154,25 @@ function displayStats(stats) {
     if (totalOrders) {
         totalOrders.textContent = stats.totalOrders || 0;
     }
-    
+
     // 총 사용금액
     const totalSpent = document.getElementById('totalSpent');
     if (totalSpent) {
         totalSpent.textContent = `₩${(stats.totalSpent || 0).toLocaleString()}`;
     }
-    
+
     // 진행중인 주문
     const activeOrders = document.getElementById('activeOrders');
     if (activeOrders) {
         activeOrders.textContent = stats.activeOrders || 0;
     }
-    
+
     // 완료된 주문
     const completedOrders = document.getElementById('completedOrders');
     if (completedOrders) {
         completedOrders.textContent = stats.completedOrders || 0;
     }
-    
+
     // 포인트
     const userPoints = document.getElementById('userPoints');
     if (userPoints) {
@@ -185,7 +184,7 @@ function displayStats(stats) {
 function displayRecentOrders(orders) {
     const ordersList = document.getElementById('recentOrdersList');
     if (!ordersList) return;
-    
+
     if (!orders || orders.length === 0) {
         ordersList.innerHTML = `
             <div class="empty-state">
@@ -196,13 +195,13 @@ function displayRecentOrders(orders) {
         `;
         return;
     }
-    
+
     let html = '';
     orders.forEach(order => {
         const statusClass = getStatusClass(order.status);
         const statusText = getStatusText(order.status);
         const date = new Date(order.createdAt).toLocaleDateString('ko-KR');
-        
+
         html += `
             <div class="order-item" onclick="viewOrderDetail('${order._id}')">
                 <div class="order-header">
@@ -220,20 +219,20 @@ function displayRecentOrders(orders) {
             </div>
         `;
     });
-    
+
     ordersList.innerHTML = html;
 }
 
 // 회원 등급 정보 업데이트
 function updateMembershipInfo(profile) {
     if (!profile) return;
-    
+
     // 회원 등급
     const userMembershipLevel = document.getElementById('userMembershipLevel');
     if (userMembershipLevel) {
         userMembershipLevel.textContent = profile.membershipLevel || 'Bronze';
     }
-    
+
     // 등급별 혜택 표시
     displayMembershipBenefits(profile.membershipLevel);
 }
@@ -241,30 +240,30 @@ function updateMembershipInfo(profile) {
 // 등급별 혜택 표시
 function displayMembershipBenefits(level) {
     const benefits = {
-        'Bronze': {
+        Bronze: {
             discount: 0,
             points: 1,
             priority: false
         },
-        'Silver': {
+        Silver: {
             discount: 5,
             points: 1.5,
             priority: false
         },
-        'Gold': {
+        Gold: {
             discount: 10,
             points: 2,
             priority: true
         },
-        'Platinum': {
+        Platinum: {
             discount: 15,
             points: 3,
             priority: true
         }
     };
-    
-    const currentBenefits = benefits[level] || benefits['Bronze'];
-    
+
+    const currentBenefits = benefits[level] || benefits.Bronze;
+
     // 혜택 표시 UI 업데이트 (필요시)
 }
 
@@ -334,7 +333,7 @@ function setupEventListeners() {
             loadDashboardData();
         });
     }
-    
+
     // 알림 설정
     const notificationBtn = document.querySelector('.notification-btn');
     if (notificationBtn) {
@@ -342,7 +341,7 @@ function setupEventListeners() {
             window.location.href = '/notification-settings.html';
         });
     }
-    
+
     // 외부 클릭 시 드롭다운 닫기
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.user-menu')) {
@@ -357,29 +356,29 @@ function setupEventListeners() {
 // 유틸리티 함수
 function getStatusClass(status) {
     const statusClasses = {
-        'pending': 'status-pending',
-        'processing': 'status-processing',
-        'in_progress': 'status-progress',
-        'completed': 'status-completed',
-        'cancelled': 'status-cancelled'
+        pending: 'status-pending',
+        processing: 'status-processing',
+        in_progress: 'status-progress',
+        completed: 'status-completed',
+        cancelled: 'status-cancelled'
     };
     return statusClasses[status] || 'status-pending';
 }
 
 function getStatusText(status) {
     const statusTexts = {
-        'pending': '대기중',
-        'processing': '처리중',
-        'in_progress': '진행중',
-        'completed': '완료',
-        'cancelled': '취소됨'
+        pending: '대기중',
+        processing: '처리중',
+        in_progress: '진행중',
+        completed: '완료',
+        cancelled: '취소됨'
     };
     return statusTexts[status] || '대기중';
 }
 
 function generateReferralCode(userId) {
     if (!userId) return 'MG000000';
-    return 'MG' + userId.slice(-6).toUpperCase();
+    return `MG${userId.slice(-6).toUpperCase()}`;
 }
 
 // 실시간 업데이트 (선택적)

@@ -33,7 +33,7 @@ const connectDB = async () => {
         return true;
     } catch (err) {
         logger.error('MongoDB connection error:', err);
-        
+
         // If cloud connection fails, try in-memory database
         if (!mongoServer) {
             try {
@@ -44,12 +44,12 @@ const connectDB = async () => {
                     }
                 });
                 const mongoUri = mongoServer.getUri();
-                
+
                 await mongoose.connect(mongoUri, {
                     useNewUrlParser: true,
                     useUnifiedTopology: true
                 });
-                
+
                 logger.info('In-memory MongoDB connected successfully');
                 return true;
             } catch (memErr) {

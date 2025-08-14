@@ -48,7 +48,7 @@ const EXTERNAL_ASSETS = [
 // Service Worker 설치
 self.addEventListener('install', (event) => {
     console.log('Service Worker 설치 중...');
-    
+
     event.waitUntil(
         Promise.all([
             // 정적 리소스 캐시
@@ -60,7 +60,7 @@ self.addEventListener('install', (event) => {
             caches.open(STATIC_CACHE).then((cache) => {
                 console.log('외부 리소스 캐싱 중...');
                 return Promise.allSettled(
-                    EXTERNAL_ASSETS.map(url => 
+                    EXTERNAL_ASSETS.map(url =>
                         cache.add(url).catch(err => console.warn(`캐시 실패: ${url}`, err))
                     )
                 );
@@ -75,7 +75,7 @@ self.addEventListener('install', (event) => {
 // Service Worker 활성화
 self.addEventListener('activate', (event) => {
     console.log('Service Worker 활성화 중...');
-    
+
     event.waitUntil(
         // 오래된 캐시 정리
         caches.keys().then((cacheNames) => {
@@ -98,55 +98,54 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     const url = new URL(request.url);
-    
+
     // chrome-extension 요청은 무시
     if (url.protocol === 'chrome-extension:') {
         return;
     }
-    
+
     // 외부 API 요청은 Service Worker가 처리하지 않음
     if (url.hostname !== location.hostname) {
         return;
     }
-    
+
     // 로컬 API 요청 처리
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(handleAPIRequest(request));
         return;
     }
-    
+
     // 정적 리소스 처리
     if (request.method === 'GET') {
         event.respondWith(handleStaticRequest(request));
-        return;
     }
 });
 
 // API 요청 처리 (네트워크 우선, 캐시 폴백)
 async function handleAPIRequest(request) {
     const url = new URL(request.url);
-    
+
     try {
         // 네트워크 요청 시도
         const networkResponse = await fetch(request);
-        
+
         // 성공적인 GET 요청만 캐시
         if (request.method === 'GET' && networkResponse.ok) {
             const cache = await caches.open(DYNAMIC_CACHE);
             cache.put(request, networkResponse.clone());
         }
-        
+
         return networkResponse;
     } catch (error) {
         console.log('네트워크 요청 실패, 캐시 확인 중:', url.pathname);
-        
+
         // 캐시에서 찾기
         const cachedResponse = await caches.match(request);
         if (cachedResponse) {
             console.log('캐시에서 응답 반환:', url.pathname);
             return cachedResponse;
         }
-        
+
         // 오프라인 상태를 나타내는 응답
         if (request.method === 'GET') {
             return new Response(JSON.stringify({
@@ -162,7 +161,7 @@ async function handleAPIRequest(request) {
                 }
             });
         }
-        
+
         throw error;
     }
 }
@@ -170,7 +169,7 @@ async function handleAPIRequest(request) {
 // 정적 리소스 처리 (캐시 우선, 네트워크 폴백)
 async function handleStaticRequest(request) {
     const url = new URL(request.url);
-    
+
     // 캐시에서 먼저 찾기
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
@@ -178,11 +177,11 @@ async function handleStaticRequest(request) {
         updateCache(request);
         return cachedResponse;
     }
-    
+
     try {
         // 네트워크에서 가져오기
         const networkResponse = await fetch(request);
-        
+
         if (networkResponse.ok) {
             // chrome-extension 스킴은 캐시하지 않음
             const url = new URL(request.url);
@@ -192,11 +191,11 @@ async function handleStaticRequest(request) {
                 cache.put(request, networkResponse.clone());
             }
         }
-        
+
         return networkResponse;
     } catch (error) {
         console.log('네트워크 및 캐시 모두 실패:', url.pathname);
-        
+
         // HTML 페이지에 대해서는 오프라인 페이지 반환
         if (request.headers.get('Accept')?.includes('text/html')) {
             const offlineResponse = await caches.match('/offline.html');
@@ -205,7 +204,7 @@ async function handleStaticRequest(request) {
                 headers: { 'Content-Type': 'text/plain; charset=utf-8' }
             });
         }
-        
+
         throw error;
     }
 }
@@ -228,7 +227,7 @@ async function updateCache(request) {
 async function cleanupCache() {
     const dynamicCache = await caches.open(DYNAMIC_CACHE);
     const keys = await dynamicCache.keys();
-    
+
     // 50개 이상의 동적 캐시가 있으면 오래된 것부터 삭제
     if (keys.length > 50) {
         const keysToDelete = keys.slice(0, keys.length - 50);
@@ -242,7 +241,7 @@ async function cleanupCache() {
 // 백그라운드 동기화
 self.addEventListener('sync', (event) => {
     console.log('백그라운드 동기화:', event.tag);
-    
+
     switch (event.tag) {
         case 'cleanup-cache':
             event.waitUntil(cleanupCache());
@@ -258,10 +257,10 @@ async function syncOfflineData() {
     try {
         // IndexedDB에서 오프라인 동안 저장된 데이터 가져오기
         const offlineData = await getOfflineData();
-        
+
         if (offlineData.length > 0) {
             console.log(`${offlineData.length}개의 오프라인 데이터 동기화 시작`);
-            
+
             for (const data of offlineData) {
                 try {
                     await fetch(data.url, {
@@ -269,14 +268,14 @@ async function syncOfflineData() {
                         headers: data.headers,
                         body: data.body
                     });
-                    
+
                     // 성공하면 오프라인 데이터에서 제거
                     await removeFromOfflineData(data.id);
                 } catch (error) {
                     console.log('오프라인 데이터 동기화 실패:', error);
                 }
             }
-            
+
             console.log('오프라인 데이터 동기화 완료');
         }
     } catch (error) {
@@ -298,7 +297,7 @@ async function removeFromOfflineData(id) {
 // 푸시 알림 처리
 self.addEventListener('push', (event) => {
     if (!event.data) return;
-    
+
     const data = event.data.json();
     const options = {
         body: data.body,
@@ -309,7 +308,7 @@ self.addEventListener('push', (event) => {
         actions: data.actions || [],
         requireInteraction: data.requireInteraction || false
     };
-    
+
     event.waitUntil(
         self.registration.showNotification(data.title || 'MarketGrow', options)
     );
@@ -318,12 +317,12 @@ self.addEventListener('push', (event) => {
 // 알림 클릭 처리
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-    
+
     const action = event.action;
     const data = event.notification.data;
-    
+
     let url = '/';
-    
+
     if (action === 'open_dashboard') {
         url = '/dashboard.html';
     } else if (action === 'open_orders') {
@@ -331,16 +330,16 @@ self.addEventListener('notificationclick', (event) => {
     } else if (data.url) {
         url = data.url;
     }
-    
+
     event.waitUntil(
         clients.matchAll({ type: 'window' }).then((clientList) => {
             // 이미 열린 탭이 있으면 포커스
-            for (let client of clientList) {
+            for (const client of clientList) {
                 if (client.url.includes(url) && 'focus' in client) {
                     return client.focus();
                 }
             }
-            
+
             // 새 탭 열기
             if (clients.openWindow) {
                 return clients.openWindow(url);
@@ -352,7 +351,7 @@ self.addEventListener('notificationclick', (event) => {
 // 메시지 처리 (클라이언트와의 통신)
 self.addEventListener('message', (event) => {
     const { type, data } = event.data;
-    
+
     switch (type) {
         case 'SKIP_WAITING':
             self.skipWaiting();
@@ -374,11 +373,11 @@ self.addEventListener('message', (event) => {
 async function getCacheSize() {
     const cacheNames = await caches.keys();
     let totalSize = 0;
-    
+
     for (const cacheName of cacheNames) {
         const cache = await caches.open(cacheName);
         const keys = await cache.keys();
-        
+
         for (const key of keys) {
             const response = await cache.match(key);
             if (response) {
@@ -387,7 +386,7 @@ async function getCacheSize() {
             }
         }
     }
-    
+
     return totalSize;
 }
 

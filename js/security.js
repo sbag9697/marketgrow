@@ -1,5 +1,5 @@
 // Security Module - Input Validation and XSS Prevention
-(function() {
+(function () {
     'use strict';
 
     // XSS Protection - HTML entity encoding
@@ -9,7 +9,7 @@
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
-            "'": '&#x27;',
+            '\'': '&#x27;',
             '/': '&#x2F;'
         };
         return String(text).replace(/[&<>"'/]/g, (s) => map[s]);
@@ -29,7 +29,7 @@
         const allElements = temp.querySelectorAll('*');
         allElements.forEach(element => {
             // Remove all event attributes
-            for (let attr of element.attributes) {
+            for (const attr of element.attributes) {
                 if (attr.name.startsWith('on')) {
                     element.removeAttribute(attr.name);
                 }
@@ -112,19 +112,19 @@
 
             let sum = 0;
             let isEven = false;
-            
+
             for (let i = cleaned.length - 1; i >= 0; i--) {
                 let digit = parseInt(cleaned[i], 10);
-                
+
                 if (isEven) {
                     digit *= 2;
                     if (digit > 9) digit -= 9;
                 }
-                
+
                 sum += digit;
                 isEven = !isEven;
             }
-            
+
             return sum % 10 === 0;
         }
     };
@@ -141,12 +141,12 @@
             const array = new Uint8Array(32);
             crypto.getRandomValues(array);
             const token = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-            
+
             // Store with expiry (1 hour)
             const expiry = Date.now() + (60 * 60 * 1000);
             sessionStorage.setItem(this.tokenKey, token);
             sessionStorage.setItem(this.tokenExpiry, expiry);
-            
+
             return token;
         }
 
@@ -154,11 +154,11 @@
         get() {
             const token = sessionStorage.getItem(this.tokenKey);
             const expiry = sessionStorage.getItem(this.tokenExpiry);
-            
+
             if (!token || !expiry || Date.now() > parseInt(expiry)) {
                 return this.generate();
             }
-            
+
             return token;
         }
 
@@ -166,10 +166,10 @@
         validate(token) {
             const storedToken = sessionStorage.getItem(this.tokenKey);
             const expiry = sessionStorage.getItem(this.tokenExpiry);
-            
+
             if (!storedToken || !expiry) return false;
             if (Date.now() > parseInt(expiry)) return false;
-            
+
             return token === storedToken;
         }
 
@@ -200,20 +200,20 @@
         check(key) {
             const now = Date.now();
             const userRequests = this.requests.get(key) || [];
-            
+
             // Remove old requests outside the window
             const validRequests = userRequests.filter(time => now - time < this.windowMs);
-            
+
             if (validRequests.length >= this.maxRequests) {
                 return {
                     allowed: false,
                     retryAfter: Math.ceil((validRequests[0] + this.windowMs - now) / 1000)
                 };
             }
-            
+
             validRequests.push(now);
             this.requests.set(key, validRequests);
-            
+
             return { allowed: true };
         }
 
@@ -240,12 +240,12 @@
         const fileType = file.type || '';
         const fileName = file.name || '';
         const extension = fileName.split('.').pop().toLowerCase();
-        
+
         // Check MIME type
         if (!allowedTypes.includes(fileType)) {
             return { valid: false, message: '지원하지 않는 파일 형식입니다.' };
         }
-        
+
         // Additional extension check
         const typeExtensions = {
             'image/jpeg': ['jpg', 'jpeg'],
@@ -256,12 +256,12 @@
             'application/msword': ['doc'],
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['docx']
         };
-        
+
         const validExtensions = typeExtensions[fileType] || [];
         if (!validExtensions.includes(extension)) {
             return { valid: false, message: '파일 확장자가 올바르지 않습니다.' };
         }
-        
+
         return { valid: true };
     };
 
@@ -288,7 +288,7 @@
             this.lastActivity = Date.now();
             this.timeoutId = null;
             this.warningShown = false;
-            
+
             this.startMonitoring();
         }
 
@@ -297,7 +297,7 @@
             ['mousedown', 'keypress', 'scroll', 'touchstart'].forEach(event => {
                 document.addEventListener(event, () => this.updateActivity(), { passive: true });
             });
-            
+
             this.checkTimeout();
         }
 
@@ -311,14 +311,14 @@
             const elapsed = now - this.lastActivity;
             const timeout = this.timeoutMinutes * 60 * 1000;
             const warning = timeout - (5 * 60 * 1000); // 5 minutes before timeout
-            
+
             if (elapsed > timeout) {
                 this.handleTimeout();
             } else if (elapsed > warning && !this.warningShown) {
                 this.showWarning();
                 this.warningShown = true;
             }
-            
+
             // Check again in 1 minute
             this.timeoutId = setTimeout(() => this.checkTimeout(), 60000);
         }
@@ -331,11 +331,11 @@
 
         handleTimeout() {
             clearTimeout(this.timeoutId);
-            
+
             // Clear session
             localStorage.removeItem('authToken');
             sessionStorage.clear();
-            
+
             // Redirect to login
             window.location.href = '/login.html?session_expired=true';
         }
@@ -364,5 +364,4 @@
     if (localStorage.getItem('authToken')) {
         window.sessionManager = new SessionManager(30);
     }
-
 })();

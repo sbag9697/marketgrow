@@ -9,23 +9,23 @@ class PerformanceMonitor {
             errors: [],
             userInteractions: []
         };
-        
+
         this.init();
     }
 
     init() {
         // 페이지 로드 성능 측정
         this.measurePageLoad();
-        
+
         // API 호출 성능 추적
         this.trackAPIPerformance();
-        
+
         // 에러 추적
         this.trackErrors();
-        
+
         // 사용자 상호작용 추적
         this.trackUserInteractions();
-        
+
         // 메모리 사용량 모니터링
         this.monitorMemoryUsage();
     }
@@ -36,10 +36,10 @@ class PerformanceMonitor {
                 const timing = performance.timing;
                 this.metrics.pageLoadTime = timing.loadEventEnd - timing.navigationStart;
                 this.metrics.domContentLoadedTime = timing.domContentLoadedEventEnd - timing.navigationStart;
-                
+
                 console.log(`페이지 로드 시간: ${this.metrics.pageLoadTime}ms`);
                 console.log(`DOM 로드 시간: ${this.metrics.domContentLoadedTime}ms`);
-                
+
                 // 느린 로딩 경고
                 if (this.metrics.pageLoadTime > 3000) {
                     console.warn('페이지 로딩이 느립니다. 최적화가 필요합니다.');
@@ -51,27 +51,27 @@ class PerformanceMonitor {
     trackAPIPerformance() {
         // Fetch API 래핑
         const originalFetch = window.fetch;
-        
+
         window.fetch = async (...args) => {
             const startTime = performance.now();
             const url = args[0];
-            
+
             try {
                 const response = await originalFetch(...args);
                 const endTime = performance.now();
                 const duration = endTime - startTime;
-                
+
                 this.recordAPICall(url, duration, response.status, true);
-                
+
                 if (duration > 1000) {
                     console.warn(`느린 API 호출 감지: ${url} (${duration.toFixed(2)}ms)`);
                 }
-                
+
                 return response;
             } catch (error) {
                 const endTime = performance.now();
                 const duration = endTime - startTime;
-                
+
                 this.recordAPICall(url, duration, 0, false, error.message);
                 throw error;
             }
@@ -80,7 +80,7 @@ class PerformanceMonitor {
 
     recordAPICall(url, duration, status, success, errorMessage = null) {
         const key = url.toString();
-        
+
         if (!this.metrics.apiCalls.has(key)) {
             this.metrics.apiCalls.set(key, {
                 url: key,
@@ -92,12 +92,12 @@ class PerformanceMonitor {
                 errors: []
             });
         }
-        
+
         const apiMetric = this.metrics.apiCalls.get(key);
         apiMetric.calls++;
         apiMetric.totalDuration += duration;
         apiMetric.averageDuration = apiMetric.totalDuration / apiMetric.calls;
-        
+
         if (success) {
             apiMetric.successCount++;
         } else {
@@ -141,12 +141,12 @@ class PerformanceMonitor {
 
     recordError(errorInfo) {
         this.metrics.errors.push(errorInfo);
-        
+
         // 에러가 많으면 경고
         if (this.metrics.errors.length > 10) {
             console.warn('많은 에러가 발생했습니다. 개발자 도구를 확인해주세요.');
         }
-        
+
         // 에러를 서버로 전송 (선택적)
         if (typeof api !== 'undefined' && api.logError) {
             api.logError(errorInfo).catch(console.error);
@@ -168,7 +168,7 @@ class PerformanceMonitor {
         let scrollTimeout;
         window.addEventListener('scroll', () => {
             if (scrollTimeout) clearTimeout(scrollTimeout);
-            
+
             scrollTimeout = setTimeout(() => {
                 const scrollPercent = Math.round(
                     (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
@@ -199,7 +199,7 @@ class PerformanceMonitor {
                 const memory = performance.memory;
                 const usedMB = Math.round(memory.usedJSHeapSize / 1048576);
                 const totalMB = Math.round(memory.totalJSHeapSize / 1048576);
-                
+
                 if (usedMB > 100) { // 100MB 이상 사용 시 경고
                     console.warn(`높은 메모리 사용량 감지: ${usedMB}MB / ${totalMB}MB`);
                 }
@@ -221,10 +221,12 @@ class PerformanceMonitor {
             errorCount: this.metrics.errors.length,
             recentErrors: this.metrics.errors.slice(-5),
             interactionCount: this.metrics.userInteractions.length,
-            memoryUsage: performance.memory ? {
-                used: Math.round(performance.memory.usedJSHeapSize / 1048576),
-                total: Math.round(performance.memory.totalJSHeapSize / 1048576)
-            } : null
+            memoryUsage: performance.memory
+                ? {
+                    used: Math.round(performance.memory.usedJSHeapSize / 1048576),
+                    total: Math.round(performance.memory.totalJSHeapSize / 1048576)
+                }
+                : null
         };
 
         return report;
@@ -234,7 +236,7 @@ class PerformanceMonitor {
     async sendReport() {
         try {
             const report = this.generateReport();
-            
+
             if (typeof api !== 'undefined' && api.sendPerformanceReport) {
                 await api.sendPerformanceReport(report);
                 console.log('성능 리포트가 전송되었습니다.');
@@ -364,15 +366,15 @@ class CacheManager {
 
     get(key) {
         const item = this.cache.get(key);
-        
+
         if (!item) return null;
-        
+
         // TTL 체크
         if (Date.now() - item.timestamp > this.ttl) {
             this.cache.delete(key);
             return null;
         }
-        
+
         return item.value;
     }
 

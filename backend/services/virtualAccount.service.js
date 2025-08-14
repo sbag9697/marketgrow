@@ -14,7 +14,7 @@ class VirtualAccountService {
         };
 
         // Base64 인코딩된 시크릿 키 (Basic Auth용)
-        this.authHeader = 'Basic ' + Buffer.from(this.tossPayments.secretKey + ':').toString('base64');
+        this.authHeader = `Basic ${Buffer.from(`${this.tossPayments.secretKey}:`).toString('base64')}`;
     }
 
     /**
@@ -22,11 +22,11 @@ class VirtualAccountService {
      */
     async createVirtualAccount(userId, amount, depositorName) {
         try {
-            const orderId = 'DEPOSIT_' + Date.now() + '_' + Math.random().toString(36).substring(7);
-            
+            const orderId = `DEPOSIT_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
             const requestData = {
-                amount: amount,
-                orderId: orderId,
+                amount,
+                orderId,
                 orderName: `예치금 충전 ${amount.toLocaleString()}원`,
                 customerName: depositorName,
                 bank: '국민', // 국민은행 고정
@@ -45,7 +45,7 @@ class VirtualAccountService {
                 requestData,
                 {
                     headers: {
-                        'Authorization': this.authHeader,
+                        Authorization: this.authHeader,
                         'Content-Type': 'application/json'
                     }
                 }
@@ -56,10 +56,10 @@ class VirtualAccountService {
             // 가상계좌 정보 저장
             const deposit = new Deposit({
                 user: userId,
-                amount: amount,
+                amount,
                 bonusAmount: this.calculateBonus(amount),
                 finalAmount: amount + this.calculateBonus(amount),
-                depositorName: depositorName,
+                depositorName,
                 method: 'virtual_account',
                 status: 'pending',
                 virtualAccount: {
@@ -67,7 +67,7 @@ class VirtualAccountService {
                     accountNumber: virtualAccount.accountNumber,
                     accountHolder: virtualAccount.accountHolder || 'SNS그로우',
                     dueDate: virtualAccount.dueDate,
-                    orderId: orderId,
+                    orderId,
                     paymentKey: virtualAccount.paymentKey
                 }
             });
@@ -82,25 +82,24 @@ class VirtualAccountService {
                     bank: virtualAccount.bank,
                     accountNumber: virtualAccount.accountNumber,
                     accountHolder: virtualAccount.accountHolder || 'SNS그로우',
-                    amount: amount,
+                    amount,
                     dueDate: virtualAccount.dueDate,
                     depositId: deposit._id
                 }
             };
-
         } catch (error) {
             logger.error('Virtual account creation failed:', error);
-            
+
             // 테스트 모드에서는 가상의 계좌 정보 반환
             if (process.env.NODE_ENV !== 'production') {
-                const testAccountNumber = '123' + Date.now().toString().slice(-10);
-                
+                const testAccountNumber = `123${Date.now().toString().slice(-10)}`;
+
                 const deposit = new Deposit({
                     user: userId,
-                    amount: amount,
+                    amount,
                     bonusAmount: this.calculateBonus(amount),
                     finalAmount: amount + this.calculateBonus(amount),
-                    depositorName: depositorName,
+                    depositorName,
                     method: 'virtual_account',
                     status: 'pending',
                     virtualAccount: {
@@ -108,7 +107,7 @@ class VirtualAccountService {
                         accountNumber: testAccountNumber,
                         accountHolder: 'SNS그로우',
                         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24시간 후
-                        orderId: 'TEST_' + Date.now()
+                        orderId: `TEST_${Date.now()}`
                     }
                 });
 
@@ -120,7 +119,7 @@ class VirtualAccountService {
                         bank: '국민은행',
                         accountNumber: testAccountNumber,
                         accountHolder: 'SNS그로우',
-                        amount: amount,
+                        amount,
                         dueDate: deposit.virtualAccount.dueDate,
                         depositId: deposit._id,
                         testMode: true
@@ -180,7 +179,6 @@ class VirtualAccountService {
             }
 
             return { success: false, message: 'Unknown status' };
-
         } catch (error) {
             logger.error('Webhook processing failed:', error);
             throw error;
@@ -207,7 +205,7 @@ class VirtualAccountService {
         if (amount >= 500000) return Math.floor(amount * 0.20); // 50만원 이상 20%
         if (amount >= 300000) return Math.floor(amount * 0.15); // 30만원 이상 15%
         if (amount >= 100000) return Math.floor(amount * 0.10); // 10만원 이상 10%
-        if (amount >= 50000) return Math.floor(amount * 0.05);  // 5만원 이상 5%
+        if (amount >= 50000) return Math.floor(amount * 0.05); // 5만원 이상 5%
         return 0;
     }
 
@@ -241,7 +239,7 @@ class VirtualAccountService {
                 `${this.tossPayments.baseUrl}/payments/${paymentKey}`,
                 {
                     headers: {
-                        'Authorization': this.authHeader
+                        Authorization: this.authHeader
                     }
                 }
             );

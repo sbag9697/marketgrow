@@ -61,20 +61,20 @@ const depositSchema = new mongoose.Schema({
 });
 
 // 입금 번호 자동 생성
-depositSchema.pre('save', async function(next) {
+depositSchema.pre('save', async function (next) {
     if (this.isNew && !this.depositNumber) {
         const date = new Date();
         const dateStr = date.getFullYear().toString().slice(2) +
                        (date.getMonth() + 1).toString().padStart(2, '0') +
                        date.getDate().toString().padStart(2, '0');
-        
+
         const count = await this.constructor.countDocuments({
             createdAt: {
                 $gte: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
                 $lt: new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)
             }
         });
-        
+
         this.depositNumber = `DEP${dateStr}${(count + 1).toString().padStart(4, '0')}`;
     }
     next();

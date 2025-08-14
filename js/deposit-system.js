@@ -6,10 +6,10 @@ class DepositSystem {
         this.balance = 0;
         this.transactions = [];
         this.bonusRates = {
-            50000: 0.05,    // 5% 보너스
-            100000: 0.10,   // 10% 보너스
-            300000: 0.15,   // 15% 보너스
-            500000: 0.20    // 20% 보너스
+            50000: 0.05, // 5% 보너스
+            100000: 0.10, // 10% 보너스
+            300000: 0.15, // 15% 보너스
+            500000: 0.20 // 20% 보너스
         };
         this.init();
     }
@@ -28,7 +28,7 @@ class DepositSystem {
         try {
             const response = await fetch(`${API_URL}/users/balance`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -54,7 +54,7 @@ class DepositSystem {
         try {
             const response = await fetch(`${API_URL}/transactions`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -85,10 +85,10 @@ class DepositSystem {
         const totalAmount = amount + bonus;
 
         const depositData = {
-            amount: amount,
+            amount,
             bonusAmount: bonus,
-            totalAmount: totalAmount,
-            method: method,
+            totalAmount,
+            method,
             status: method === 'bank' ? 'pending' : 'processing'
         };
 
@@ -97,7 +97,7 @@ class DepositSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify(depositData)
             });
@@ -118,17 +118,17 @@ class DepositSystem {
             }
         } catch (error) {
             console.error('충전 요청 오류:', error);
-            
+
             // 임시 처리 (백엔드 없을 때)
             if (method === 'bank') {
                 this.showBankTransferInfo({
-                    amount: amount,
-                    bonus: bonus,
+                    amount,
+                    bonus,
                     total: totalAmount,
                     bankName: '국민은행',
                     accountNumber: '123-456-789012',
                     accountHolder: 'SNS그로우(박시현)',
-                    depositId: 'DEP' + Date.now()
+                    depositId: `DEP${Date.now()}`
                 });
             } else {
                 alert('온라인 결제는 준비중입니다.\n무통장 입금을 이용해주세요.');
@@ -139,14 +139,14 @@ class DepositSystem {
     // 보너스 계산
     calculateBonus(amount) {
         let bonusRate = 0;
-        
+
         for (const [threshold, rate] of Object.entries(this.bonusRates).reverse()) {
             if (amount >= parseInt(threshold)) {
                 bonusRate = rate;
                 break;
             }
         }
-        
+
         return Math.floor(amount * bonusRate);
     }
 
@@ -166,9 +166,9 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
 입금 확인 후 자동으로 충전됩니다.
 (영업시간 기준 10분 이내)
         `;
-        
+
         alert(message);
-        
+
         // 거래 내역에 추가
         this.addTransaction({
             id: info.depositId,
@@ -194,8 +194,8 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
                 buyerName: paymentData.buyerName,
                 buyerTel: paymentData.buyerTel,
                 buyerEmail: paymentData.buyerEmail,
-                returnUrl: window.location.origin + '/deposit-complete.html',
-                closeUrl: window.location.origin + '/deposit.html'
+                returnUrl: `${window.location.origin}/deposit-complete.html`,
+                closeUrl: `${window.location.origin}/deposit.html`
             });
         } else {
             alert('결제 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.');
@@ -209,38 +209,38 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
         }
 
         const token = localStorage.getItem('authToken');
-        
+
         try {
             const response = await fetch(`${API_URL}/deposits/use`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    amount: amount,
-                    orderId: orderId,
-                    description: description
+                    amount,
+                    orderId,
+                    description
                 })
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.balance = data.newBalance;
                 this.updateBalanceDisplay();
-                
+
                 // 거래 내역 추가
                 this.addTransaction({
                     type: 'use',
-                    amount: amount,
-                    orderId: orderId,
-                    description: description,
+                    amount,
+                    orderId,
+                    description,
                     balance: data.newBalance,
                     status: 'completed',
                     createdAt: new Date().toISOString()
                 });
-                
+
                 return data;
             } else {
                 throw new Error(data.message || '예치금 사용 실패');
@@ -254,10 +254,10 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
     // 거래 내역 추가
     addTransaction(transaction) {
         this.transactions.unshift(transaction);
-        
+
         // 로컬 스토리지 업데이트
         localStorage.setItem('transactions', JSON.stringify(this.transactions));
-        
+
         // 화면 업데이트
         this.updateTransactionDisplay();
     }
@@ -272,7 +272,7 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
 
         Object.values(elements).forEach(el => {
             if (el) {
-                el.textContent = '₩' + this.balance.toLocaleString();
+                el.textContent = `₩${this.balance.toLocaleString()}`;
             }
         });
 
@@ -320,10 +320,10 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
     // 거래 유형 이름
     getTransactionTypeName(type) {
         const types = {
-            'deposit': '충전',
-            'use': '사용',
-            'refund': '환불',
-            'bonus': '보너스'
+            deposit: '충전',
+            use: '사용',
+            refund: '환불',
+            bonus: '보너스'
         };
         return types[type] || type;
     }
@@ -331,11 +331,11 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
     // 결제 방법 이름
     getPaymentMethodName(method) {
         const methods = {
-            'bank': '무통장입금',
-            'card': '카드',
-            'transfer': '계좌이체',
-            'deposit': '예치금',
-            'point': '포인트'
+            bank: '무통장입금',
+            card: '카드',
+            transfer: '계좌이체',
+            deposit: '예치금',
+            point: '포인트'
         };
         return methods[method] || method;
     }
@@ -343,11 +343,11 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
     // 상태 이름
     getStatusName(status) {
         const statuses = {
-            'completed': '완료',
-            'pending': '대기중',
-            'processing': '처리중',
-            'failed': '실패',
-            'cancelled': '취소'
+            completed: '완료',
+            pending: '대기중',
+            processing: '처리중',
+            failed: '실패',
+            cancelled: '취소'
         };
         return statuses[status] || status;
     }
@@ -360,23 +360,23 @@ ${info.bonus > 0 ? `보너스: +₩${info.bonus.toLocaleString()}` : ''}
         try {
             const response = await fetch(`${API_URL}/deposits/check-pending`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                
+
                 if (data.completed && data.completed.length > 0) {
                     data.completed.forEach(deposit => {
                         // 충전 완료 알림
                         this.showDepositCompleteNotification(deposit);
-                        
+
                         // 잔액 업데이트
                         this.balance = deposit.newBalance;
                         this.updateBalanceDisplay();
                     });
-                    
+
                     // 거래 내역 새로고침
                     await this.loadTransactions();
                 }

@@ -6,11 +6,11 @@ console.log('🚀 MarketGrow 프로덕션 빌드 시작 (Mock 제거)...\n');
 try {
     // 환경 변수에서 백엔드 URL 가져오기
     const BACKEND_URL = process.env.BACKEND_URL || 'https://marketgrow-production.up.railway.app';
-    
+
     // 1. 빌드 디렉토리 생성
     const buildDir = path.join(__dirname, 'dist');
     console.log(`📁 빌드 디렉토리: ${buildDir}`);
-    
+
     if (fs.existsSync(buildDir)) {
         console.log('🗑️ 기존 빌드 디렉토리 삭제 중...');
         fs.rmSync(buildDir, { recursive: true, force: true });
@@ -23,15 +23,15 @@ try {
     htmlFiles.forEach(file => {
         try {
             let content = fs.readFileSync(path.join(__dirname, file), 'utf8');
-            
+
             // mock-api.js 스크립트 태그 제거
             content = content.replace(/<script\s+src=["']js\/mock-api\.js["'][^>]*><\/script>/gi, '<!-- mock-api.js removed for production -->');
             content = content.replace(/<script\s+src=["'].*auto-mock\.js["'][^>]*><\/script>/gi, '<!-- auto-mock.js removed for production -->');
-            
+
             // 테스트 메시지 제거
             content = content.replace(/테스트: 123456/g, '');
             content = content.replace(/테스트 인증번호: 123456/g, '');
-            
+
             fs.writeFileSync(path.join(buildDir, file), content);
             console.log(`  ✓ ${file} (Mock 제거됨)`);
         } catch (err) {
@@ -43,42 +43,42 @@ try {
     console.log('📜 JavaScript 파일 복사 및 정리 중...');
     const jsDir = path.join(__dirname, 'js');
     const jsBuildDir = path.join(buildDir, 'js');
-    
+
     if (fs.existsSync(jsDir)) {
         fs.mkdirSync(jsBuildDir, { recursive: true });
-        
+
         const jsFiles = fs.readdirSync(jsDir);
         jsFiles.forEach(file => {
             const srcPath = path.join(jsDir, file);
             const destPath = path.join(jsBuildDir, file);
-            
+
             // mock 관련 파일 제외
             if (file === 'mock-api.js' || file === 'auto-mock.js') {
                 console.log(`  ⏭️ ${file} (제외됨)`);
                 return;
             }
-            
+
             try {
                 let content = fs.readFileSync(srcPath, 'utf8');
-                
+
                 // phone-auth.js 수정
                 if (file === 'phone-auth.js') {
                     // Mock 모드 강제 활성화 코드 제거
                     content = content.replace(/localStorage\.setItem\(['"]useMockServer['"],\s*['"]true['"]\);?/g, '// Mock 모드 제거됨');
                     content = content.replace(/console\.log\(['"].*Mock 모드.*['"]\);?/g, '');
                 }
-                
-                // auth.js 수정  
+
+                // auth.js 수정
                 if (file === 'auth.js') {
                     // 123456 테스트 코드 제거
                     content = content.replace(/if\s*\(code\s*===\s*['"]123456['"]\)\s*{[^}]*}/gs, '// 테스트 코드 제거됨');
                     content = content.replace(/테스트 모드: 인증번호는 123456입니다/g, '');
                     content = content.replace(/테스트 코드: 123456/g, '');
                 }
-                
+
                 // 모든 파일에서 Mock 관련 코드 제거
                 content = content.replace(/localStorage\.setItem\(['"]useMockServer['"],\s*['"]true['"]\)/g, '// Mock 제거');
-                
+
                 fs.writeFileSync(destPath, content);
                 console.log(`  ✓ ${file}`);
             } catch (err) {
@@ -138,12 +138,12 @@ console.log('✅ Production mode - Mock disabled');
         if (fs.existsSync(sourcePath)) {
             try {
                 let content = fs.readFileSync(sourcePath, 'utf8');
-                
+
                 // script.js에서도 Mock 관련 코드 제거
                 if (file === 'script.js') {
                     content = content.replace(/localStorage\.setItem\(['"]useMockServer['"],\s*['"]true['"]\)/g, '');
                 }
-                
+
                 fs.writeFileSync(path.join(buildDir, file), content);
                 console.log(`  ✓ ${file}`);
             } catch (err) {
@@ -172,9 +172,8 @@ console.log('✅ Production mode - Mock disabled');
     console.log(`📁 빌드 결과: ${buildDir}`);
     console.log('\n🔒 Mock 모드 완전 제거됨');
     console.log(`🌐 백엔드 URL: ${BACKEND_URL}`);
-    
-    process.exit(0);
 
+    process.exit(0);
 } catch (error) {
     console.error('\n❌ 빌드 실패!');
     console.error('오류:', error.message);
@@ -187,16 +186,16 @@ function copyDirectory(src, dest) {
     if (!fs.existsSync(src)) {
         return;
     }
-    
+
     if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest, { recursive: true });
     }
-    
+
     const files = fs.readdirSync(src);
     files.forEach(file => {
         const srcPath = path.join(src, file);
         const destPath = path.join(dest, file);
-        
+
         try {
             const stat = fs.statSync(srcPath);
             if (stat.isDirectory()) {

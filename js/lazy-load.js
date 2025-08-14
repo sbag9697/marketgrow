@@ -1,5 +1,5 @@
 // Lazy Loading Implementation
-(function() {
+(function () {
     'use strict';
 
     // Lazy loading for images

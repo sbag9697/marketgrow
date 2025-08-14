@@ -16,7 +16,7 @@ class AuthManager {
             // 데모 계정 생성 (로컬 테스트용)
             this.createDemoAccount();
         }
-        
+
         // 로그인 상태 확인
         if (this.currentUser) {
             this.updateUIForLoggedInUser();
@@ -49,13 +49,13 @@ class AuthManager {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.token}`
+                    Authorization: `Bearer ${this.token}`
                 },
                 body: JSON.stringify({ action: 'verify' })
             });
 
             const result = await response.json();
-            
+
             if (result.success) {
                 this.currentUser = result.user;
                 localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
@@ -105,10 +105,10 @@ class AuthManager {
             if (result.success) {
                 this.currentUser = result.user;
                 this.token = result.token;
-                
+
                 localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
                 localStorage.setItem('token', this.token);
-                
+
                 this.updateUIForLoggedInUser();
                 return { success: true, user: result.user };
             } else {
@@ -129,7 +129,7 @@ class AuthManager {
         }
 
         // 중복 사용자 확인
-        const existingUser = this.users.find(user => 
+        const existingUser = this.users.find(user =>
             user.username === username || user.email === email
         );
 
@@ -156,8 +156,8 @@ class AuthManager {
 
     // 로그인
     login(username, password) {
-        const user = this.users.find(u => 
-            (u.username === username || u.email === username) && 
+        const user = this.users.find(u =>
+            (u.username === username || u.email === username) &&
             u.password === this.hashPassword(password)
         );
 
@@ -200,7 +200,7 @@ class AuthManager {
     updateUIForLoggedInUser() {
         const loginBtn = document.querySelector('.login-btn');
         const signupBtn = document.querySelector('.signup-btn');
-        
+
         if (loginBtn && signupBtn) {
             const userMenu = document.createElement('div');
             userMenu.className = 'user-menu';
@@ -215,7 +215,7 @@ class AuthManager {
                     </div>
                 </div>
             `;
-            
+
             loginBtn.parentNode.replaceChild(userMenu, loginBtn);
             signupBtn.style.display = 'none';
         }

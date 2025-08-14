@@ -5,7 +5,7 @@ const User = require('../models/User');
 const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-        
+
         if (!token) {
             return res.status(401).json({
                 success: false,
@@ -15,7 +15,7 @@ const auth = async (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.id).select('-password');
-        
+
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -34,14 +34,14 @@ const auth = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
-        
+
         if (error.name === 'JsonWebTokenError') {
             return res.status(401).json({
                 success: false,
                 message: '유효하지 않은 토큰입니다.'
             });
         }
-        
+
         if (error.name === 'TokenExpiredError') {
             return res.status(401).json({
                 success: false,
@@ -98,16 +98,16 @@ const managerAuth = (req, res, next) => {
 const optionalAuth = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-        
+
         if (token) {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const user = await User.findById(decoded.id).select('-password');
-            
+
             if (user && user.isActive) {
                 req.user = user;
             }
         }
-        
+
         next();
     } catch (error) {
         // Continue without user if token is invalid

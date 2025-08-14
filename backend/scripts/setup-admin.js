@@ -16,7 +16,7 @@ const ADMIN_DATA = {
 async function createAdminAccount() {
     console.log('🔧 관리자 계정 생성 시작...');
     console.log('API URL:', API_URL);
-    
+
     try {
         // 1. 먼저 로그인 시도 (이미 존재하는지 확인)
         console.log('기존 관리자 계정 확인 중...');
@@ -25,7 +25,7 @@ async function createAdminAccount() {
                 email: ADMIN_DATA.email,
                 password: ADMIN_DATA.password
             });
-            
+
             if (loginResponse.data.success) {
                 console.log('✅ 관리자 계정이 이미 존재합니다.');
                 console.log('계정 정보:', {
@@ -38,10 +38,10 @@ async function createAdminAccount() {
         } catch (loginError) {
             console.log('관리자 계정이 없습니다. 새로 생성합니다...');
         }
-        
+
         // 2. 관리자 계정 생성
         const signupResponse = await axios.post(`${API_URL}/auth/signup`, ADMIN_DATA);
-        
+
         if (signupResponse.data.success) {
             console.log('✅ 관리자 계정 생성 성공!');
             console.log('계정 정보:', {
@@ -49,21 +49,21 @@ async function createAdminAccount() {
                 password: '(보안상 표시하지 않음)',
                 username: ADMIN_DATA.username
             });
-            
+
             // 3. 생성된 계정으로 로그인 테스트
             const testLogin = await axios.post(`${API_URL}/auth/login`, {
                 email: ADMIN_DATA.email,
                 password: ADMIN_DATA.password
             });
-            
+
             if (testLogin.data.success) {
                 console.log('✅ 로그인 테스트 성공!');
-                console.log('토큰:', testLogin.data.data.token.substring(0, 20) + '...');
+                console.log('토큰:', `${testLogin.data.data.token.substring(0, 20)}...`);
             }
         }
     } catch (error) {
         console.error('❌ 오류 발생:', error.response?.data || error.message);
-        
+
         if (error.response?.status === 409) {
             console.log('💡 계정이 이미 존재합니다. Railway 대시보드에서 ADMIN_PASSWORD 환경변수를 확인하세요.');
         }

@@ -2,23 +2,23 @@
 let orderId = null;
 let orderData = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // 인증 확인
     checkAuthentication();
-    
+
     // URL 파라미터에서 주문 ID 추출
     extractOrderId();
-    
+
     // 주문 정보 로드
     if (orderId) {
         loadOrderInfo();
     } else {
         showOrderError();
     }
-    
+
     // 추천 서비스 로드
     loadRecommendedServices();
-    
+
     // 알림 설정 이벤트 리스너
     initNotificationSettings();
 });
@@ -36,7 +36,7 @@ async function checkAuthentication() {
         if (!response.success) {
             throw new Error('인증 실패');
         }
-        
+
         // 사용자 정보 업데이트
         const navUserName = document.getElementById('navUserName');
         if (navUserName) {
@@ -59,7 +59,7 @@ function extractOrderId() {
 async function loadOrderInfo() {
     try {
         const response = await api.getOrder(orderId);
-        
+
         if (response.success) {
             orderData = response.data.order;
             displayOrderInfo(orderData);
@@ -138,16 +138,19 @@ function displayOrderInfo(order) {
             </div>
         </div>
 
-        ${order.notes ? `
+        ${order.notes
+        ? `
             <div class="detail-item" style="margin-top: 20px;">
                 <div class="detail-label">특별 요청사항</div>
                 <div class="detail-value" style="font-size: 0.95rem; line-height: 1.4;">
                     ${order.notes}
                 </div>
             </div>
-        ` : ''}
+        `
+        : ''}
 
-        ${order.options && (order.options.guarantee || order.options.priority) ? `
+        ${order.options && (order.options.guarantee || order.options.priority)
+        ? `
             <div class="detail-item" style="margin-top: 20px;">
                 <div class="detail-label">추가 옵션</div>
                 <div class="detail-value">
@@ -155,7 +158,8 @@ function displayOrderInfo(order) {
                     ${order.options.priority ? '<span class="option-tag">우선 처리</span>' : ''}
                 </div>
             </div>
-        ` : ''}
+        `
+        : ''}
     `;
 
     // CSS 스타일 추가
@@ -285,7 +289,7 @@ async function loadRecommendedServices() {
 
     try {
         const response = await api.getServices({ limit: 6, isPopular: 'true' });
-        
+
         if (response.success && response.data.services) {
             renderRecommendedServices(response.data.services);
         }
@@ -302,12 +306,12 @@ async function loadRecommendedServices() {
 // 추천 서비스 렌더링
 function renderRecommendedServices(services) {
     const recommendedServices = document.getElementById('recommendedServices');
-    
+
     let servicesHTML = '';
     services.slice(0, 4).forEach(service => {
         const platformIcon = getPlatformIcon(service.platform);
         const platformColor = getPlatformColor(service.platform);
-        
+
         servicesHTML += `
             <div class="recommended-item" onclick="orderService('${service._id}')">
                 <div class="recommended-icon" style="background: ${platformColor};">
@@ -321,7 +325,7 @@ function renderRecommendedServices(services) {
             </div>
         `;
     });
-    
+
     recommendedServices.innerHTML = servicesHTML;
 }
 
@@ -495,28 +499,28 @@ function getPaymentMethodText(method) {
 
 function getEstimatedCompletion(order) {
     if (!order.createdAt) return '-';
-    
+
     const createdDate = new Date(order.createdAt);
     const speedHours = {
         fast: 24,
         normal: 48,
         slow: 168 // 7일
     };
-    
+
     const estimatedHours = speedHours[order.speed] || 48;
     const estimatedDate = new Date(createdDate.getTime() + (estimatedHours * 60 * 60 * 1000));
-    
-    return estimatedDate.toLocaleDateString('ko-KR') + ' ' + estimatedDate.toLocaleTimeString('ko-KR', {
+
+    return `${estimatedDate.toLocaleDateString('ko-KR')} ${estimatedDate.toLocaleTimeString('ko-KR', {
         hour: '2-digit',
         minute: '2-digit'
-    });
+    })}`;
 }
 
 // 외부 클릭 시 사용자 메뉴 닫기
-document.addEventListener('click', function(event) {
+document.addEventListener('click', (event) => {
     const userMenu = document.querySelector('.user-menu');
     const userDropdown = document.getElementById('userDropdown');
-    
+
     if (userMenu && !userMenu.contains(event.target)) {
         userDropdown?.classList.remove('show');
     }

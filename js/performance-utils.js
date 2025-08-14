@@ -1,13 +1,13 @@
 // Performance Optimization Module
-(function() {
+(function () {
     'use strict';
 
     // Debounce function for scroll and resize events
     function debounce(func, wait, immediate) {
         let timeout;
-        return function() {
-            const context = this, args = arguments;
-            const later = function() {
+        return function () {
+            const context = this; const args = arguments;
+            const later = function () {
                 timeout = null;
                 if (!immediate) func.apply(context, args);
             };
@@ -21,7 +21,7 @@
     // Throttle function for frequent events
     function throttle(func, limit) {
         let inThrottle;
-        return function() {
+        return function () {
             const args = arguments;
             const context = this;
             if (!inThrottle) {
@@ -35,19 +35,19 @@
     // Optimize scroll performance
     const optimizeScroll = () => {
         let ticking = false;
-        
+
         function updateScrollPosition() {
             // Your scroll-based updates here
             ticking = false;
         }
-        
+
         function requestTick() {
             if (!ticking) {
                 requestAnimationFrame(updateScrollPosition);
                 ticking = true;
             }
         }
-        
+
         window.addEventListener('scroll', requestTick, { passive: true });
     };
 
@@ -87,12 +87,12 @@
     // Optimize animations with will-change
     const optimizeAnimations = () => {
         const animatedElements = document.querySelectorAll('.service-card, .feature-item, .faq-item');
-        
+
         animatedElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
                 element.style.willChange = 'transform, box-shadow';
             });
-            
+
             element.addEventListener('mouseleave', () => {
                 setTimeout(() => {
                     element.style.willChange = 'auto';
@@ -185,7 +185,7 @@
         optimizeImageLoading();
         registerServiceWorker();
         cleanupOnUnload();
-        
+
         // Monitor performance in development
         if (window.location.hostname === 'localhost') {
             monitorPerformance();

@@ -9,11 +9,11 @@ const resetAdmin = async () => {
     try {
         // Connect to database
         await connectDB();
-        
+
         // Delete existing admin
         await User.deleteOne({ email: 'admin@marketgrow.com' });
         console.log('Existing admin deleted');
-        
+
         // Create new admin
         const adminUser = new User({
             username: 'admin',
@@ -28,17 +28,17 @@ const resetAdmin = async () => {
             isActive: true,
             termsAcceptedAt: new Date()
         });
-        
+
         await adminUser.save();
         console.log('Admin user created successfully');
         console.log('Email: admin@marketgrow.com');
         console.log('Password: admin123!@#');
-        
+
         // Test login
         const user = await User.findOne({ email: 'admin@marketgrow.com' }).select('+password');
         const isValid = await user.comparePassword('admin123!@#');
         console.log('Password test:', isValid ? 'PASS' : 'FAIL');
-        
+
         process.exit(0);
     } catch (error) {
         console.error('Error:', error);

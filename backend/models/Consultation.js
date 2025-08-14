@@ -83,7 +83,7 @@ const consultationSchema = new mongoose.Schema({
     contactedAt: Date,
     scheduledCallAt: Date,
     completedAt: Date,
-    
+
     // Follow-up information
     followUps: [{
         date: {
@@ -106,7 +106,7 @@ const consultationSchema = new mongoose.Schema({
             ref: 'User'
         }
     }],
-    
+
     // Consultation outcome
     outcome: {
         type: String,
@@ -114,7 +114,7 @@ const consultationSchema = new mongoose.Schema({
     },
     conversionValue: Number,
     conversionDate: Date,
-    
+
     // Additional information
     source: {
         type: String,
@@ -127,7 +127,7 @@ const consultationSchema = new mongoose.Schema({
     utmCampaign: String,
     ipAddress: String,
     userAgent: String,
-    
+
     // Privacy and consent
     marketingConsent: {
         type: Boolean,
@@ -137,14 +137,14 @@ const consultationSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    
+
     // Internal notes
     internalNotes: String,
     tags: [{
         type: String,
         lowercase: true
     }],
-    
+
     metadata: mongoose.Schema.Types.Mixed
 }, {
     timestamps: true
@@ -159,7 +159,7 @@ consultationSchema.index({ email: 1 });
 consultationSchema.index({ tags: 1 });
 
 // Generate consultation ID
-consultationSchema.pre('save', async function(next) {
+consultationSchema.pre('save', async function (next) {
     if (!this.consultationId && this.isNew) {
         const date = new Date();
         const year = date.getFullYear();
@@ -172,23 +172,23 @@ consultationSchema.pre('save', async function(next) {
 });
 
 // Add follow-up
-consultationSchema.methods.addFollowUp = function(followUpData, userId) {
+consultationSchema.methods.addFollowUp = function (followUpData, userId) {
     this.followUps.push({
         ...followUpData,
         createdBy: userId
     });
-    
+
     // Update status if needed
     if (followUpData.result === 'scheduled' && this.status === 'pending') {
         this.status = 'contacted';
         this.contactedAt = new Date();
     }
-    
+
     return this.save();
 };
 
 // Assign to user
-consultationSchema.methods.assignTo = function(userId) {
+consultationSchema.methods.assignTo = function (userId) {
     this.assignedTo = userId;
     if (this.status === 'pending') {
         this.status = 'contacted';
@@ -198,21 +198,21 @@ consultationSchema.methods.assignTo = function(userId) {
 };
 
 // Mark as completed
-consultationSchema.methods.complete = function(outcome, conversionValue = null) {
+consultationSchema.methods.complete = function (outcome, conversionValue = null) {
     this.status = 'completed';
     this.completedAt = new Date();
     this.outcome = outcome;
-    
+
     if (outcome === 'converted') {
         this.conversionValue = conversionValue;
         this.conversionDate = new Date();
     }
-    
+
     return this.save();
 };
 
 // Schedule call
-consultationSchema.methods.scheduleCall = function(scheduledDate) {
+consultationSchema.methods.scheduleCall = function (scheduledDate) {
     this.scheduledCallAt = scheduledDate;
     if (this.status === 'pending') {
         this.status = 'contacted';
@@ -222,14 +222,14 @@ consultationSchema.methods.scheduleCall = function(scheduledDate) {
 };
 
 // Virtual for days since created
-consultationSchema.virtual('daysSinceCreated').get(function() {
+consultationSchema.virtual('daysSinceCreated').get(function () {
     const now = new Date();
     const diffTime = Math.abs(now - this.createdAt);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 });
 
 // Virtual for last follow-up
-consultationSchema.virtual('lastFollowUp').get(function() {
+consultationSchema.virtual('lastFollowUp').get(function () {
     if (this.followUps.length === 0) return null;
     return this.followUps[this.followUps.length - 1];
 });

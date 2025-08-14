@@ -59,10 +59,10 @@ async function handleCreateTicket(event, headers) {
     }
 
     const { title, content, category } = JSON.parse(event.body);
-    
+
     // 티켓 번호 생성 (예: SP240101001)
     const ticketNumber = await generateTicketNumber();
-    
+
     try {
         // 상담 티켓 생성
         const result = await sql`
@@ -74,9 +74,9 @@ async function handleCreateTicket(event, headers) {
             )
             RETURNING *
         `;
-        
+
         const ticket = result[0];
-        
+
         // 초기 메시지 생성
         await sql`
             INSERT INTO support_messages (
@@ -86,7 +86,7 @@ async function handleCreateTicket(event, headers) {
                 ${ticket.id}, 'customer', ${user.username}, ${content}, 'text'
             )
         `;
-        
+
         // 카카오톡 알림 전송 (관리자에게)
         await sendKakaoNotification({
             templateCode: 'new_ticket',
@@ -94,11 +94,11 @@ async function handleCreateTicket(event, headers) {
             variables: {
                 ticket_number: ticketNumber,
                 customer: user.username,
-                category: category,
-                title: title
+                category,
+                title
             }
         });
-        
+
         return {
             statusCode: 201,
             headers,
@@ -128,7 +128,7 @@ async function handleConnectKakao(event, headers) {
     }
 
     const { ticketId, phoneNumber } = JSON.parse(event.body);
-    
+
     try {
         // 카카오톡 상담방 생성 요청
         const kakaoResponse = await createKakaoChat({
@@ -136,7 +136,7 @@ async function handleConnectKakao(event, headers) {
             customerName: user.username,
             ticketNumber: ticketId
         });
-        
+
         if (kakaoResponse.success) {
             // 티켓에 카카오톡 채팅방 ID 저장
             await sql`
@@ -144,7 +144,7 @@ async function handleConnectKakao(event, headers) {
                 SET kakao_chat_id = ${kakaoResponse.chatId}
                 WHERE id = ${ticketId} AND user_id = ${user.id}
             `;
-            
+
             return {
                 statusCode: 200,
                 headers,
@@ -172,17 +172,17 @@ async function handleConnectKakao(event, headers) {
 
 async function generateTicketNumber() {
     const today = new Date();
-    const dateStr = today.getFullYear().toString().slice(-2) + 
-                   (today.getMonth() + 1).toString().padStart(2, '0') + 
+    const dateStr = today.getFullYear().toString().slice(-2) +
+                   (today.getMonth() + 1).toString().padStart(2, '0') +
                    today.getDate().toString().padStart(2, '0');
-    
+
     // 오늘 생성된 티켓 수 조회
     const result = await sql`
         SELECT COUNT(*) as count 
         FROM support_tickets 
         WHERE DATE(created_at) = CURRENT_DATE
     `;
-    
+
     const count = parseInt(result[0].count) + 1;
     return `SP${dateStr}${count.toString().padStart(3, '0')}`;
 }
@@ -193,19 +193,19 @@ async function sendKakaoNotification({ templateCode, recipient, variables }) {
         const response = await fetch('https://alimtalk-api.bizmsg.kr/v2/sender/send', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${KAKAO_API_KEY}`,
+                Authorization: `Bearer ${KAKAO_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 senderKey: KAKAO_SENDER_KEY,
-                templateCode: templateCode,
+                templateCode,
                 recipientList: [{
                     recipientNo: recipient,
                     templateParameter: variables
                 }]
             })
         });
-        
+
         return await response.json();
     } catch (error) {
         console.error('Kakao notification failed:', error);
@@ -219,22 +219,22 @@ async function createKakaoChat({ customerPhone, customerName, ticketNumber }) {
         const response = await fetch('https://business-api.kakao.com/v1/counseltalk/create', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${KAKAO_API_KEY}`,
+                Authorization: `Bearer ${KAKAO_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 counselorId: process.env.KAKAO_COUNSELOR_ID,
-                customerPhone: customerPhone,
-                customerName: customerName,
+                customerPhone,
+                customerName,
                 metadata: {
-                    ticketNumber: ticketNumber,
+                    ticketNumber,
                     source: 'sns-marketing-pro'
                 }
             })
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             return {
                 success: true,
@@ -242,7 +242,7 @@ async function createKakaoChat({ customerPhone, customerName, ticketNumber }) {
                 chatUrl: result.chatUrl
             };
         }
-        
+
         return { success: false };
     } catch (error) {
         console.error('Kakao chat creation failed:', error);
@@ -254,18 +254,18 @@ async function authenticateUser(authHeader) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
-    
+
     const token = authHeader.substring(7);
-    
+
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        
+
         const users = await sql`
             SELECT id, username, email, points, membership_level
             FROM users 
             WHERE id = ${decoded.userId} AND is_active = true
         `;
-        
+
         return users[0] || null;
     } catch (error) {
         return null;

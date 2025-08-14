@@ -11,7 +11,7 @@ class SMMTurkNetlifyAPI {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
+                    Authorization: `Bearer ${this.apiKey}`
                 }
             };
 

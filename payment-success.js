@@ -9,13 +9,12 @@ class PaymentSuccessManager {
         try {
             // URL 파라미터에서 결제 정보 가져오기
             this.getPaymentInfo();
-            
+
             // 결제 정보 표시
             this.displayPaymentInfo();
-            
+
             // 주문 정보 저장
             this.saveOrderData();
-            
         } catch (error) {
             console.error('결제 처리 실패:', error);
             this.showError('결제 처리 중 오류가 발생했습니다.');
@@ -25,7 +24,7 @@ class PaymentSuccessManager {
     // URL에서 결제 정보 추출
     getPaymentInfo() {
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         // KG이니시스 결제 결과 파라미터
         this.paymentData = {
             orderId: urlParams.get('orderId') || urlParams.get('MOID'),
@@ -76,15 +75,15 @@ class PaymentSuccessManager {
         const methodEl = document.getElementById('method');
         if (methodEl) {
             const paymentMethods = {
-                'Card': '신용카드',
-                'DirectBank': '계좌이체',
-                'VBank': '가상계좌',
-                'HPP': '휴대폰결제',
-                'Kakaopay': '카카오페이',
-                'Naverpay': '네이버페이',
-                'Samsungpay': '삼성페이',
-                'Lpay': 'L페이',
-                'Payco': '페이코'
+                Card: '신용카드',
+                DirectBank: '계좌이체',
+                VBank: '가상계좌',
+                HPP: '휴대폰결제',
+                Kakaopay: '카카오페이',
+                Naverpay: '네이버페이',
+                Samsungpay: '삼성페이',
+                Lpay: 'L페이',
+                Payco: '페이코'
             };
             methodEl.textContent = paymentMethods[this.paymentData.payMethod] || this.paymentData.payMethod || '카드';
         }
@@ -131,7 +130,6 @@ class PaymentSuccessManager {
                     console.error('서버 저장 실패:', error);
                 }
             }
-
         } catch (error) {
             console.error('주문 데이터 저장 실패:', error);
         }
@@ -156,7 +154,7 @@ class PaymentSuccessManager {
         } else {
             alert(message);
         }
-        
+
         // 결제 페이지로 리다이렉트
         setTimeout(() => {
             window.location.href = '/payment.html';
@@ -170,7 +168,7 @@ function viewReceipt() {
     // 자체 영수증 페이지로 이동하거나 API를 통해 영수증 정보를 가져옴
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('orderId') || urlParams.get('MOID');
-    
+
     if (orderId) {
         window.open(`/receipt.html?orderId=${orderId}`, '_blank');
     } else {

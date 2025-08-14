@@ -46,7 +46,6 @@ router.get('/dashboard', auth, async (req, res) => {
                 recentOrders
             }
         });
-
     } catch (error) {
         console.error('Dashboard error:', error);
         res.status(500).json({
@@ -63,7 +62,7 @@ router.get('/orders', auth, async (req, res) => {
         const { page = 1, limit = 10, status, search } = req.query;
 
         const query = { user: req.user.id };
-        
+
         if (status && status !== 'all') {
             query.status = status;
         }
@@ -96,7 +95,6 @@ router.get('/orders', auth, async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Get orders error:', error);
         res.status(500).json({
@@ -113,7 +111,7 @@ router.get('/payments', auth, async (req, res) => {
         const { page = 1, limit = 10, status } = req.query;
 
         const query = { user: req.user.id };
-        
+
         if (status && status !== 'all') {
             query.status = status;
         }
@@ -138,7 +136,6 @@ router.get('/payments', auth, async (req, res) => {
                 }
             }
         });
-
     } catch (error) {
         console.error('Get payments error:', error);
         res.status(500).json({
@@ -171,7 +168,6 @@ router.get('/referrals', auth, async (req, res) => {
                 userReferralCode: req.user.referralCode
             }
         });
-
     } catch (error) {
         console.error('Get referrals error:', error);
         res.status(500).json({

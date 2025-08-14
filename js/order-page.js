@@ -2,17 +2,17 @@
 let currentStep = 1;
 let selectedPlatform = null;
 let selectedService = null;
-let orderData = {};
+const orderData = {};
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     console.log('Order-page.js DOMContentLoaded 실행됨');
-    
+
     // 인증 확인
     checkAuthentication();
-    
+
     // 초기화
     initOrderPage();
-    
+
     // URL 파라미터 확인
     checkUrlParams();
 });
@@ -32,7 +32,7 @@ async function checkAuthentication() {
         if (!response.success) {
             throw new Error('인증 실패');
         }
-        
+
         // 사용자 정보 업데이트
         const navUserName = document.getElementById('navUserName');
         if (navUserName) {
@@ -56,12 +56,12 @@ function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const platform = urlParams.get('platform');
     const serviceId = urlParams.get('service');
-    
+
     if (platform) {
         selectedPlatform = platform;
         loadServicesForPlatform(platform);
     }
-    
+
     if (serviceId) {
         loadSpecificService(serviceId);
     }
@@ -74,7 +74,7 @@ async function loadPlatforms() {
 
     try {
         const response = await api.getServices();
-        
+
         if (response.success) {
             const platforms = groupServicesByPlatform(response.data.services);
             renderPlatforms(platforms);
@@ -94,7 +94,7 @@ async function loadPlatforms() {
 // 서비스를 플랫폼별로 그룹화
 function groupServicesByPlatform(services) {
     const platformMap = {};
-    
+
     services.forEach(service => {
         if (!platformMap[service.platform]) {
             platformMap[service.platform] = {
@@ -107,14 +107,14 @@ function groupServicesByPlatform(services) {
         platformMap[service.platform].count++;
         platformMap[service.platform].services.push(service);
     });
-    
+
     return platformMap;
 }
 
 // 플랫폼 렌더링
 function renderPlatforms(platforms) {
     const platformGrid = document.getElementById('platformGrid');
-    
+
     let platformsHTML = '';
     Object.keys(platforms).forEach(platform => {
         const platformData = platforms[platform];
@@ -127,7 +127,7 @@ function renderPlatforms(platforms) {
             </div>
         `;
     });
-    
+
     platformGrid.innerHTML = platformsHTML;
 }
 
@@ -136,26 +136,26 @@ async function selectPlatform(platform, event) {
     console.log('selectPlatform 호출됨:', platform);
     selectedPlatform = platform;
     selectedService = null;
-    
+
     // UI 업데이트
     document.querySelectorAll('.platform-card').forEach(card => {
         card.classList.remove('selected');
     });
-    
+
     // 클릭된 카드 찾기
     const clickedCard = event ? event.currentTarget : document.querySelector(`.platform-card[onclick*="${platform}"]`);
     if (clickedCard) {
         clickedCard.classList.add('selected');
     }
-    
+
     // 서비스 목록 로드
     await loadServicesForPlatform(platform);
-    
+
     // 서비스 선택 섹션 표시
     const serviceSelection = document.getElementById('serviceSelection');
     serviceSelection.style.display = 'block';
     serviceSelection.scrollIntoView({ behavior: 'smooth' });
-    
+
     updateNextButton();
 }
 
@@ -173,10 +173,10 @@ async function loadServicesForPlatform(platform) {
 
     try {
         const response = await api.getServices();
-        
+
         if (response.success && response.data && response.data.services) {
             // 플랫폼별로 필터링
-            const filteredServices = response.data.services.filter(service => 
+            const filteredServices = response.data.services.filter(service =>
                 service.platform === platform
             );
             renderServices(filteredServices);
@@ -196,12 +196,12 @@ async function loadServicesForPlatform(platform) {
 // 서비스 목록 렌더링
 function renderServices(services) {
     const serviceList = document.getElementById('serviceList');
-    
+
     if (!services || services.length === 0) {
         serviceList.innerHTML = '<p>이 플랫폼에는 아직 서비스가 없습니다.</p>';
         return;
     }
-    
+
     let servicesHTML = '';
     services.forEach(service => {
         try {
@@ -218,7 +218,7 @@ function renderServices(services) {
                     }
                 }
             }
-            
+
             servicesHTML += `
                 <div class="service-item ${selectedService && selectedService._id === service._id ? 'selected' : ''}" 
                      onclick="selectService('${service._id}')">
@@ -243,7 +243,7 @@ function renderServices(services) {
             console.error('서비스 렌더링 오류:', err, service);
         }
     });
-    
+
     serviceList.innerHTML = servicesHTML;
 }
 
@@ -254,21 +254,21 @@ async function selectService(serviceId) {
         const response = await api.getServiceById(serviceId);
         if (response.success && response.data) {
             selectedService = response.data.service || response.data;
-            
+
             // UI 업데이트
             document.querySelectorAll('.service-item').forEach(item => {
                 item.classList.remove('selected');
                 const radio = item.querySelector('input[type="radio"]');
                 if (radio) radio.checked = false;
             });
-            
+
             const selectedItem = document.querySelector(`.service-item[onclick*="${serviceId}"]`);
             if (selectedItem) {
                 selectedItem.classList.add('selected');
                 const radio = selectedItem.querySelector('input[type="radio"]');
                 if (radio) radio.checked = true;
             }
-            
+
             updateNextButton();
         }
     } catch (error) {
@@ -295,7 +295,7 @@ function goToStep(step) {
         }
         return;
     }
-    
+
     currentStep = step;
     updateStepUI();
 }
@@ -358,42 +358,42 @@ window.selectService = selectService;
 window.loadPlatforms = loadPlatforms;
 window.loadServicesForPlatform = loadServicesForPlatform;
 window.goToStep = goToStep;
-window.changeQuantity = function(amount) {
+window.changeQuantity = function (amount) {
     const quantityInput = document.getElementById('quantity');
     if (!quantityInput) return;
-    
+
     const currentValue = parseInt(quantityInput.value) || 0;
     const newValue = currentValue + amount;
     const minQuantity = parseInt(document.getElementById('minQuantity')?.textContent) || 1;
     const maxQuantity = parseInt(document.getElementById('maxQuantity')?.textContent) || 10000;
-    
+
     if (newValue >= minQuantity && newValue <= maxQuantity) {
         quantityInput.value = newValue;
     }
 };
-window.submitOrder = async function() {
+window.submitOrder = async function () {
     // 주문 제출 로직
     console.log('주문 제출');
 };
-window.toggleUserMenu = function() {
+window.toggleUserMenu = function () {
     const dropdown = document.getElementById('userDropdown');
     if (dropdown) {
         dropdown.classList.toggle('show');
     }
 };
-window.showProfile = function() {
+window.showProfile = function () {
     console.log('프로필 표시');
 };
-window.showSettings = function() {
+window.showSettings = function () {
     console.log('설정 표시');
 };
-window.logout = function() {
+window.logout = function () {
     api.clearToken();
     window.location.href = 'login.html';
 };
-window.showTerms = function() {
+window.showTerms = function () {
     console.log('이용약관 표시');
 };
-window.showPrivacy = function() {
+window.showPrivacy = function () {
     console.log('개인정보처리방침 표시');
 };

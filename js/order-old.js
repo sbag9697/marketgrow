@@ -4,18 +4,18 @@ let selectedPlatform = null;
 let selectedService = null;
 let orderData = {};
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     console.log('Order.js DOMContentLoaded 실행됨');
-    
+
     // 인증 확인
     checkAuthentication();
-    
+
     // 초기화
     initOrderPage();
-    
+
     // URL 파라미터 확인 (서비스 페이지에서 전달된 경우)
     checkUrlParams();
-    
+
     console.log('전역 함수 확인:', {
         selectPlatform: typeof window.selectPlatform,
         selectService: typeof window.selectService,
@@ -36,7 +36,7 @@ async function checkAuthentication() {
         if (!response.success) {
             throw new Error('인증 실패');
         }
-        
+
         // 사용자 정보 업데이트
         const navUserName = document.getElementById('navUserName');
         if (navUserName) {
@@ -60,12 +60,12 @@ function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const platform = urlParams.get('platform');
     const serviceId = urlParams.get('service');
-    
+
     if (platform) {
         selectedPlatform = platform;
         loadServicesForPlatform(platform);
     }
-    
+
     if (serviceId) {
         // 특정 서비스로 바로 이동
         loadSpecificService(serviceId);
@@ -79,7 +79,7 @@ async function loadPlatforms() {
 
     try {
         const response = await api.getServices();
-        
+
         if (response.success) {
             const platforms = groupServicesByPlatform(response.data.services);
             renderPlatforms(platforms);
@@ -99,7 +99,7 @@ async function loadPlatforms() {
 // 서비스를 플랫폼별로 그룹화
 function groupServicesByPlatform(services) {
     const platformMap = {};
-    
+
     services.forEach(service => {
         if (!platformMap[service.platform]) {
             platformMap[service.platform] = {
@@ -112,14 +112,14 @@ function groupServicesByPlatform(services) {
         platformMap[service.platform].count++;
         platformMap[service.platform].services.push(service);
     });
-    
+
     return platformMap;
 }
 
 // 플랫폼 렌더링
 function renderPlatforms(platforms) {
     const platformGrid = document.getElementById('platformGrid');
-    
+
     let platformsHTML = '';
     Object.keys(platforms).forEach(platform => {
         const platformData = platforms[platform];
@@ -132,7 +132,7 @@ function renderPlatforms(platforms) {
             </div>
         `;
     });
-    
+
     platformGrid.innerHTML = platformsHTML;
 }
 
@@ -141,26 +141,26 @@ async function selectPlatform(platform, event) {
     console.log('selectPlatform 호출됨:', platform);
     selectedPlatform = platform;
     selectedService = null;
-    
+
     // UI 업데이트
     document.querySelectorAll('.platform-card').forEach(card => {
         card.classList.remove('selected');
     });
-    
+
     // 클릭된 카드 찾기
     const clickedCard = event ? event.currentTarget : document.querySelector(`.platform-card[onclick*="${platform}"]`);
     if (clickedCard) {
         clickedCard.classList.add('selected');
     }
-    
+
     // 서비스 목록 로드
     await loadServicesForPlatform(platform);
-    
+
     // 서비스 선택 섹션 표시
     const serviceSelection = document.getElementById('serviceSelection');
     serviceSelection.style.display = 'block';
     serviceSelection.scrollIntoView({ behavior: 'smooth' });
-    
+
     updateNextButton();
 }
 
@@ -178,10 +178,10 @@ async function loadServicesForPlatform(platform) {
 
     try {
         const response = await api.getServices();
-        
+
         if (response.success && response.data && response.data.services) {
             // 플랫폼별로 필터링
-            const filteredServices = response.data.services.filter(service => 
+            const filteredServices = response.data.services.filter(service =>
                 service.platform === platform
             );
             renderServices(filteredServices);
@@ -201,12 +201,12 @@ async function loadServicesForPlatform(platform) {
 // 서비스 목록 렌더링
 function renderServices(services) {
     const serviceList = document.getElementById('serviceList');
-    
+
     if (!services || services.length === 0) {
         serviceList.innerHTML = '<p>이 플랫폼에는 아직 서비스가 없습니다.</p>';
         return;
     }
-    
+
     let servicesHTML = '';
     services.forEach(service => {
         // 첫 번째 가격 정보 가져오기
@@ -214,7 +214,7 @@ function renderServices(services) {
         const price = firstPricing.price || 0;
         const quantity = firstPricing.quantity || 1000;
         const pricePerThousand = quantity > 0 ? Math.round((price / quantity) * 1000) : 0;
-        
+
         servicesHTML += `
             <div class="service-item ${selectedService?._id === service._id ? 'selected' : ''}" 
                  onclick="selectService('${service._id}')">
@@ -236,7 +236,7 @@ function renderServices(services) {
             </div>
         `;
     });
-    
+
     serviceList.innerHTML = servicesHTML;
 }
 
@@ -247,21 +247,21 @@ async function selectService(serviceId) {
         const response = await api.getServiceById(serviceId);
         if (response.success && response.data) {
             selectedService = response.data.service || response.data;
-            
+
             // UI 업데이트
             document.querySelectorAll('.service-item').forEach(item => {
                 item.classList.remove('selected');
                 const radio = item.querySelector('input[type="radio"]');
                 if (radio) radio.checked = false;
             });
-            
+
             const selectedItem = document.querySelector(`.service-item[onclick*="${serviceId}"]`);
             if (selectedItem) {
                 selectedItem.classList.add('selected');
                 const radio = selectedItem.querySelector('input[type="radio"]');
                 if (radio) radio.checked = true;
             }
-            
+
             updateNextButton();
         }
     } catch (error) {
@@ -279,7 +279,7 @@ async function loadSpecificService(serviceId) {
             if (service) {
                 selectedService = service;
                 selectedPlatform = service.platform;
-                
+
                 // 2단계로 이동
                 goToStep(2);
             }
@@ -295,15 +295,15 @@ function goToStep(step) {
         NotificationManager.warning('플랫폼과 서비스를 선택해주세요.');
         return;
     }
-    
+
     if (step === 3) {
         if (!validateStep2()) return;
         calculateOrderSummary();
     }
-    
+
     currentStep = step;
     updateStepUI();
-    
+
     if (step === 2) {
         showSelectedServiceInfo();
         initializeOrderForm();
@@ -316,14 +316,14 @@ function updateStepUI() {
     document.querySelectorAll('.step').forEach((stepEl, index) => {
         const stepNumber = index + 1;
         stepEl.classList.remove('active', 'completed');
-        
+
         if (stepNumber < currentStep) {
             stepEl.classList.add('completed');
         } else if (stepNumber === currentStep) {
             stepEl.classList.add('active');
         }
     });
-    
+
     // 콘텐츠 표시/숨김
     document.querySelectorAll('.order-step-content').forEach((content, index) => {
         const stepNumber = index + 1;
@@ -343,10 +343,10 @@ function updateNextButton() {
 function showSelectedServiceInfo() {
     const selectedServiceInfo = document.getElementById('selectedServiceInfo');
     if (!selectedServiceInfo || !selectedService) return;
-    
+
     const platformName = getPlatformName(selectedPlatform);
     const platformIcon = getPlatformIcon(selectedPlatform);
-    
+
     selectedServiceInfo.innerHTML = `
         <h4>
             <i class="${platformIcon}"></i>
@@ -365,21 +365,21 @@ function showSelectedServiceInfo() {
 // 주문 폼 초기화
 function initializeOrderForm() {
     if (!selectedService) return;
-    
+
     // 수량 제한 설정
     const quantityInput = document.getElementById('quantity');
     const minQuantity = document.getElementById('minQuantity');
     const maxQuantity = document.getElementById('maxQuantity');
-    
+
     if (quantityInput) {
         quantityInput.min = selectedService.minQuantity;
         quantityInput.max = selectedService.maxQuantity;
         quantityInput.value = selectedService.minQuantity;
     }
-    
+
     if (minQuantity) minQuantity.textContent = selectedService.minQuantity.toLocaleString();
     if (maxQuantity) maxQuantity.textContent = selectedService.maxQuantity.toLocaleString();
-    
+
     // 실시간 계산 이벤트 리스너 추가
     addCalculationListeners();
 }
@@ -387,7 +387,7 @@ function initializeOrderForm() {
 // 실시간 계산 이벤트 리스너 추가
 function addCalculationListeners() {
     const inputs = ['quantity', 'guaranteeOption', 'priorityOption'];
-    
+
     inputs.forEach(inputId => {
         const element = document.getElementById(inputId);
         if (element) {
@@ -400,22 +400,22 @@ function addCalculationListeners() {
 // 가격 미리보기 업데이트
 function updatePricePreview() {
     if (!selectedService) return;
-    
+
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
     const guaranteeOption = document.getElementById('guaranteeOption').checked;
     const priorityOption = document.getElementById('priorityOption').checked;
-    
-    let basePrice = (quantity / 1000) * selectedService.pricePerThousand;
+
+    const basePrice = (quantity / 1000) * selectedService.pricePerThousand;
     let totalPrice = basePrice;
-    
+
     if (guaranteeOption) {
         totalPrice += basePrice * 0.2; // 20% 추가
     }
-    
+
     if (priorityOption) {
         totalPrice += basePrice * 0.1; // 10% 추가
     }
-    
+
     // 가격 표시 업데이트 (있다면)
     const pricePreview = document.getElementById('pricePreview');
     if (pricePreview) {
@@ -427,12 +427,12 @@ function updatePricePreview() {
 function changeQuantity(delta) {
     const quantityInput = document.getElementById('quantity');
     if (!quantityInput) return;
-    
+
     const currentValue = parseInt(quantityInput.value) || 0;
     const newValue = currentValue + delta;
     const min = parseInt(quantityInput.min) || 1;
     const max = parseInt(quantityInput.max) || 10000;
-    
+
     if (newValue >= min && newValue <= max) {
         quantityInput.value = newValue;
         updatePricePreview();
@@ -443,25 +443,25 @@ function changeQuantity(delta) {
 function validateStep2() {
     const targetUrl = document.getElementById('targetUrl').value.trim();
     const quantity = parseInt(document.getElementById('quantity').value);
-    
+
     if (!targetUrl) {
         NotificationManager.warning('대상 URL을 입력해주세요.');
         document.getElementById('targetUrl').focus();
         return false;
     }
-    
+
     if (!isValidUrl(targetUrl)) {
         NotificationManager.warning('올바른 URL 형식을 입력해주세요.');
         document.getElementById('targetUrl').focus();
         return false;
     }
-    
+
     if (!quantity || quantity < selectedService.minQuantity || quantity > selectedService.maxQuantity) {
         NotificationManager.warning(`수량은 ${selectedService.minQuantity}개 이상 ${selectedService.maxQuantity}개 이하로 입력해주세요.`);
         document.getElementById('quantity').focus();
         return false;
     }
-    
+
     return true;
 }
 
@@ -478,19 +478,19 @@ function isValidUrl(string) {
 // 주문 요약 계산
 function calculateOrderSummary() {
     if (!selectedService) return;
-    
+
     const quantity = parseInt(document.getElementById('quantity').value) || 0;
     const speed = document.getElementById('speed').value;
     const guaranteeOption = document.getElementById('guaranteeOption').checked;
     const priorityOption = document.getElementById('priorityOption').checked;
     const targetUrl = document.getElementById('targetUrl').value.trim();
     const notes = document.getElementById('notes').value.trim();
-    
+
     // 가격 계산
     const basePrice = (quantity / 1000) * selectedService.pricePerThousand;
     let totalPrice = basePrice;
-    let additionalOptions = [];
-    
+    const additionalOptions = [];
+
     if (guaranteeOption) {
         const guaranteeFee = basePrice * 0.2;
         totalPrice += guaranteeFee;
@@ -499,7 +499,7 @@ function calculateOrderSummary() {
             price: guaranteeFee
         });
     }
-    
+
     if (priorityOption) {
         const priorityFee = basePrice * 0.1;
         totalPrice += priorityFee;
@@ -508,7 +508,7 @@ function calculateOrderSummary() {
             price: priorityFee
         });
     }
-    
+
     // 주문 데이터 저장
     orderData = {
         service: selectedService,
@@ -523,7 +523,7 @@ function calculateOrderSummary() {
         totalPrice: Math.round(totalPrice),
         additionalOptions
     };
-    
+
     // 주문 요약 표시
     showOrderSummary();
 }
@@ -532,14 +532,14 @@ function calculateOrderSummary() {
 function showOrderSummary() {
     const orderSummary = document.getElementById('orderSummary');
     if (!orderSummary) return;
-    
+
     const platformName = getPlatformName(orderData.platform);
     const speedNames = {
         slow: '천천히 (2-7일)',
         normal: '보통 (24-48시간)',
         fast: '빠름 (12-24시간)'
     };
-    
+
     let summaryHTML = `
         <div class="summary-item">
             <span class="summary-label">서비스</span>
@@ -562,7 +562,7 @@ function showOrderSummary() {
             <span class="summary-value">₩${orderData.basePrice.toLocaleString()}</span>
         </div>
     `;
-    
+
     // 추가 옵션 표시
     orderData.additionalOptions.forEach(option => {
         summaryHTML += `
@@ -572,14 +572,14 @@ function showOrderSummary() {
             </div>
         `;
     });
-    
+
     summaryHTML += `
         <div class="summary-item">
             <span class="summary-label">총 결제 금액</span>
             <span class="summary-value">₩${orderData.totalPrice.toLocaleString()}</span>
         </div>
     `;
-    
+
     orderSummary.innerHTML = summaryHTML;
 }
 
@@ -590,14 +590,14 @@ async function submitOrder() {
         NotificationManager.warning('이용약관 및 개인정보처리방침에 동의해주세요.');
         return;
     }
-    
+
     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-    
+
     const orderBtn = document.getElementById('orderBtn');
     const originalText = orderBtn.innerHTML;
     orderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 결제 처리 중...';
     orderBtn.disabled = true;
-    
+
     try {
         // 결제 데이터 준비
         const paymentData = {
@@ -606,20 +606,18 @@ async function submitOrder() {
                 ...orderData,
                 customerName: await getCurrentUserName(),
                 customerEmail: await getCurrentUserEmail(),
-                paymentMethod: paymentMethod
+                paymentMethod
             }
         };
 
         // 결제 처리
         await paymentManager.requestPayment(paymentData);
-        
     } catch (error) {
         console.error('결제 처리 오류:', error);
-        
+
         // 결제 실패 처리
         const errorMessage = error.message || '결제 처리 중 오류가 발생했습니다.';
         paymentManager.handlePaymentFailure('PAYMENT_ERROR', errorMessage, null);
-        
     } finally {
         orderBtn.innerHTML = originalText;
         orderBtn.disabled = false;
@@ -712,10 +710,10 @@ function getPlatformIcon(platform) {
 }
 
 // 외부 클릭 시 사용자 메뉴 닫기
-document.addEventListener('click', function(event) {
+document.addEventListener('click', (event) => {
     const userMenu = document.querySelector('.user-menu');
     const userDropdown = document.getElementById('userDropdown');
-    
+
     if (userMenu && !userMenu.contains(event.target)) {
         userDropdown?.classList.remove('show');
     }

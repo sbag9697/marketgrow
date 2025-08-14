@@ -41,7 +41,7 @@ class CartSystem {
             const token = localStorage.getItem('authToken');
             const response = await fetch(`${API_URL}/cart`, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
@@ -87,8 +87,8 @@ class CartSystem {
         };
 
         // 중복 체크
-        const existingIndex = this.cart.findIndex(item => 
-            item.serviceId === cartItem.serviceId && 
+        const existingIndex = this.cart.findIndex(item =>
+            item.serviceId === cartItem.serviceId &&
             item.targetUrl === cartItem.targetUrl
         );
 
@@ -108,7 +108,7 @@ class CartSystem {
 
         this.syncLocalCart();
         this.showAddedNotification(service.name);
-        
+
         return cartItem;
     }
 
@@ -117,11 +117,11 @@ class CartSystem {
         const index = this.cart.findIndex(item => item.id === itemId);
         if (index >= 0) {
             const removed = this.cart.splice(index, 1)[0];
-            
+
             if (this.isLoggedIn) {
                 await this.syncCartToServer();
             }
-            
+
             this.syncLocalCart();
             this.showRemovedNotification(removed.serviceName);
         }
@@ -133,11 +133,11 @@ class CartSystem {
         if (item) {
             item.quantity = newQuantity;
             item.totalPrice = item.price * newQuantity;
-            
+
             if (this.isLoggedIn) {
                 await this.syncCartToServer();
             }
-            
+
             this.syncLocalCart();
         }
     }
@@ -145,11 +145,11 @@ class CartSystem {
     // 장바구니 비우기
     async clearCart() {
         this.cart = [];
-        
+
         if (this.isLoggedIn) {
             await this.syncCartToServer();
         }
-        
+
         this.syncLocalCart();
     }
 
@@ -161,7 +161,7 @@ class CartSystem {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ items: this.cart })
             });
@@ -179,7 +179,7 @@ class CartSystem {
     // UI 업데이트
     updateCartUI() {
         this.calculateTotals();
-        
+
         // 장바구니 카운트 업데이트
         const cartBadges = document.querySelectorAll('.cart-badge');
         cartBadges.forEach(badge => {
@@ -377,7 +377,7 @@ class CartSystem {
         if (!summary) return;
 
         summary.style.display = 'block';
-        
+
         const subtotal = this.cartTotal;
         const discount = 0; // 할인 로직 추가 가능
         const total = subtotal - discount;
@@ -388,12 +388,14 @@ class CartSystem {
                 <span>상품 금액</span>
                 <span>₩${subtotal.toLocaleString()}</span>
             </div>
-            ${discount > 0 ? `
+            ${discount > 0
+        ? `
                 <div class="summary-row discount">
                     <span>할인 금액</span>
                     <span>-₩${discount.toLocaleString()}</span>
                 </div>
-            ` : ''}
+            `
+        : ''}
             <div class="summary-row total">
                 <span>총 결제금액</span>
                 <span>₩${total.toLocaleString()}</span>
@@ -437,7 +439,7 @@ class CartSystem {
         // 장바구니 데이터를 세션 스토리지에 저장
         sessionStorage.setItem('checkoutItems', JSON.stringify(this.cart));
         sessionStorage.setItem('checkoutTotal', this.cartTotal);
-        
+
         // 결제 페이지로 이동
         window.location.href = '/payment.html?from=cart';
     }
@@ -802,6 +804,6 @@ const cartSystem = new CartSystem();
 window.cartSystem = cartSystem;
 
 // 장바구니에 추가하는 헬퍼 함수
-window.addToCart = function(service, options) {
+window.addToCart = function (service, options) {
     return cartSystem.addToCart(service, options);
 };

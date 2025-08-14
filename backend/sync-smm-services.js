@@ -6,8 +6,8 @@ const smmPanelService = require('./services/smmPanel.service');
 const SERVICE_MAPPING = {
     // Instagram
     '인스타그램 팔로워 늘리기': {
-        smmId: 1001,  // 실제 SMM 패널 서비스 ID
-        marginPercent: 800  // 800% 마진
+        smmId: 1001, // 실제 SMM 패널 서비스 ID
+        marginPercent: 800 // 800% 마진
     },
     '인스타그램 좋아요 늘리기': {
         smmId: 1002,
@@ -21,7 +21,7 @@ const SERVICE_MAPPING = {
         smmId: 1004,
         marginPercent: 800
     },
-    
+
     // YouTube
     '유튜브 구독자 늘리기': {
         smmId: 2001,
@@ -35,7 +35,7 @@ const SERVICE_MAPPING = {
         smmId: 2003,
         marginPercent: 800
     },
-    
+
     // TikTok
     '틱톡 팔로워 늘리기': {
         smmId: 3001,
@@ -45,13 +45,13 @@ const SERVICE_MAPPING = {
         smmId: 3002,
         marginPercent: 800
     },
-    
+
     // Facebook
     '페이스북 페이지 좋아요': {
         smmId: 4001,
         marginPercent: 800
     },
-    
+
     // Twitter
     '트위터 팔로워 늘리기': {
         smmId: 5001,
@@ -62,7 +62,7 @@ const SERVICE_MAPPING = {
 async function syncServices() {
     try {
         console.log('🔄 SMM 패널 서비스 동기화 시작...\n');
-        
+
         // SMM 패널 API 키 확인
         if (!process.env.SMM_PANEL_API_KEY) {
             console.error('❌ SMM_PANEL_API_KEY가 설정되지 않았습니다.');
@@ -85,15 +85,15 @@ async function syncServices() {
         // 매핑된 서비스 정보 출력
         console.log('🔗 서비스 매핑 정보:');
         console.log('================================');
-        
+
         for (const [serviceName, mapping] of Object.entries(SERVICE_MAPPING)) {
             const smmService = services.find(s => s.service === mapping.smmId);
-            
+
             if (smmService) {
                 const originalPrice = parseFloat(smmService.rate);
                 const marginAmount = originalPrice * (mapping.marginPercent / 100);
                 const finalPrice = originalPrice + marginAmount;
-                
+
                 console.log(`\n📦 ${serviceName}`);
                 console.log(`   SMM ID: ${smmService.service}`);
                 console.log(`   SMM 이름: ${smmService.name}`);
@@ -115,7 +115,7 @@ async function syncServices() {
         services.forEach(service => {
             categories[service.category] = (categories[service.category] || 0) + 1;
         });
-        
+
         Object.entries(categories)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10)
@@ -137,16 +137,16 @@ async function syncServices() {
         process.exit(0);
     } catch (error) {
         console.error('\n❌ 동기화 오류:', error.message);
-        
+
         if (error.response) {
             console.error('API 응답:', error.response.data);
         }
-        
+
         console.log('\n해결 방법:');
         console.log('1. API 키가 올바른지 확인');
         console.log('2. API URL이 정확한지 확인');
         console.log('3. SMM 패널 계정이 활성화되어 있는지 확인');
-        
+
         process.exit(1);
     }
 }

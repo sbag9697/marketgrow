@@ -14,9 +14,9 @@ exports.handler = async (event, context) => {
 
     try {
         console.log('주문 상태 동기화 시작...');
-        
+
         const smmturkAPI = new SMMTurkNetlifyAPI();
-        
+
         // 진행 중인 주문들 조회
         const activeOrders = await sql`
             SELECT * FROM orders 
@@ -72,10 +72,10 @@ exports.handler = async (event, context) => {
 
                         if (ourStatus === 'completed' && order.status !== 'completed') {
                             completedCount++;
-                            
+
                             // 완료된 주문에 대해 포인트 적립
                             await addCompletionPoints(order);
-                            
+
                             console.log(`주문 ${order.id} 완료 처리됨`);
                         }
                     }
@@ -83,7 +83,6 @@ exports.handler = async (event, context) => {
 
                 // API 호출 제한을 위한 짧은 대기
                 await sleep(100);
-
             } catch (error) {
                 console.error(`주문 ${order.id} 동기화 실패:`, error);
             }
@@ -110,10 +109,9 @@ exports.handler = async (event, context) => {
             headers,
             body: JSON.stringify(result)
         };
-
     } catch (error) {
         console.error('동기화 스케줄러 오류:', error);
-        
+
         return {
             statusCode: 500,
             headers,
@@ -175,7 +173,7 @@ async function addCompletionPoints(order) {
     try {
         // 주문 금액의 1% 포인트 적립
         const points = Math.floor(order.total_price * 0.01);
-        
+
         if (points > 0) {
             // 사용자 포인트 업데이트
             await sql`

@@ -7,31 +7,31 @@ class SMMPanelService {
         this.apiUrl = process.env.SMM_API_URL || 'https://smmturk.com/api/v2';
         this.apiKey = process.env.SMM_API_KEY;
         this.enabled = process.env.SMM_ENABLED === 'true';
-        
+
         // 서비스 ID 매핑 (MarketGrow 서비스 -> SMM 패널 서비스)
         this.serviceMapping = {
             // Instagram
-            'instagram_followers': 1234,  // 실제 SMM 패널 서비스 ID로 변경 필요
-            'instagram_likes': 1235,
-            'instagram_comments': 1236,
-            'instagram_views': 1237,
-            
+            instagram_followers: 1234, // 실제 SMM 패널 서비스 ID로 변경 필요
+            instagram_likes: 1235,
+            instagram_comments: 1236,
+            instagram_views: 1237,
+
             // YouTube
-            'youtube_subscribers': 2234,
-            'youtube_views': 2235,
-            'youtube_likes': 2236,
-            
+            youtube_subscribers: 2234,
+            youtube_views: 2235,
+            youtube_likes: 2236,
+
             // TikTok
-            'tiktok_followers': 3234,
-            'tiktok_likes': 3235,
-            
+            tiktok_followers: 3234,
+            tiktok_likes: 3235,
+
             // Facebook
-            'facebook_page_likes': 4234,
-            
+            facebook_page_likes: 4234,
+
             // Twitter
-            'twitter_followers': 5234
+            twitter_followers: 5234
         };
-        
+
         // 가격 마진 설정 (%)
         this.priceMargin = parseFloat(process.env.PRICE_MARGIN || '800');
     }
@@ -43,7 +43,7 @@ class SMMPanelService {
         try {
             const response = await axios.post(this.apiUrl, {
                 key: this.apiKey,
-                action: action,
+                action,
                 ...params
             }, {
                 headers: {
@@ -110,8 +110,8 @@ class SMMPanelService {
             // SMM 패널에 주문 생성
             const params = {
                 service: smmServiceId,
-                link: link,
-                quantity: quantity
+                link,
+                quantity
             };
 
             // 커스텀 데이터가 있는 경우 (예: 댓글)
@@ -198,11 +198,11 @@ class SMMPanelService {
         const basePrice = originalPrice * quantity / 1000; // 1000개당 가격
         const marginAmount = basePrice * (this.priceMargin / 100);
         const finalPrice = Math.ceil(basePrice + marginAmount);
-        
+
         return {
             originalPrice: basePrice,
             margin: marginAmount,
-            finalPrice: finalPrice,
+            finalPrice,
             pricePerThousand: Math.ceil(finalPrice / quantity * 1000)
         };
     }
@@ -219,13 +219,13 @@ class SMMPanelService {
      */
     mapOrderStatus(smmStatus) {
         const statusMap = {
-            'Pending': 'pending',
+            Pending: 'pending',
             'In progress': 'processing',
-            'Completed': 'completed',
-            'Partial': 'partial',
-            'Canceled': 'cancelled',
-            'Processing': 'processing',
-            'Fail': 'failed'
+            Completed: 'completed',
+            Partial: 'partial',
+            Canceled: 'cancelled',
+            Processing: 'processing',
+            Fail: 'failed'
         };
 
         return statusMap[smmStatus] || 'unknown';
@@ -268,7 +268,7 @@ class SMMPanelService {
     isServiceSupported(smmService) {
         // 서비스 이름이나 카테고리로 필터링
         const supportedCategories = ['Instagram', 'YouTube', 'TikTok', 'Facebook', 'Twitter'];
-        return supportedCategories.some(cat => 
+        return supportedCategories.some(cat =>
             smmService.category.toLowerCase().includes(cat.toLowerCase())
         );
     }
