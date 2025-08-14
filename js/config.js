@@ -1,9 +1,9 @@
 // API 설정
 const API_CONFIG = {
-    // Railway 배포 URL (실제 배포 URL로 변경 필요)
+    // API URL - Netlify는 프록시 사용, 로컬은 직접 연결
     BASE_URL: window.location.hostname === 'localhost'
         ? 'http://localhost:5001/api'
-        : 'https://marketgrow-production-c586.up.railway.app/api',
+        : '/api',  // Netlify 프록시 사용
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'
