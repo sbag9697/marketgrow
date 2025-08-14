@@ -1,5 +1,5 @@
 // 주문 추적 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 let currentOrder = null;
 let trackingInterval = null;

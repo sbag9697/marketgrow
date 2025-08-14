@@ -1,6 +1,6 @@
 // 실시간 알림 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
-const WS_URL = 'wss://marketgrow-production-c586.up.railway.app';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
+const WS_URL = 'wss://marketgrow-production.up.railway.app';
 
 class NotificationSystem {
     constructor() {

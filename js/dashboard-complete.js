@@ -1,5 +1,5 @@
 // 대시보드 완성 기능
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 대시보드 초기화
 document.addEventListener('DOMContentLoaded', () => {

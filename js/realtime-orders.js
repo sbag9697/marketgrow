@@ -1,5 +1,5 @@
 // 실시간 주문 현황 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // WebSocket 연결 (실제 서버 주소)
 let ws = null;
@@ -45,7 +45,7 @@ function initializeRealtime() {
 // WebSocket 연결
 function connectWebSocket() {
     // WebSocket 서버 주소 (Railway 배포 서버)
-    const wsUrl = 'wss://marketgrow-production-c586.up.railway.app';
+    const wsUrl = 'wss://marketgrow-production.up.railway.app';
 
     try {
         ws = new WebSocket(wsUrl);

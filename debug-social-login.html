@@ -418,7 +418,7 @@
         // 백엔드 연결 테스트
         async function testBackendConnection() {
             addLog('백엔드 연결 테스트 시작...', 'info');
-            const apiUrl = 'https://marketgrow-production-c586.up.railway.app/api';
+            const apiUrl = 'https://marketgrow-production.up.railway.app/api';
             
             try {
                 const response = await fetch(apiUrl + '/health', {
@@ -444,7 +444,7 @@
         // OAuth 엔드포인트 테스트
         async function testOAuthEndpoint(provider) {
             addLog(`${provider} OAuth 엔드포인트 테스트 시작...`, 'info');
-            const apiUrl = 'https://marketgrow-production-c586.up.railway.app/api';
+            const apiUrl = 'https://marketgrow-production.up.railway.app/api';
             
             try {
                 const response = await fetch(`${apiUrl}/oauth/${provider}`, {

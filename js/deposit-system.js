@@ -1,5 +1,5 @@
 // 예치금 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 class DepositSystem {
     constructor() {

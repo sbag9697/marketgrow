@@ -1,5 +1,5 @@
 // 비밀번호 찾기 기능
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 let currentStep = 1;
 let userEmail = '';

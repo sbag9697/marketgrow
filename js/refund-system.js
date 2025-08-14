@@ -1,5 +1,5 @@
 // 환불 처리 시스템 - KG이니시스 연동
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // KG이니시스 환불 설정
 const INICIS_REFUND_CONFIG = {

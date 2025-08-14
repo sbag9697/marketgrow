@@ -1,7 +1,7 @@
 // 소셜 로그인 시스템 - 간소화 버전
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5001/api'
-    : 'https://marketgrow-production-c586.up.railway.app/api';
+    : 'https://marketgrow-production.up.railway.app/api';
 
 console.log('Social Login API URL:', API_URL);
 

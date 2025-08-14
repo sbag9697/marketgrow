@@ -94,8 +94,8 @@ const PRODUCTION_CONFIG = {
     // ============================================
     server: {
         // API 서버
-        apiUrl: 'https://marketgrow-production-c586.up.railway.app/api',
-        wsUrl: 'wss://marketgrow-production-c586.up.railway.app',
+        apiUrl: 'https://marketgrow-production.up.railway.app/api',
+        wsUrl: 'wss://marketgrow-production.up.railway.app',
 
         // 실제 도메인 (구매 후 설정)
         domain: 'https://marketgrow.kr',

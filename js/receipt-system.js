@@ -1,5 +1,5 @@
 // 영수증 발급 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 사업자 정보 (실제 정보)
 const BUSINESS_INFO = {

@@ -1,5 +1,5 @@
 // 서비스 목록 페이지 기능
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 서비스 목록 로드
 async function loadServices() {

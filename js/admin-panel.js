@@ -1,5 +1,5 @@
 // 관리자 패널 기능
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 관리자 인증 확인
 let isAdmin = false;

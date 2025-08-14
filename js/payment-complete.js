@@ -1,5 +1,5 @@
 // 결제 시스템 완성 기능 - KG이니시스
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // KG이니시스 설정
 const INICIS_MID = 'INIpayTest'; // 테스트 상점 ID

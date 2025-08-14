@@ -1,5 +1,5 @@
 // 이메일 인증 시스템
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 class EmailVerification {
     constructor() {

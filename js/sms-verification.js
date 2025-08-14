@@ -1,5 +1,5 @@
 // SMS 인증 시스템 - 실제 연동용
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 실제 SMS 서비스 설정 (알리고 API 사용)
 const SMS_CONFIG = {

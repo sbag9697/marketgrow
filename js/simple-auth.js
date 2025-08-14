@@ -1,5 +1,5 @@
 // 간단한 인증 시스템 - 직접 구현
-const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+const API_URL = 'https://marketgrow-production.up.railway.app/api';
 
 // 로그인 처리
 async function doLogin(event) {
