@@ -1,7 +1,7 @@
 // 소셜 로그인 시스템 - 간소화 버전
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5001/api'
-    : 'https://marketgrow-production.up.railway.app/api';
+    : '/api';  // Netlify 프록시 사용
 
 console.log('Social Login API URL:', API_URL);
 

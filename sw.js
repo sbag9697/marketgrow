@@ -1,8 +1,8 @@
 // Service Worker - 캐싱 및 오프라인 지원
 
-const CACHE_NAME = 'marketgrow-v1.0.0';
-const STATIC_CACHE = 'marketgrow-static-v1';
-const DYNAMIC_CACHE = 'marketgrow-dynamic-v1';
+const CACHE_NAME = 'marketgrow-v2.0.0';
+const STATIC_CACHE = 'marketgrow-static-v2';
+const DYNAMIC_CACHE = 'marketgrow-dynamic-v2';
 
 // 캐시할 정적 리소스
 const STATIC_ASSETS = [
