@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="장바구니 - MarketGrow">
+    <title>장바구니 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .cart-container {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+
+        .cart-header {
+            margin-bottom: 30px;
+        }
+
+        .cart-header h1 {
+            font-size: 2rem;
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .cart-header p {
+            color: #64748b;
+        }
+
+        .cart-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .cart-items {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .cart-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .cart-summary h3 {
+            font-size: 1.2rem;
+            color: #1a365d;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            color: #475569;
+        }
+
+        .summary-row.discount {
+            color: #16a34a;
+        }
+
+        .summary-row.total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a365d;
+        }
+
+        .cart-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .continue-shopping {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .continue-shopping:hover {
+            background: #f8fafc;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .cart-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-summary {
+                position: static;
+            }
+        }
+
+        /* 로딩 상태 */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+        }
+
+        .loading-spinner i {
+            font-size: 48px;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 쿠폰 입력 */
+        .coupon-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .coupon-input-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .coupon-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .coupon-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-btn:hover {
+            background: #764ba2;
+        }
+
+        /* 추천 서비스 */
+        .recommended-services {
+            margin-top: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .recommended-services h3 {
+            font-size: 1.3rem;
+            color: #1a365d;
+            margin-bottom: 20px;
+        }
+
+        .recommended-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .recommended-item {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recommended-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .recommended-item h4 {
+            color: #1a365d;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .recommended-item .platform {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .recommended-item .price {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .add-to-cart-quick {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .add-to-cart-quick:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="order-tracking.html">주문 추적</a></li>
+                <li><a href="cart.html" class="active">
+                    <i class="fas fa-shopping-cart cart-icon"></i>
+                    <span class="cart-badge" style="display: none;">0</span>
+                </a></li>
+                <li class="user-menu" id="userMenuLoggedIn" style="display: none;">
+                    <a href="#" class="user-info" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                        <span id="navUserName">사용자님</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
+                </li>
+                <li id="loginBtn"><a href="login.html">로그인</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Cart Container -->
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1>장바구니</h1>
+            <p>선택한 서비스를 확인하고 결제를 진행하세요</p>
+        </div>
+
+        <div class="cart-content">
+            <!-- 장바구니 아이템 -->
+            <div class="cart-items">
+                <div id="cartItemsContainer">
+                    <!-- 장바구니 아이템이 여기에 동적으로 로드됩니다 -->
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                </div>
+
+                <div class="cart-actions">
+                    <a href="services.html" class="continue-shopping">
+                        <i class="fas fa-arrow-left"></i>
+                        쇼핑 계속하기
+                    </a>
+                </div>
+            </div>
+
+            <!-- 주문 요약 -->
+            <div class="cart-summary" id="cartSummary" style="display: none;">
+                <!-- 요약 정보가 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+
+        <!-- 추천 서비스 -->
+        <div class="recommended-services">
+            <h3>함께 구매하면 좋은 서비스</h3>
+            <div class="recommended-grid">
+                <div class="recommended-item">
+                    <h4>인스타그램 릴스 조회수</h4>
+                    <p class="platform">Instagram</p>
+                    <p class="price">₩15/조회</p>
+                    <button class="add-to-cart-quick" onclick="addQuickItem('instagram_reels')">
+                        빠른 추가
+                    </button>
+                </div>
+                <div class="recommended-item">
+                    <h4>유튜브 구독자</h4>
+                    <p class="platform">YouTube</p>
+                    <p class="price">₩50/명</p>
+                    <button class="add-to-cart-quick" onclick="addQuickItem('youtube_subscriber')">
+                        빠른 추가
+                    </button>
+                </div>
+                <div class="recommended-item">
+                    <h4>틱톡 팔로워</h4>
+                    <p class="platform">TikTok</p>
+                    <p class="price">₩30/명</p>
+                    <button class="add-to-cart-quick" onclick="addQuickItem('tiktok_follower')">
+                        빠른 추가
+                    </button>
+                </div>
+                <div class="recommended-item">
+                    <h4>네이버 블로그 방문자</h4>
+                    <p class="platform">Naver</p>
+                    <p class="price">₩8/명</p>
+                    <button class="add-to-cart-quick" onclick="addQuickItem('naver_visitor')">
+                        빠른 추가
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/cart-system.js"></script>
+    <script>
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            loadCart();
+        });
+
+        // 로그인 상태 확인
+        function checkLoginStatus() {
+            const token = localStorage.getItem('authToken');
+            const userInfo = localStorage.getItem('userInfo');
+            
+            if (token && userInfo) {
+                const user = JSON.parse(userInfo);
+                document.getElementById('userMenuLoggedIn').style.display = 'block';
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('navUserName').textContent = user.name || user.username || '사용자';
+            }
+        }
+
+        // 장바구니 로드
+        function loadCart() {
+            setTimeout(() => {
+                cartSystem.renderCartPage();
+            }, 500);
+        }
+
+        // 빠른 추가 기능
+        function addQuickItem(type) {
+            const quickItems = {
+                'instagram_reels': {
+                    id: 'service_001',
+                    name: '인스타그램 릴스 조회수',
+                    platform: 'Instagram',
+                    category: '조회수',
+                    price: 15
+                },
+                'youtube_subscriber': {
+                    id: 'service_002',
+                    name: '유튜브 구독자',
+                    platform: 'YouTube',
+                    category: '구독자',
+                    price: 50
+                },
+                'tiktok_follower': {
+                    id: 'service_003',
+                    name: '틱톡 팔로워',
+                    platform: 'TikTok',
+                    category: '팔로워',
+                    price: 30
+                },
+                'naver_visitor': {
+                    id: 'service_004',
+                    name: '네이버 블로그 방문자',
+                    platform: 'Naver',
+                    category: '방문자',
+                    price: 8
+                }
+            };
+
+            const service = quickItems[type];
+            if (service) {
+                cartSystem.addToCart(service, { quantity: 100 });
+                loadCart();
+            }
+        }
+
+        // 사용자 메뉴 토글
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+    </script>
+</body>
+</html>

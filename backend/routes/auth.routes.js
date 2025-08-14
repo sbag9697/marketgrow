@@ -22,16 +22,17 @@ const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Rate limiting for auth routes
+// Rate limiting for auth routes - 개발중이므로 완화
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // limit each IP to 5 requests per windowMs
+    max: process.env.NODE_ENV === 'production' ? 5 : 100, // 개발환경에서는 100회 허용
     message: {
         success: false,
         message: '너무 많은 인증 시도가 발생했습니다. 15분 후 다시 시도해주세요.'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: () => process.env.NODE_ENV !== 'production' // 개발환경에서는 스킵
 });
 
 const passwordResetLimiter = rateLimit({
@@ -56,9 +57,7 @@ const registerValidation = [
         .normalizeEmail(),
     body('password')
         .isLength({ min: 8 })
-        .withMessage('비밀번호는 최소 8자 이상이어야 합니다.')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-        .withMessage('비밀번호는 대소문자, 숫자, 특수문자를 포함해야 합니다.'),
+        .withMessage('비밀번호는 최소 8자 이상이어야 합니다.'),
     body('name')
         .notEmpty()
         .withMessage('이름은 필수입니다.')
@@ -112,8 +111,6 @@ const changePasswordValidation = [
     body('newPassword')
         .isLength({ min: 8 })
         .withMessage('새 비밀번호는 최소 8자 이상이어야 합니다.')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-        .withMessage('새 비밀번호는 대소문자, 숫자, 특수문자를 포함해야 합니다.')
 ];
 
 const resetPasswordValidation = [
@@ -123,8 +120,6 @@ const resetPasswordValidation = [
     body('newPassword')
         .isLength({ min: 8 })
         .withMessage('새 비밀번호는 최소 8자 이상이어야 합니다.')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/)
-        .withMessage('새 비밀번호는 대소문자, 숫자, 특수문자를 포함해야 합니다.')
 ];
 
 // Public routes

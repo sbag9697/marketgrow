@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 채팅 테스트 - MarketGrow</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #64748b;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .test-section h3 {
+            color: #1a365d;
+            margin-bottom: 15px;
+        }
+
+        .test-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .test-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .status-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .status-value {
+            color: #1a365d;
+            font-weight: 600;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list i {
+            color: #10b981;
+        }
+
+        .notice {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .notice h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .notice p {
+            color: #78350f;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 실시간 채팅 상담 시스템</h1>
+        <p class="description">
+            SNS그로우의 실시간 채팅 상담 시스템을 테스트해보세요. 
+            우측 하단의 채팅 버튼을 클릭하여 시작할 수 있습니다.
+        </p>
+
+        <div class="test-section">
+            <h3>📋 주요 기능</h3>
+            <ul class="feature-list">
+                <li><i class="fas fa-check"></i> 실시간 양방향 채팅</li>
+                <li><i class="fas fa-check"></i> WebSocket 기반 연결</li>
+                <li><i class="fas fa-check"></i> 오프라인 메시지 지원</li>
+                <li><i class="fas fa-check"></i> 타이핑 인디케이터</li>
+                <li><i class="fas fa-check"></i> 읽지 않은 메시지 알림</li>
+                <li><i class="fas fa-check"></i> 채팅 기록 저장 (24시간)</li>
+                <li><i class="fas fa-check"></i> 빠른 답변 버튼</li>
+                <li><i class="fas fa-check"></i> 모바일 반응형 디자인</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 테스트 시나리오</h3>
+            <div class="test-actions">
+                <button class="test-btn" onclick="testLogin()">로그인 테스트</button>
+                <button class="test-btn" onclick="testGuest()">게스트 테스트</button>
+                <button class="test-btn" onclick="testOffline()">오프라인 모드</button>
+                <button class="test-btn" onclick="clearHistory()">기록 초기화</button>
+            </div>
+            
+            <div class="status-info">
+                <div class="status-item">
+                    <span class="status-label">로그인 상태:</span>
+                    <span class="status-value" id="loginStatus">확인중...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">사용자 타입:</span>
+                    <span class="status-value" id="userType">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">연결 상태:</span>
+                    <span class="status-value" id="connectionStatus">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notice">
+            <h4>💡 사용 방법</h4>
+            <p>1. 화면 우측 하단의 보라색 채팅 버튼을 클릭하세요</p>
+            <p>2. 빠른 답변 버튼을 선택하거나 직접 메시지를 입력하세요</p>
+            <p>3. 실시간으로 상담원과 대화할 수 있습니다</p>
+            <p>4. 채팅창을 최소화하거나 닫을 수 있습니다</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 기술 스펙</h3>
+            <ul class="feature-list">
+                <li><i class="fas fa-server"></i> WebSocket Server: wss://marketgrow-production-c586.up.railway.app</li>
+                <li><i class="fas fa-database"></i> API Server: https://marketgrow-production-c586.up.railway.app/api</li>
+                <li><i class="fas fa-mobile-alt"></i> 모바일 최적화: 480px 이하 전체화면</li>
+                <li><i class="fas fa-save"></i> 로컬 스토리지: 24시간 채팅 기록 보존</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 페이지 로드 시 상태 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            checkStatus();
+        });
+
+        function checkStatus() {
+            const token = localStorage.getItem('authToken');
+            const userInfo = localStorage.getItem('userInfo');
+            
+            document.getElementById('loginStatus').textContent = token ? '로그인됨' : '비로그인';
+            
+            if (userInfo) {
+                const user = JSON.parse(userInfo);
+                document.getElementById('userType').textContent = user.role || 'user';
+            } else {
+                document.getElementById('userType').textContent = 'guest';
+            }
+            
+            // WebSocket 연결 상태는 chatSupport 객체가 생성된 후 확인
+            setTimeout(() => {
+                if (window.chatSupport && window.chatSupport.isConnected) {
+                    document.getElementById('connectionStatus').textContent = '연결됨';
+                } else {
+                    document.getElementById('connectionStatus').textContent = '연결 대기중';
+                }
+            }, 2000);
+        }
+
+        function testLogin() {
+            // 테스트용 로그인 정보 설정
+            const testUser = {
+                id: 'test_user_001',
+                name: '테스트 사용자',
+                username: 'testuser',
+                email: 'test@marketgrow.kr',
+                role: 'user'
+            };
+            
+            localStorage.setItem('authToken', 'test_token_' + Date.now());
+            localStorage.setItem('userInfo', JSON.stringify(testUser));
+            
+            alert('테스트 로그인 완료! 페이지를 새로고침합니다.');
+            location.reload();
+        }
+
+        function testGuest() {
+            // 로그인 정보 제거
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
+            
+            alert('게스트 모드로 전환! 페이지를 새로고침합니다.');
+            location.reload();
+        }
+
+        function testOffline() {
+            // WebSocket 연결 강제 종료
+            if (window.chatSupport && window.chatSupport.socket) {
+                window.chatSupport.socket.close();
+                alert('오프라인 모드로 전환되었습니다. 메시지는 API를 통해 전송됩니다.');
+            } else {
+                alert('채팅이 아직 초기화되지 않았습니다.');
+            }
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('chatHistory');
+            alert('채팅 기록이 초기화되었습니다. 페이지를 새로고침합니다.');
+            location.reload();
+        }
+    </script>
+
+    <!-- 채팅 지원 스크립트 -->
+    <script src="js/chat-support.js"></script>
+</body>
+</html>

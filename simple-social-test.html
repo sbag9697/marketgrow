@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>간단한 소셜 로그인 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        .google { background: #4285f4; color: white; }
+        .kakao { background: #fee500; color: black; }
+        .naver { background: #03c75a; color: white; }
+        .log {
+            background: #f0f0f0;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-item {
+            margin: 5px 0;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>소셜 로그인 테스트</h1>
+    
+    <button class="google" onclick="googleLogin()">Google 로그인</button>
+    <button class="kakao" onclick="kakaoLogin()">Kakao 로그인</button>
+    <button class="naver" onclick="naverLogin()">Naver 로그인</button>
+    
+    <div class="log" id="log">
+        <div class="log-item">로그 시작...</div>
+    </div>
+
+    <!-- Google SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Kakao SDK -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+    
+    <script>
+        const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+        
+        // 로그 추가 함수
+        function addLog(message, type = '') {
+            const log = document.getElementById('log');
+            const item = document.createElement('div');
+            item.className = 'log-item ' + type;
+            item.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            log.appendChild(item);
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        // Google 초기화
+        window.onload = function() {
+            // Google 초기화
+            if (typeof google !== 'undefined') {
+                try {
+                    google.accounts.id.initialize({
+                        client_id: '1020058007586-fn33tmrqb2aa3sbe0rc3lt30pnhfa0dn.apps.googleusercontent.com',
+                        callback: handleGoogleResponse
+                    });
+                    addLog('Google SDK 초기화 완료', 'success');
+                } catch (error) {
+                    addLog('Google SDK 초기화 실패: ' + error.message, 'error');
+                }
+            } else {
+                addLog('Google SDK 로드 대기중...', 'error');
+            }
+
+            // Kakao 초기화
+            if (typeof Kakao !== 'undefined') {
+                try {
+                    Kakao.init('95a2c17a5ec078dd1762950680e53267');
+                    addLog('Kakao SDK 초기화 완료', 'success');
+                } catch (error) {
+                    addLog('Kakao SDK 초기화 실패: ' + error.message, 'error');
+                }
+            } else {
+                addLog('Kakao SDK 로드 실패', 'error');
+            }
+        };
+
+        // Google 로그인
+        function googleLogin() {
+            addLog('Google 로그인 시도...');
+            try {
+                google.accounts.id.prompt();
+            } catch (error) {
+                addLog('Google 로그인 오류: ' + error.message, 'error');
+            }
+        }
+
+        // Google 응답 처리
+        async function handleGoogleResponse(response) {
+            addLog('Google 응답 받음');
+            try {
+                const res = await fetch(`${API_URL}/oauth/google`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: response.credential })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    addLog('Google 로그인 성공! 사용자: ' + data.data.user.name, 'success');
+                    localStorage.setItem('authToken', data.data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 2000);
+                } else {
+                    addLog('Google 로그인 실패: ' + data.message, 'error');
+                }
+            } catch (error) {
+                addLog('API 호출 오류: ' + error.message, 'error');
+            }
+        }
+
+        // Kakao 로그인
+        function kakaoLogin() {
+            addLog('Kakao 로그인 시도...');
+            try {
+                Kakao.Auth.login({
+                    success: async function(authObj) {
+                        addLog('Kakao 인증 성공');
+                        try {
+                            const res = await fetch(`${API_URL}/oauth/kakao`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ token: authObj.access_token })
+                            });
+                            
+                            const data = await res.json();
+                            
+                            if (data.success) {
+                                addLog('Kakao 로그인 성공! 사용자: ' + data.data.user.name, 'success');
+                                localStorage.setItem('authToken', data.data.token);
+                                localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                                setTimeout(() => {
+                                    window.location.href = '/dashboard.html';
+                                }, 2000);
+                            } else {
+                                addLog('Kakao 로그인 실패: ' + data.message, 'error');
+                            }
+                        } catch (error) {
+                            addLog('API 호출 오류: ' + error.message, 'error');
+                        }
+                    },
+                    fail: function(err) {
+                        addLog('Kakao 인증 실패: ' + JSON.stringify(err), 'error');
+                    }
+                });
+            } catch (error) {
+                addLog('Kakao 로그인 오류: ' + error.message, 'error');
+            }
+        }
+
+        // Naver 로그인
+        function naverLogin() {
+            addLog('Naver 로그인 시도...');
+            const state = Math.random().toString(36).substring(7);
+            sessionStorage.setItem('naver_state', state);
+            
+            const url = 'https://nid.naver.com/oauth2.0/authorize?' +
+                'response_type=code&' +
+                'client_id=Cirw8aXNIq8wF518fNMZ&' +
+                'redirect_uri=' + encodeURIComponent(window.location.origin + '/auth/naver/callback') + '&' +
+                'state=' + state;
+            
+            const popup = window.open(url, 'naver_login', 'width=500,height=600');
+            
+            // 팝업 체크
+            const checkPopup = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(checkPopup);
+                    addLog('Naver 팝업 닫힘');
+                    
+                    // 세션 스토리지 체크
+                    const authData = sessionStorage.getItem('naver_auth_data');
+                    if (authData) {
+                        const data = JSON.parse(authData);
+                        addLog('Naver 로그인 성공! 사용자: ' + data.user.name, 'success');
+                        sessionStorage.removeItem('naver_auth_data');
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 2000);
+                    }
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

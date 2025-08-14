@@ -274,4 +274,4 @@ class SMMPanelService {
     }
 }
 
-module.exports = new SMMPanelService();
+module.exports = SMMPanelService;

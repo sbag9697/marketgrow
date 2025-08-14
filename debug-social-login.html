@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소셜 로그인 디버그 - MarketGrow</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .status-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .status-ok {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .status-error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .status-warning {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .btn-section {
+            margin: 30px 0;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-google {
+            background: #4285f4;
+            color: white;
+        }
+        .btn-google:hover {
+            background: #357ae8;
+        }
+        .btn-kakao {
+            background: #fee500;
+            color: #000;
+        }
+        .btn-kakao:hover {
+            background: #fdd835;
+        }
+        .btn-naver {
+            background: #03c75a;
+            color: white;
+        }
+        .btn-naver:hover {
+            background: #02b350;
+        }
+        .console-log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+        .log-error {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+        .log-success {
+            border-left-color: #10b981;
+            color: #86efac;
+        }
+        .log-info {
+            border-left-color: #3b82f6;
+            color: #93bbfc;
+        }
+        .test-controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f4f8;
+            border-radius: 5px;
+        }
+        .test-controls label {
+            display: block;
+            margin: 10px 0;
+        }
+        .test-controls input, .test-controls select {
+            padding: 8px;
+            margin-left: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔍 소셜 로그인 디버그 도구</h1>
+        
+        <!-- 환경 체크 -->
+        <div class="status-section">
+            <h2>1️⃣ 환경 체크</h2>
+            <div class="status-item">
+                <span>현재 URL</span>
+                <span id="current-url">-</span>
+            </div>
+            <div class="status-item">
+                <span>Origin</span>
+                <span id="current-origin">-</span>
+            </div>
+            <div class="status-item">
+                <span>Protocol</span>
+                <span id="current-protocol">-</span>
+            </div>
+            <div class="status-item">
+                <span>백엔드 API URL</span>
+                <span id="api-url">-</span>
+            </div>
+        </div>
+
+        <!-- API 키 체크 -->
+        <div class="status-section">
+            <h2>2️⃣ API 키 상태</h2>
+            <div class="status-item">
+                <span>Google Client ID</span>
+                <span id="google-key-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span>Kakao App Key</span>
+                <span id="kakao-key-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span>Naver Client ID</span>
+                <span id="naver-key-status">확인중...</span>
+            </div>
+        </div>
+
+        <!-- SDK 로드 상태 -->
+        <div class="status-section">
+            <h2>3️⃣ SDK 로드 상태</h2>
+            <div class="status-item">
+                <span>Google SDK</span>
+                <span id="google-sdk-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span>Kakao SDK</span>
+                <span id="kakao-sdk-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span>소셜 로그인 클래스</span>
+                <span id="social-class-status">확인중...</span>
+            </div>
+        </div>
+
+        <!-- 테스트 컨트롤 -->
+        <div class="test-controls">
+            <h2>4️⃣ 테스트 설정</h2>
+            <label>
+                테스트 모드:
+                <select id="test-mode">
+                    <option value="popup">팝업 모드</option>
+                    <option value="redirect">리디렉션 모드</option>
+                </select>
+            </label>
+            <label>
+                디버그 로그:
+                <input type="checkbox" id="debug-log" checked> 활성화
+            </label>
+        </div>
+
+        <!-- 테스트 버튼 -->
+        <div class="btn-section">
+            <h2>5️⃣ 로그인 테스트</h2>
+            <button class="btn btn-google" onclick="testGoogle()">
+                Google 로그인 테스트
+            </button>
+            <button class="btn btn-kakao" onclick="testKakao()">
+                Kakao 로그인 테스트
+            </button>
+            <button class="btn btn-naver" onclick="testNaver()">
+                Naver 로그인 테스트
+            </button>
+        </div>
+
+        <!-- 백엔드 연결 테스트 -->
+        <div class="btn-section">
+            <h2>6️⃣ 백엔드 API 테스트</h2>
+            <button class="btn" onclick="testBackendConnection()">
+                백엔드 연결 테스트
+            </button>
+            <button class="btn" onclick="testOAuthEndpoint('google')">
+                Google OAuth API 테스트
+            </button>
+            <button class="btn" onclick="testOAuthEndpoint('kakao')">
+                Kakao OAuth API 테스트
+            </button>
+            <button class="btn" onclick="testOAuthEndpoint('naver')">
+                Naver OAuth API 테스트
+            </button>
+        </div>
+
+        <!-- 콘솔 로그 -->
+        <div class="console-log" id="console-log">
+            <div class="log-entry log-info">디버그 콘솔 준비됨...</div>
+        </div>
+    </div>
+
+    <!-- 소셜 로그인 스크립트 -->
+    <script src="js/social-login.js"></script>
+    
+    <script>
+        // 로그 함수
+        function addLog(message, type = 'info') {
+            const logContainer = document.getElementById('console-log');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // 콘솔에도 출력
+            if (type === 'error') {
+                console.error(message);
+            } else if (type === 'success') {
+                console.log('%c' + message, 'color: #10b981');
+            } else {
+                console.log(message);
+            }
+        }
+
+        // 환경 체크
+        function checkEnvironment() {
+            document.getElementById('current-url').textContent = window.location.href;
+            document.getElementById('current-origin').textContent = window.location.origin;
+            document.getElementById('current-protocol').textContent = window.location.protocol;
+            document.getElementById('api-url').textContent = typeof API_URL !== 'undefined' ? API_URL : 'NOT DEFINED';
+            
+            addLog('환경 체크 완료', 'info');
+        }
+
+        // API 키 체크
+        function checkAPIKeys() {
+            if (typeof SOCIAL_CONFIG === 'undefined') {
+                addLog('SOCIAL_CONFIG가 정의되지 않음!', 'error');
+                return;
+            }
+
+            // Google
+            if (SOCIAL_CONFIG.google && SOCIAL_CONFIG.google.clientId) {
+                const googleId = SOCIAL_CONFIG.google.clientId;
+                if (!googleId.includes('YOUR_')) {
+                    document.getElementById('google-key-status').innerHTML = 
+                        `<span class="status-ok">✅ ${googleId.substring(0, 20)}...</span>`;
+                    addLog(`Google Client ID 설정됨: ${googleId.substring(0, 20)}...`, 'success');
+                } else {
+                    document.getElementById('google-key-status').innerHTML = 
+                        '<span class="status-error">❌ 미설정</span>';
+                    addLog('Google Client ID 미설정', 'error');
+                }
+            }
+
+            // Kakao
+            if (SOCIAL_CONFIG.kakao && SOCIAL_CONFIG.kakao.appKey) {
+                const kakaoKey = SOCIAL_CONFIG.kakao.appKey;
+                if (!kakaoKey.includes('YOUR_')) {
+                    document.getElementById('kakao-key-status').innerHTML = 
+                        `<span class="status-ok">✅ ${kakaoKey.substring(0, 20)}...</span>`;
+                    addLog(`Kakao App Key 설정됨: ${kakaoKey.substring(0, 20)}...`, 'success');
+                } else {
+                    document.getElementById('kakao-key-status').innerHTML = 
+                        '<span class="status-error">❌ 미설정</span>';
+                    addLog('Kakao App Key 미설정', 'error');
+                }
+            }
+
+            // Naver
+            if (SOCIAL_CONFIG.naver && SOCIAL_CONFIG.naver.clientId) {
+                const naverId = SOCIAL_CONFIG.naver.clientId;
+                if (!naverId.includes('YOUR_')) {
+                    document.getElementById('naver-key-status').innerHTML = 
+                        `<span class="status-ok">✅ ${naverId.substring(0, 20)}...</span>`;
+                    addLog(`Naver Client ID 설정됨: ${naverId}`, 'success');
+                } else {
+                    document.getElementById('naver-key-status').innerHTML = 
+                        '<span class="status-error">❌ 미설정</span>';
+                    addLog('Naver Client ID 미설정', 'error');
+                }
+            }
+        }
+
+        // SDK 로드 상태 체크
+        function checkSDKStatus() {
+            // Google SDK
+            if (typeof google !== 'undefined' && google.accounts) {
+                document.getElementById('google-sdk-status').innerHTML = 
+                    '<span class="status-ok">✅ 로드됨</span>';
+                addLog('Google SDK 로드 완료', 'success');
+            } else {
+                document.getElementById('google-sdk-status').innerHTML = 
+                    '<span class="status-warning">⏳ 로딩중...</span>';
+                addLog('Google SDK 로딩중...', 'info');
+            }
+
+            // Kakao SDK
+            if (typeof Kakao !== 'undefined') {
+                document.getElementById('kakao-sdk-status').innerHTML = 
+                    '<span class="status-ok">✅ 로드됨</span>';
+                addLog('Kakao SDK 로드 완료', 'success');
+                
+                // Kakao SDK 초기화 상태 확인
+                if (Kakao.isInitialized && Kakao.isInitialized()) {
+                    addLog('Kakao SDK 초기화 완료', 'success');
+                } else {
+                    addLog('Kakao SDK 초기화 대기중...', 'warning');
+                }
+            } else {
+                document.getElementById('kakao-sdk-status').innerHTML = 
+                    '<span class="status-warning">⏳ 로딩중...</span>';
+                addLog('Kakao SDK 로딩중...', 'info');
+            }
+
+            // 소셜 로그인 클래스
+            if (typeof socialLogin !== 'undefined') {
+                document.getElementById('social-class-status').innerHTML = 
+                    '<span class="status-ok">✅ 준비됨</span>';
+                addLog('소셜 로그인 클래스 준비 완료', 'success');
+            } else {
+                document.getElementById('social-class-status').innerHTML = 
+                    '<span class="status-error">❌ 없음</span>';
+                addLog('소셜 로그인 클래스 없음!', 'error');
+            }
+        }
+
+        // Google 테스트
+        function testGoogle() {
+            addLog('Google 로그인 테스트 시작...', 'info');
+            try {
+                if (typeof socialLogin !== 'undefined') {
+                    socialLogin.loginWithGoogle();
+                    addLog('Google 로그인 창 호출됨', 'success');
+                } else {
+                    addLog('socialLogin 객체가 없습니다!', 'error');
+                }
+            } catch (error) {
+                addLog(`Google 로그인 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // Kakao 테스트
+        function testKakao() {
+            addLog('Kakao 로그인 테스트 시작...', 'info');
+            try {
+                if (typeof socialLogin !== 'undefined') {
+                    socialLogin.loginWithKakaoPopup();
+                    addLog('Kakao 로그인 창 호출됨', 'success');
+                } else {
+                    addLog('socialLogin 객체가 없습니다!', 'error');
+                }
+            } catch (error) {
+                addLog(`Kakao 로그인 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // Naver 테스트
+        function testNaver() {
+            addLog('Naver 로그인 테스트 시작...', 'info');
+            try {
+                if (typeof socialLogin !== 'undefined') {
+                    socialLogin.loginWithNaverPopup();
+                    addLog('Naver 로그인 창 호출됨', 'success');
+                } else {
+                    addLog('socialLogin 객체가 없습니다!', 'error');
+                }
+            } catch (error) {
+                addLog(`Naver 로그인 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 백엔드 연결 테스트
+        async function testBackendConnection() {
+            addLog('백엔드 연결 테스트 시작...', 'info');
+            const apiUrl = 'https://marketgrow-production-c586.up.railway.app/api';
+            
+            try {
+                const response = await fetch(apiUrl + '/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    addLog(`백엔드 연결 성공! Status: ${response.status}`, 'success');
+                } else {
+                    addLog(`백엔드 응답 오류: ${response.status}`, 'error');
+                }
+                
+                const text = await response.text();
+                addLog(`응답: ${text.substring(0, 100)}...`, 'info');
+            } catch (error) {
+                addLog(`백엔드 연결 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // OAuth 엔드포인트 테스트
+        async function testOAuthEndpoint(provider) {
+            addLog(`${provider} OAuth 엔드포인트 테스트 시작...`, 'info');
+            const apiUrl = 'https://marketgrow-production-c586.up.railway.app/api';
+            
+            try {
+                const response = await fetch(`${apiUrl}/oauth/${provider}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: 'test_token' })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`${provider} OAuth API 응답 성공!`, 'success');
+                } else {
+                    addLog(`${provider} OAuth API 오류: ${data.message || response.status}`, 'error');
+                }
+                
+                addLog(`응답 데이터: ${JSON.stringify(data).substring(0, 100)}...`, 'info');
+            } catch (error) {
+                addLog(`${provider} OAuth API 연결 실패: ${error.message}`, 'error');
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            addLog('페이지 로드 완료', 'info');
+            checkEnvironment();
+            
+            setTimeout(() => {
+                checkAPIKeys();
+                checkSDKStatus();
+            }, 1000);
+            
+            // SDK 로드 재확인
+            setTimeout(() => {
+                addLog('SDK 상태 재확인...', 'info');
+                checkSDKStatus();
+            }, 3000);
+        });
+
+        // 전역 오류 캐치
+        window.addEventListener('error', (event) => {
+            addLog(`전역 오류: ${event.message}`, 'error');
+        });
+
+        // 로그인 성공/실패 이벤트 리스너
+        window.addEventListener('social-login-success', (event) => {
+            addLog(`로그인 성공! 사용자: ${JSON.stringify(event.detail)}`, 'success');
+        });
+
+        window.addEventListener('social-login-error', (event) => {
+            addLog(`로그인 실패: ${event.detail.message}`, 'error');
+        });
+    </script>
+</body>
+</html>

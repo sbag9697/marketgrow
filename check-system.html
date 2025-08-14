@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시스템 전체 점검</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            margin: 0;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5567d8;
+        }
+        .test-btn {
+            background: #10b981;
+        }
+        .test-btn:hover {
+            background: #059669;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .check-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #e5e7eb;
+            background: #f8f9fa;
+        }
+        .check-item.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        .check-item.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .check-item.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 MarketGrow 시스템 전체 점검</h1>
+        <p>모든 기능이 정상 작동하는지 확인합니다</p>
+    </div>
+
+    <div class="container">
+        <!-- 1. 서버 연결 체크 -->
+        <div class="card">
+            <h2>1. 서버 연결 상태</h2>
+            <div id="serverStatus"></div>
+            <button onclick="checkServer()">서버 체크</button>
+            <button onclick="checkDatabase()">DB 체크</button>
+            <div class="log" id="serverLog"></div>
+        </div>
+
+        <!-- 2. 회원가입 테스트 -->
+        <div class="card">
+            <h2>2. 회원가입 테스트</h2>
+            <div id="signupStatus"></div>
+            <button class="test-btn" onclick="testSignup()">회원가입 테스트</button>
+            <button onclick="checkSignupEndpoint()">API 확인</button>
+            <div class="log" id="signupLog"></div>
+        </div>
+
+        <!-- 3. 로그인 테스트 -->
+        <div class="card">
+            <h2>3. 로그인 테스트</h2>
+            <div id="loginStatus"></div>
+            <button class="test-btn" onclick="testLogin()">로그인 테스트</button>
+            <button onclick="checkLoginEndpoint()">API 확인</button>
+            <div class="log" id="loginLog"></div>
+        </div>
+
+        <!-- 4. 소셜 로그인 체크 -->
+        <div class="card">
+            <h2>4. 소셜 로그인 설정</h2>
+            <div id="socialStatus"></div>
+            <button onclick="checkSocialConfig()">설정 확인</button>
+            <button onclick="checkSocialSDK()">SDK 확인</button>
+            <div class="log" id="socialLog"></div>
+        </div>
+
+        <!-- 5. API 엔드포인트 -->
+        <div class="card">
+            <h2>5. API 엔드포인트</h2>
+            <div id="apiStatus"></div>
+            <button onclick="testAllEndpoints()">전체 테스트</button>
+            <div class="log" id="apiLog"></div>
+        </div>
+
+        <!-- 6. 환경 설정 -->
+        <div class="card">
+            <h2>6. 환경 설정</h2>
+            <div id="envStatus"></div>
+            <button onclick="checkEnvironment()">환경 체크</button>
+            <div class="log" id="envLog"></div>
+        </div>
+    </div>
+
+    <!-- 상세 결과 -->
+    <div class="card" style="margin-top: 30px;">
+        <h2>상세 진단 결과</h2>
+        <div id="detailResult"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+        const LOCAL_API = 'http://localhost:5001/api';
+        
+        // 로컬에서 실행중이면 로컬 API 사용
+        let currentAPI = window.location.hostname === 'localhost' ? LOCAL_API : API_URL;
+
+        // 로그 추가
+        function addLog(elementId, message, type = 'info') {
+            const log = document.getElementById(elementId);
+            const time = new Date().toLocaleTimeString();
+            const color = {
+                'info': '#333',
+                'success': '#065f46',
+                'error': '#991b1b',
+                'warning': '#92400e'
+            };
+            
+            log.innerHTML += `<div style="color: ${color[type]}">[${time}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // 상태 표시
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<span class="status ${type}">${message}</span>`;
+        }
+
+        // 1. 서버 체크
+        async function checkServer() {
+            addLog('serverLog', '서버 연결 테스트 시작...', 'info');
+            
+            // 로컬 서버 먼저 체크
+            if (window.location.hostname === 'localhost') {
+                try {
+                    const localResponse = await fetch(LOCAL_API + '/health');
+                    if (localResponse.ok) {
+                        showStatus('serverStatus', '✅ 로컬 서버 정상', 'success');
+                        addLog('serverLog', '로컬 서버 연결 성공', 'success');
+                        currentAPI = LOCAL_API;
+                        return;
+                    }
+                } catch (localError) {
+                    addLog('serverLog', '로컬 서버 응답 없음, Railway 확인중...', 'warning');
+                }
+            }
+            
+            // Railway 서버 체크
+            try {
+                const response = await fetch(API_URL + '/health', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    showStatus('serverStatus', '✅ Railway 서버 정상', 'success');
+                    addLog('serverLog', 'Railway 서버 연결 성공', 'success');
+                    currentAPI = API_URL;
+                } else {
+                    throw new Error(`Railway 서버 응답: ${response.status}`);
+                }
+            } catch (error) {
+                showStatus('serverStatus', '❌ 서버 연결 오류', 'error');
+                addLog('serverLog', 'Railway 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 2. DB 체크
+        async function checkDatabase() {
+            addLog('serverLog', 'MongoDB 연결 테스트...', 'info');
+            
+            try {
+                // 간단한 읽기 테스트
+                const response = await fetch(currentAPI + '/services', {
+                    method: 'GET'
+                });
+                
+                if (response.ok) {
+                    addLog('serverLog', 'MongoDB 연결 정상', 'success');
+                } else {
+                    addLog('serverLog', 'MongoDB 응답 오류', 'error');
+                }
+            } catch (error) {
+                addLog('serverLog', 'MongoDB 연결 실패: ' + error.message, 'error');
+            }
+        }
+
+        // 3. 회원가입 테스트
+        async function testSignup() {
+            addLog('signupLog', '회원가입 테스트 시작...', 'info');
+            
+            const timestamp = Date.now().toString().slice(-8); // 8자리만 사용
+            const testUser = {
+                username: 'test' + timestamp, // 최소 4자 이상
+                email: `test${Date.now()}@example.com`,
+                password: 'Test1234!',
+                name: '테스트사용자',
+                phone: '01012345678', // 하이픈 없이 숫자만
+                businessType: 'personal',
+                termsAccepted: true
+            };
+            
+            addLog('signupLog', '테스트 데이터: ' + testUser.username, 'info');
+            
+            try {
+                const response = await fetch(currentAPI + '/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testUser)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('signupStatus', '✅ 회원가입 정상', 'success');
+                    addLog('signupLog', '회원가입 성공: ' + testUser.username, 'success');
+                    
+                    // 생성된 계정 정보 저장
+                    window.testAccount = testUser;
+                } else {
+                    showStatus('signupStatus', '❌ 회원가입 실패', 'error');
+                    addLog('signupLog', '오류: ' + data.message, 'error');
+                    
+                    if (data.errors) {
+                        data.errors.forEach(err => {
+                            addLog('signupLog', '- ' + (err.msg || err.message), 'error');
+                        });
+                    }
+                }
+            } catch (error) {
+                showStatus('signupStatus', '❌ 네트워크 오류', 'error');
+                addLog('signupLog', '네트워크 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 4. 로그인 테스트
+        async function testLogin() {
+            addLog('loginLog', '로그인 테스트 시작...', 'info');
+            
+            // 테스트 계정이 있으면 사용
+            const loginData = window.testAccount ? {
+                login: window.testAccount.username,
+                password: window.testAccount.password
+            } : {
+                login: 'admin',
+                password: 'admin123!@#'
+            };
+            
+            addLog('loginLog', '로그인 시도: ' + loginData.login, 'info');
+            
+            try {
+                const response = await fetch(currentAPI + '/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus('loginStatus', '✅ 로그인 정상', 'success');
+                    addLog('loginLog', '로그인 성공', 'success');
+                    addLog('loginLog', '토큰: ' + data.data.token.substring(0, 20) + '...', 'info');
+                } else {
+                    showStatus('loginStatus', '❌ 로그인 실패', 'error');
+                    addLog('loginLog', '오류: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showStatus('loginStatus', '❌ 네트워크 오류', 'error');
+                addLog('loginLog', '네트워크 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 5. 소셜 로그인 설정 체크
+        function checkSocialConfig() {
+            addLog('socialLog', '소셜 로그인 설정 확인...', 'info');
+            
+            // social-login.js 파일이 로드되었는지 확인
+            if (typeof SOCIAL_CONFIG !== 'undefined') {
+                // Google
+                if (SOCIAL_CONFIG.google.clientId && !SOCIAL_CONFIG.google.clientId.includes('YOUR_')) {
+                    addLog('socialLog', '✅ Google Client ID 설정됨', 'success');
+                } else {
+                    addLog('socialLog', '❌ Google Client ID 미설정', 'error');
+                }
+                
+                // Kakao
+                if (SOCIAL_CONFIG.kakao.appKey && !SOCIAL_CONFIG.kakao.appKey.includes('YOUR_')) {
+                    addLog('socialLog', '✅ Kakao App Key 설정됨', 'success');
+                } else {
+                    addLog('socialLog', '❌ Kakao App Key 미설정', 'error');
+                }
+                
+                // Naver
+                if (SOCIAL_CONFIG.naver.clientId && !SOCIAL_CONFIG.naver.clientId.includes('YOUR_')) {
+                    addLog('socialLog', '✅ Naver Client ID 설정됨', 'success');
+                } else {
+                    addLog('socialLog', '❌ Naver Client ID 미설정', 'error');
+                }
+                
+                showStatus('socialStatus', '설정 확인 완료', 'info');
+            } else {
+                showStatus('socialStatus', '❌ 소셜 로그인 스크립트 없음', 'error');
+                addLog('socialLog', 'social-login.js 파일을 로드할 수 없습니다', 'error');
+            }
+        }
+
+        // 6. SDK 체크
+        function checkSocialSDK() {
+            addLog('socialLog', 'SDK 로드 상태 확인...', 'info');
+            
+            // Google SDK
+            if (typeof google !== 'undefined' && google.accounts) {
+                addLog('socialLog', '✅ Google SDK 로드됨', 'success');
+            } else {
+                addLog('socialLog', '❌ Google SDK 없음', 'error');
+            }
+            
+            // Kakao SDK
+            if (typeof Kakao !== 'undefined') {
+                addLog('socialLog', '✅ Kakao SDK 로드됨', 'success');
+                if (Kakao.isInitialized && Kakao.isInitialized()) {
+                    addLog('socialLog', '✅ Kakao SDK 초기화됨', 'success');
+                } else {
+                    addLog('socialLog', '⚠️ Kakao SDK 초기화 필요', 'warning');
+                }
+            } else {
+                addLog('socialLog', '❌ Kakao SDK 없음', 'error');
+            }
+        }
+
+        // 7. API 엔드포인트 테스트
+        async function testAllEndpoints() {
+            addLog('apiLog', 'API 엔드포인트 테스트...', 'info');
+            
+            const endpoints = [
+                { method: 'GET', path: '/health', name: 'Health Check' },
+                { method: 'POST', path: '/auth/check-username', name: '아이디 중복확인', body: { username: 'test' } },
+                { method: 'GET', path: '/services', name: '서비스 목록' },
+                { method: 'GET', path: '/orders', name: '주문 목록' }
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const options = {
+                        method: endpoint.method,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    };
+                    
+                    if (endpoint.body) {
+                        options.body = JSON.stringify(endpoint.body);
+                    }
+                    
+                    const response = await fetch(currentAPI + endpoint.path, options);
+                    
+                    if (response.ok) {
+                        addLog('apiLog', `✅ ${endpoint.name}: 정상`, 'success');
+                    } else {
+                        addLog('apiLog', `❌ ${endpoint.name}: ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addLog('apiLog', `❌ ${endpoint.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            showStatus('apiStatus', '테스트 완료', 'info');
+        }
+
+        // 8. 환경 체크
+        function checkEnvironment() {
+            addLog('envLog', '환경 설정 확인...', 'info');
+            
+            // 현재 URL
+            addLog('envLog', 'Current URL: ' + window.location.href, 'info');
+            addLog('envLog', 'Origin: ' + window.location.origin, 'info');
+            addLog('envLog', 'Protocol: ' + window.location.protocol, 'info');
+            
+            // API URL
+            addLog('envLog', 'API URL: ' + currentAPI, 'info');
+            
+            // 로컬 스토리지
+            const token = localStorage.getItem('authToken');
+            const userInfo = localStorage.getItem('userInfo');
+            
+            if (token) {
+                addLog('envLog', '✅ 인증 토큰 있음', 'success');
+            } else {
+                addLog('envLog', '⚠️ 인증 토큰 없음', 'warning');
+            }
+            
+            if (userInfo) {
+                addLog('envLog', '✅ 사용자 정보 있음', 'success');
+            } else {
+                addLog('envLog', '⚠️ 사용자 정보 없음', 'warning');
+            }
+            
+            showStatus('envStatus', '확인 완료', 'info');
+        }
+
+        // 엔드포인트 직접 확인
+        async function checkSignupEndpoint() {
+            const result = document.getElementById('detailResult');
+            result.innerHTML = '<h3>회원가입 API 상세 확인</h3>';
+            
+            const testData = {
+                username: 'apitest' + Date.now(),
+                email: `apitest${Date.now()}@test.com`,
+                password: 'Test1234!',
+                name: 'API테스트',
+                phone: '010-0000-0000',
+                businessType: 'personal',
+                termsAccepted: true
+            };
+            
+            result.innerHTML += '<pre>요청 URL: ' + currentAPI + '/auth/register\n';
+            result.innerHTML += '요청 데이터:\n' + JSON.stringify(testData, null, 2) + '</pre>';
+            
+            try {
+                const response = await fetch(currentAPI + '/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                result.innerHTML += '<pre>응답 상태: ' + response.status + '\n';
+                result.innerHTML += '응답 데이터:\n' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                result.innerHTML += '<pre style="color: red;">오류: ' + error.message + '</pre>';
+            }
+        }
+
+        async function checkLoginEndpoint() {
+            const result = document.getElementById('detailResult');
+            result.innerHTML = '<h3>로그인 API 상세 확인</h3>';
+            
+            const testData = {
+                login: 'admin',
+                password: 'admin123!@#'
+            };
+            
+            result.innerHTML += '<pre>요청 URL: ' + currentAPI + '/auth/login\n';
+            result.innerHTML += '요청 데이터:\n' + JSON.stringify(testData, null, 2) + '</pre>';
+            
+            try {
+                const response = await fetch(currentAPI + '/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                result.innerHTML += '<pre>응답 상태: ' + response.status + '\n';
+                result.innerHTML += '응답 데이터:\n' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                result.innerHTML += '<pre style="color: red;">오류: ' + error.message + '</pre>';
+            }
+        }
+
+        // 소셜 로그인 스크립트 로드
+        function loadSocialLoginScript() {
+            const script = document.createElement('script');
+            script.src = 'js/social-login.js';
+            script.onload = () => {
+                addLog('socialLog', '소셜 로그인 스크립트 로드됨', 'success');
+                checkSocialConfig();
+            };
+            script.onerror = () => {
+                addLog('socialLog', '소셜 로그인 스크립트 로드 실패', 'error');
+            };
+            document.head.appendChild(script);
+        }
+
+        // 페이지 로드시 초기화
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('시스템 점검 시작...');
+            console.log('Current hostname:', window.location.hostname);
+            console.log('Current API:', currentAPI);
+            console.log('Local API:', LOCAL_API);
+            console.log('Railway API:', API_URL);
+            
+            // 자동으로 서버 체크
+            checkServer();
+            
+            // 소셜 로그인 스크립트 로드
+            loadSocialLoginScript();
+        });
+    </script>
+</body>
+</html>

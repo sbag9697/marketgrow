@@ -114,6 +114,25 @@
                             <i class="fas fa-user-plus"></i>
                             회원가입 완료
                         </button>
+
+                        <div class="divider">
+                            <span>또는</span>
+                        </div>
+
+                        <div class="social-login">
+                            <button type="button" class="social-btn kakao social-login-kakao" onclick="if(window.socialLogin) socialLogin.loginWithKakaoPopup(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fas fa-comment"></i>
+                                카카오로 시작하기
+                            </button>
+                            <button type="button" class="social-btn google social-login-google" onclick="if(window.socialLogin) socialLogin.loginWithGoogle(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fab fa-google"></i>
+                                구글로 시작하기
+                            </button>
+                            <button type="button" class="social-btn naver social-login-naver" onclick="if(window.socialLogin) socialLogin.loginWithNaverPopup(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fas fa-n"></i>
+                                네이버로 시작하기
+                            </button>
+                        </div>
                     </form>
 
                     <div class="auth-footer">
@@ -139,9 +158,15 @@
         </div>
     </footer>
 
+    <!-- 소셜 로그인 스크립트 -->
+    <script src="js/social-login-fix.js"></script>
+    
+    <!-- 설정 파일 로드 -->
+    <script src="js/config.js"></script>
+
     <script>
-        // 실제 API URL - Railway에 배포됨 ✅
-        const API_URL = 'https://marketgrow-production-c586.up.railway.app/api';
+        // API URL - config.js에서 자동으로 로컬/프로덕션 감지
+        const API_URL = API_CONFIG.BASE_URL;
         
         // 모든 Mock 관련 제거
         localStorage.removeItem('useMockServer');
@@ -449,7 +474,9 @@
                 email: document.getElementById('email').value,
                 password: document.getElementById('signupPassword').value,
                 name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value
+                phone: document.getElementById('phone').value.replace(/-/g, ''),  // 하이픈 제거
+                businessType: 'personal',  // 개인 회원으로 기본 설정
+                termsAcceptedAt: new Date().toISOString()  // 약관 동의 시간
             };
             
             console.log('회원가입 시도:', formData);

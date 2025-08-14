@@ -92,6 +92,11 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    depositBalance: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     totalSpent: {
         type: Number,
         default: 0

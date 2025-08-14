@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 시스템 테스트 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #1a365d;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .test-section h3 {
+            color: #1a365d;
+            margin-bottom: 15px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .test-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .test-btn.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .test-btn.danger {
+            background: #dc2626;
+        }
+
+        .status-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-top: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .status-value {
+            color: #1a365d;
+            font-weight: 600;
+        }
+
+        .connected {
+            color: #10b981;
+        }
+
+        .disconnected {
+            color: #ef4444;
+        }
+
+        .log-panel {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-time {
+            color: #94a3b8;
+        }
+
+        .log-success {
+            color: #10b981;
+        }
+
+        .log-error {
+            color: #ef4444;
+        }
+
+        .log-info {
+            color: #3b82f6;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list i {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (간단한 버전) -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html">대시보드</a></li>
+                <li><a href="services.html">서비스</a></li>
+                <!-- 알림 버튼이 자동으로 추가됩니다 -->
+            </ul>
+        </div>
+    </nav>
+
+    <div class="test-container">
+        <h1>🔔 실시간 알림 시스템 테스트</h1>
+        <p class="description">
+            주문 상태 변경 알림을 포함한 다양한 알림 기능을 테스트해보세요.
+        </p>
+
+        <!-- 알림 테스트 버튼 -->
+        <div class="test-section">
+            <h3>📬 알림 테스트</h3>
+            <div class="test-grid">
+                <button class="test-btn" onclick="testOrderNotification('pending')">
+                    <i class="fas fa-clock"></i> 주문 접수
+                </button>
+                <button class="test-btn" onclick="testOrderNotification('processing')">
+                    <i class="fas fa-cog"></i> 처리 시작
+                </button>
+                <button class="test-btn" onclick="testOrderNotification('in_progress')">
+                    <i class="fas fa-spinner"></i> 진행중
+                </button>
+                <button class="test-btn" onclick="testOrderNotification('completed')">
+                    <i class="fas fa-check"></i> 완료
+                </button>
+                <button class="test-btn danger" onclick="testOrderNotification('cancelled')">
+                    <i class="fas fa-times"></i> 취소
+                </button>
+                <button class="test-btn secondary" onclick="testPaymentNotification(true)">
+                    <i class="fas fa-credit-card"></i> 결제 성공
+                </button>
+                <button class="test-btn secondary" onclick="testPaymentNotification(false)">
+                    <i class="fas fa-exclamation"></i> 결제 실패
+                </button>
+                <button class="test-btn secondary" onclick="testPromotionNotification()">
+                    <i class="fas fa-gift"></i> 프로모션
+                </button>
+            </div>
+        </div>
+
+        <!-- 알림 제어 -->
+        <div class="test-section">
+            <h3>⚙️ 알림 제어</h3>
+            <div class="test-grid">
+                <button class="test-btn secondary" onclick="toggleSound()">
+                    <i class="fas fa-volume-up"></i> 소리 토글
+                </button>
+                <button class="test-btn secondary" onclick="requestPermission()">
+                    <i class="fas fa-bell"></i> 권한 요청
+                </button>
+                <button class="test-btn secondary" onclick="markAllRead()">
+                    <i class="fas fa-check-double"></i> 모두 읽음
+                </button>
+                <button class="test-btn danger" onclick="clearAll()">
+                    <i class="fas fa-trash"></i> 모두 삭제
+                </button>
+            </div>
+        </div>
+
+        <!-- 상태 패널 -->
+        <div class="status-panel">
+            <h3>📊 시스템 상태</h3>
+            <div class="status-item">
+                <span class="status-label">WebSocket 연결:</span>
+                <span class="status-value" id="wsStatus">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">알림 권한:</span>
+                <span class="status-value" id="permissionStatus">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">알림음:</span>
+                <span class="status-value" id="soundStatus">켜짐</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">총 알림 수:</span>
+                <span class="status-value" id="totalCount">0개</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">읽지 않은 알림:</span>
+                <span class="status-value" id="unreadCount">0개</span>
+            </div>
+        </div>
+
+        <!-- 기능 목록 -->
+        <div class="test-section">
+            <h3>✅ 구현된 기능</h3>
+            <ul class="feature-list">
+                <li><i class="fas fa-check"></i> 실시간 WebSocket 연결 (자동 재연결)</li>
+                <li><i class="fas fa-check"></i> 주문 상태별 알림 (대기/처리중/진행중/완료/취소)</li>
+                <li><i class="fas fa-check"></i> 결제 성공/실패 알림</li>
+                <li><i class="fas fa-check"></i> 프로모션 알림</li>
+                <li><i class="fas fa-check"></i> 브라우저 데스크톱 푸시 알림</li>
+                <li><i class="fas fa-check"></i> 토스트 알림 (우측 상단)</li>
+                <li><i class="fas fa-check"></i> 알림 센터 (종 아이콘)</li>
+                <li><i class="fas fa-check"></i> 알림음 재생</li>
+                <li><i class="fas fa-check"></i> 읽음/읽지않음 상태 관리</li>
+                <li><i class="fas fa-check"></i> 24시간 알림 보관</li>
+                <li><i class="fas fa-check"></i> 알림별 액션 버튼</li>
+                <li><i class="fas fa-check"></i> 로컬 스토리지 저장</li>
+            </ul>
+        </div>
+
+        <!-- 로그 패널 -->
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry">
+                <span class="log-time">[00:00:00]</span> 
+                <span class="log-info">알림 시스템 초기화 중...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/notification-system.js"></script>
+    <script>
+        // 로그 추가 함수
+        function addLog(message, type = 'info') {
+            const logPanel = document.getElementById('logPanel');
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-time">[${time}]</span> 
+                <span class="log-${type}">${message}</span>
+            `;
+            logPanel.appendChild(logEntry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+
+        // 상태 업데이트
+        function updateStatus() {
+            // WebSocket 상태
+            const wsStatus = document.getElementById('wsStatus');
+            if (notificationSystem && notificationSystem.isConnected) {
+                wsStatus.innerHTML = '<span class="connected">연결됨</span>';
+            } else {
+                wsStatus.innerHTML = '<span class="disconnected">연결 안됨</span>';
+            }
+
+            // 알림 권한
+            const permissionStatus = document.getElementById('permissionStatus');
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    permissionStatus.innerHTML = '<span class="connected">허용됨</span>';
+                } else if (Notification.permission === 'denied') {
+                    permissionStatus.innerHTML = '<span class="disconnected">거부됨</span>';
+                } else {
+                    permissionStatus.innerHTML = '요청 필요';
+                }
+            } else {
+                permissionStatus.innerHTML = '<span class="disconnected">지원 안됨</span>';
+            }
+
+            // 알림 수
+            document.getElementById('totalCount').textContent = 
+                notificationSystem.notifications.length + '개';
+            document.getElementById('unreadCount').textContent = 
+                notificationSystem.unreadCount + '개';
+        }
+
+        // 주문 알림 테스트
+        function testOrderNotification(status) {
+            const orderId = 'TEST_' + Date.now();
+            notificationSystem.handleNotification({
+                type: 'order_status',
+                orderId: orderId,
+                status: status,
+                serviceName: '인스타그램 팔로워 1000개'
+            });
+            addLog(`주문 상태 알림 테스트: ${status}`, 'success');
+            updateStatus();
+        }
+
+        // 결제 알림 테스트
+        function testPaymentNotification(success) {
+            notificationSystem.handleNotification({
+                type: 'payment',
+                success: success,
+                message: success ? 
+                    '결제가 성공적으로 완료되었습니다' : 
+                    '결제 처리 중 오류가 발생했습니다'
+            });
+            addLog(`결제 알림 테스트: ${success ? '성공' : '실패'}`, success ? 'success' : 'error');
+            updateStatus();
+        }
+
+        // 프로모션 알림 테스트
+        function testPromotionNotification() {
+            notificationSystem.handleNotification({
+                type: 'promotion',
+                message: '🎉 신규 가입 50% 할인 이벤트! 지금 바로 확인하세요.',
+                url: '/promotions'
+            });
+            addLog('프로모션 알림 테스트', 'success');
+            updateStatus();
+        }
+
+        // 소리 토글
+        function toggleSound() {
+            notificationSystem.soundEnabled = !notificationSystem.soundEnabled;
+            document.getElementById('soundStatus').textContent = 
+                notificationSystem.soundEnabled ? '켜짐' : '꺼짐';
+            addLog(`알림음 ${notificationSystem.soundEnabled ? '활성화' : '비활성화'}`, 'info');
+        }
+
+        // 권한 요청
+        async function requestPermission() {
+            if ('Notification' in window) {
+                const permission = await Notification.requestPermission();
+                addLog(`알림 권한: ${permission}`, permission === 'granted' ? 'success' : 'error');
+                updateStatus();
+            } else {
+                addLog('브라우저가 알림을 지원하지 않습니다', 'error');
+            }
+        }
+
+        // 모두 읽음
+        function markAllRead() {
+            notificationSystem.markAllAsRead();
+            addLog('모든 알림을 읽음 처리했습니다', 'success');
+            updateStatus();
+        }
+
+        // 모두 삭제
+        function clearAll() {
+            if (confirm('모든 알림을 삭제하시겠습니까?')) {
+                notificationSystem.notifications = [];
+                notificationSystem.unreadCount = 0;
+                notificationSystem.saveNotifications();
+                notificationSystem.updateNotificationList();
+                notificationSystem.updateUnreadBadge();
+                addLog('모든 알림이 삭제되었습니다', 'info');
+                updateStatus();
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                updateStatus();
+                addLog('알림 시스템 준비 완료', 'success');
+                
+                // 상태 주기적 업데이트
+                setInterval(updateStatus, 1000);
+            }, 1000);
+        });
+
+        // 테스트용: 로그인 상태 시뮬레이션
+        if (!localStorage.getItem('authToken')) {
+            localStorage.setItem('authToken', 'test_token_' + Date.now());
+            localStorage.setItem('userInfo', JSON.stringify({
+                id: 'test_user',
+                name: '테스트 사용자',
+                email: 'test@marketgrow.kr'
+            }));
+            addLog('테스트용 로그인 토큰 생성', 'info');
+        }
+    </script>
+</body>
+</html>

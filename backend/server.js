@@ -20,10 +20,15 @@ const keywordRoutes = require('./routes/keyword.routes');
 const adminRoutes = require('./routes/admin.routes');
 const consultationRoutes = require('./routes/consultation.routes');
 const emailRoutes = require('./routes/email.routes');
+const webhookRoutes = require('./routes/webhook.routes');
+const depositRoutes = require('./routes/deposit.routes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
 const logger = require('./utils/logger');
+
+// Import services
+const OrderSyncService = require('./services/orderSync.service');
 
 const app = express();
 
@@ -64,14 +69,19 @@ app.use(cors({
     maxAge: 86400 // 24 hours
 }));
 
-// Rate limiting
+// Rate limiting - 개발중이므로 제한을 높임
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 1000, // 개발중이므로 1000 요청으로 증가
     message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.'
 });
 
-app.use('/api/', limiter);
+// 개발 환경에서는 rate limit 비활성화
+if (process.env.NODE_ENV !== 'production') {
+    console.log('Development mode - Rate limiting relaxed');
+} else {
+    app.use('/api/', limiter);
+}
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -93,9 +103,11 @@ app.use('/api/users', userRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/deposits', depositRoutes);
 app.use('/api/keywords', keywordRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/consultations', consultationRoutes);
+app.use('/api/webhook', webhookRoutes);
 app.use('/api', require('./routes/dashboard.routes'));
 
 // Health check endpoint
@@ -149,4 +161,11 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    
+    // SMM 패널 주문 동기화 시작 (API 키가 있을 때만)
+    if (process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {
+        const orderSync = new OrderSyncService();
+        orderSync.startAutoSync();
+        console.log('📦 SMM order sync service started');
+    }
 });

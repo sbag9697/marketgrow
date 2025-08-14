@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소셜 로그인 테스트 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .test-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a365d;
+            margin-bottom: 30px;
+        }
+
+        .status-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .status-value {
+            font-weight: 600;
+        }
+
+        .status-value.success {
+            color: #10b981;
+        }
+
+        .status-value.error {
+            color: #ef4444;
+        }
+
+        .status-value.pending {
+            color: #f59e0b;
+        }
+
+        .social-login-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .social-login-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #1e293b;
+            font-size: 16px;
+        }
+
+        .social-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .social-login-google {
+            border-color: #4285f4;
+        }
+
+        .social-login-google:hover {
+            background: #f8faff;
+            border-color: #2563eb;
+        }
+
+        .social-login-kakao {
+            background: #fee500;
+            border-color: #fee500;
+            color: #000000;
+        }
+
+        .social-login-kakao:hover {
+            background: #fdd835;
+        }
+
+        .social-login-naver {
+            background: #03c75a;
+            border-color: #03c75a;
+            color: white;
+        }
+
+        .social-login-naver:hover {
+            background: #02b350;
+        }
+
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f9ff;
+            border: 1px solid #0284c7;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box.success {
+            background: #f0fdf4;
+            border-color: #10b981;
+        }
+
+        .result-box.error {
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1a365d;
+        }
+
+        .result-content {
+            font-size: 14px;
+            color: #475569;
+            word-break: break-all;
+        }
+
+        .user-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .user-info-item {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .user-info-label {
+            font-weight: 600;
+            margin-right: 10px;
+            min-width: 80px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔐 소셜 로그인 테스트</h1>
+        
+        <!-- API 키 상태 확인 -->
+        <div class="status-box">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1a365d;">API 키 설정 상태</h3>
+            <div class="status-item">
+                <span class="status-label">Google Client ID</span>
+                <span class="status-value" id="google-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Kakao App Key</span>
+                <span class="status-value" id="kakao-status">확인중...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Naver Client ID</span>
+                <span class="status-value" id="naver-status">확인중...</span>
+            </div>
+        </div>
+
+        <!-- 소셜 로그인 버튼 -->
+        <div class="social-login-section">
+            <p class="section-title">아래 버튼을 클릭하여 소셜 로그인을 테스트하세요</p>
+            
+            <button class="social-login-btn social-login-google" onclick="testGoogleLogin()">
+                <i class="fab fa-google"></i>
+                Google로 로그인
+            </button>
+            
+            <button class="social-login-btn social-login-kakao" onclick="testKakaoLogin()">
+                <i class="fas fa-comment"></i>
+                카카오로 로그인
+            </button>
+            
+            <button class="social-login-btn social-login-naver" onclick="testNaverLogin()">
+                <span style="font-weight: bold;">N</span>
+                네이버로 로그인
+            </button>
+        </div>
+
+        <!-- 결과 표시 -->
+        <div class="result-box" id="resultBox">
+            <div class="result-title">로그인 결과</div>
+            <div class="result-content" id="resultContent"></div>
+            <div class="user-info" id="userInfo" style="display: none;"></div>
+        </div>
+
+        <a href="login.html" class="back-btn">로그인 페이지로 돌아가기</a>
+    </div>
+
+    <!-- 소셜 로그인 스크립트 포함 -->
+    <script src="js/social-login.js"></script>
+    
+    <script>
+        // API 키 상태 확인
+        function checkAPIKeys() {
+            // Google
+            if (SOCIAL_CONFIG.google.clientId && 
+                !SOCIAL_CONFIG.google.clientId.includes('YOUR_')) {
+                document.getElementById('google-status').className = 'status-value success';
+                document.getElementById('google-status').textContent = '✅ 설정됨';
+            } else {
+                document.getElementById('google-status').className = 'status-value error';
+                document.getElementById('google-status').textContent = '❌ 미설정';
+            }
+
+            // Kakao
+            if (SOCIAL_CONFIG.kakao.appKey && 
+                !SOCIAL_CONFIG.kakao.appKey.includes('YOUR_')) {
+                document.getElementById('kakao-status').className = 'status-value success';
+                document.getElementById('kakao-status').textContent = '✅ 설정됨';
+            } else {
+                document.getElementById('kakao-status').className = 'status-value error';
+                document.getElementById('kakao-status').textContent = '❌ 미설정';
+            }
+
+            // Naver
+            if (SOCIAL_CONFIG.naver.clientId && 
+                !SOCIAL_CONFIG.naver.clientId.includes('YOUR_')) {
+                document.getElementById('naver-status').className = 'status-value success';
+                document.getElementById('naver-status').textContent = '✅ 설정됨';
+            } else {
+                document.getElementById('naver-status').className = 'status-value error';
+                document.getElementById('naver-status').textContent = '❌ 미설정';
+            }
+        }
+
+        // 결과 표시
+        function showResult(success, message, userData = null) {
+            const resultBox = document.getElementById('resultBox');
+            const resultContent = document.getElementById('resultContent');
+            const userInfo = document.getElementById('userInfo');
+            
+            resultBox.className = 'result-box show ' + (success ? 'success' : 'error');
+            resultContent.textContent = message;
+            
+            if (userData) {
+                userInfo.style.display = 'block';
+                userInfo.innerHTML = `
+                    <div class="user-info-item">
+                        <span class="user-info-label">이름:</span>
+                        <span>${userData.name || '없음'}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">이메일:</span>
+                        <span>${userData.email || '없음'}</span>
+                    </div>
+                    <div class="user-info-item">
+                        <span class="user-info-label">제공자:</span>
+                        <span>${userData.provider || '없음'}</span>
+                    </div>
+                `;
+            } else {
+                userInfo.style.display = 'none';
+            }
+        }
+
+        // Google 로그인 테스트
+        function testGoogleLogin() {
+            try {
+                socialLogin.loginWithGoogle();
+            } catch (error) {
+                showResult(false, '오류: ' + error.message);
+            }
+        }
+
+        // Kakao 로그인 테스트
+        function testKakaoLogin() {
+            try {
+                socialLogin.loginWithKakaoPopup();
+            } catch (error) {
+                showResult(false, '오류: ' + error.message);
+            }
+        }
+
+        // Naver 로그인 테스트
+        function testNaverLogin() {
+            try {
+                socialLogin.loginWithNaverPopup();
+            } catch (error) {
+                showResult(false, '오류: ' + error.message);
+            }
+        }
+
+        // 로그인 성공 이벤트 리스너
+        window.addEventListener('social-login-success', (event) => {
+            const userData = event.detail;
+            showResult(true, '로그인 성공!', userData);
+        });
+
+        // 로그인 실패 이벤트 리스너
+        window.addEventListener('social-login-error', (event) => {
+            const error = event.detail;
+            showResult(false, error.message);
+        });
+
+        // 페이지 로드 시 API 키 확인
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(checkAPIKeys, 500);
+        });
+    </script>
+</body>
+</html>

@@ -4,6 +4,8 @@ const Payment = require('../models/Payment');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 const { validationResult } = require('express-validator');
+const SMMPanelService = require('../services/smmPanel.service');
+const smmPanel = new SMMPanelService();
 
 // Create new order
 const createOrder = async (req, res) => {
@@ -71,6 +73,29 @@ const createOrder = async (req, res) => {
 
         // Populate service details for response
         await order.populate('service', 'name platform category deliveryTime');
+
+        // SMM 패널로 주문 전송 (API 키가 설정된 경우만)
+        if (smmPanel.apiKey && smmPanel.enabled) {
+            try {
+                const smmResult = await smmPanel.createOrder({
+                    service: service.smmServiceId || service.name, // SMM 서비스 ID 사용
+                    link: targetUrl,
+                    quantity: quantity,
+                    customData: targetUsername
+                });
+
+                // SMM 주문 ID 저장
+                order.providerOrderId = smmResult.smmOrderId;
+                order.status = 'processing'; // 처리 중으로 상태 변경
+                order.providerStatus = 'submitted';
+                await order.save();
+
+                logger.info(`SMM order created: ${smmResult.smmOrderId} for order ${order.orderNumber}`);
+            } catch (smmError) {
+                logger.error('SMM panel order creation failed:', smmError);
+                // SMM 실패해도 주문은 유지 (수동 처리 가능)
+            }
+        }
 
         logger.info(`Order created: ${order.orderNumber} by user ${req.user.email}`);
 
