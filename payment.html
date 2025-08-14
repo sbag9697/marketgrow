@@ -3,30 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="결제 페이지 - MarketGrow">
+    <meta name="description" content="무통장입금 결제 - MarketGrow">
     <title>결제 - MarketGrow</title>
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="결제 - MarketGrow">
-    <meta property="og:description" content="안전하고 빠른 결제 시스템. 다양한 결제 수단을 지원합니다.">
+    <meta property="og:description" content="안전한 무통장입금 결제 시스템">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://melodious-banoffee-c450ea.netlify.app/payment.html">
+    <meta property="og:url" content="https://marketgrow.kr/payment.html">
     <meta property="og:site_name" content="MarketGrow">
     <meta property="og:locale" content="ko_KR">
     
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="결제 - MarketGrow">
-    <meta name="twitter:description" content="안전하고 빠른 결제 시스템">
-    
-    <!-- Additional SEO Meta Tags -->
-    <meta name="robots" content="noindex, nofollow">
-    <link rel="canonical" href="https://melodious-banoffee-c450ea.netlify.app/payment.html">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="mobile-fix.css">
     <link rel="stylesheet" href="payment.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- KG이니시스 결제 스크립트는 js/kg-inicis.js에서 동적 로드 -->
 </head>
 <body>
     <!-- 네비게이션 -->
@@ -39,9 +30,14 @@
                 <li><a href="services.html">서비스목록</a></li>
                 <li><a href="blog.html">마케팅 블로그</a></li>
                 <li><a href="dashboard.html">대시보드</a></li>
-                <li><a href="#" class="login-btn">로그인</a></li>
-                <li><a href="#" class="signup-btn">회원가입</a></li>
+                <li><a href="login.html" class="login-btn">로그인</a></li>
+                <li><a href="signup.html" class="signup-btn">회원가입</a></li>
             </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
@@ -49,126 +45,292 @@
     <section class="payment-section">
         <div class="container">
             <div class="payment-container">
+                <h1><i class="fas fa-money-check-alt"></i> 무통장입금 결제</h1>
+                
                 <!-- 주문 정보 -->
                 <div class="order-summary">
-                    <h2>주문 정보</h2>
-                    <div class="order-item">
-                        <div class="service-info">
-                            <h3 id="orderServiceName">서비스명</h3>
-                            <p id="orderQuantity">수량: 1,000개</p>
-                            <p id="orderUrl">대상 URL: https://example.com</p>
-                        </div>
-                        <div class="service-price">
-                            <span id="orderTotalPrice">₩50,000</span>
-                        </div>
+                    <h3>주문 정보</h3>
+                    <div class="order-details" id="orderDetails">
+                        <!-- JavaScript로 동적 생성 -->
                     </div>
-                    
-                    <div class="order-total">
-                        <div class="total-row">
-                            <span>서비스 금액</span>
-                            <span id="serviceAmount">₩50,000</span>
+                    <div class="total-amount">
+                        <span>총 결제금액</span>
+                        <strong id="totalAmount">0원</strong>
+                    </div>
+                </div>
+
+                <!-- 입금 정보 -->
+                <div class="bank-info">
+                    <h3>입금 계좌 정보</h3>
+                    <div class="bank-account">
+                        <div class="bank-item">
+                            <label>은행명</label>
+                            <div class="value">
+                                <i class="fas fa-university"></i>
+                                <strong>국민은행</strong>
+                            </div>
                         </div>
-                        <div class="total-row">
-                            <span>VAT (10%)</span>
-                            <span id="vatAmount">₩5,000</span>
+                        <div class="bank-item">
+                            <label>계좌번호</label>
+                            <div class="value">
+                                <strong>123456-78-901234</strong>
+                                <button type="button" onclick="copyAccount()" class="copy-btn">
+                                    <i class="fas fa-copy"></i> 복사
+                                </button>
+                            </div>
                         </div>
-                        <div class="total-row final-total">
-                            <span>총 결제금액</span>
-                            <span id="finalAmount">₩55,000</span>
+                        <div class="bank-item">
+                            <label>예금주</label>
+                            <div class="value">
+                                <strong>마켓그로우</strong>
+                            </div>
+                        </div>
+                        <div class="bank-item">
+                            <label>입금기한</label>
+                            <div class="value">
+                                <strong id="depositDeadline">-</strong>
+                                <small>(3일 이내)</small>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 결제 위젯 -->
-                <div class="payment-widget">
-                    <h2>결제 수단</h2>
-                    
-                    <!-- 결제 방법 선택 -->
-                    <div class="payment-methods">
-                        <div class="payment-method-item selected" data-method="Card">
-                            <i class="fas fa-credit-card"></i>
-                            <span>신용/체크카드</span>
-                        </div>
-                        <div class="payment-method-item" data-method="DirectBank">
-                            <i class="fas fa-university"></i>
-                            <span>계좌이체</span>
-                        </div>
-                        <div class="payment-method-item" data-method="VBank">
-                            <i class="fas fa-money-check"></i>
-                            <span>가상계좌</span>
-                        </div>
-                        <div class="payment-method-item" data-method="HPP">
-                            <i class="fas fa-mobile-alt"></i>
-                            <span>휴대폰결제</span>
-                        </div>
-                        <div class="payment-method-item" data-method="Kakaopay">
-                            <i class="fas fa-comment"></i>
-                            <span>카카오페이</span>
-                        </div>
-                        <div class="payment-method-item" data-method="Naverpay">
-                            <i class="fas fa-n"></i>
-                            <span>네이버페이</span>
-                        </div>
-                    </div>
-                    
-                    <!-- 구매자 정보 -->
-                    <div class="buyer-info">
-                        <h3>구매자 정보</h3>
+                <!-- 입금자 정보 -->
+                <div class="depositor-info">
+                    <h3>입금자 정보</h3>
+                    <form id="depositForm">
                         <div class="form-group">
-                            <label for="buyer-name">이름 *</label>
-                            <input type="text" id="buyer-name" placeholder="홍길동" required>
+                            <label for="depositorName">입금자명 *</label>
+                            <input type="text" id="depositorName" name="depositorName" required placeholder="실제 입금하실 분의 성함">
+                            <small>무통장입금 시 입력하신 입금자명과 동일해야 합니다</small>
                         </div>
                         <div class="form-group">
-                            <label for="buyer-email">이메일 *</label>
-                            <input type="email" id="buyer-email" placeholder="example@email.com" required>
+                            <label for="depositorPhone">연락처 *</label>
+                            <input type="tel" id="depositorPhone" name="depositorPhone" required placeholder="010-0000-0000">
                         </div>
                         <div class="form-group">
-                            <label for="buyer-phone">전화번호</label>
-                            <input type="tel" id="buyer-phone" placeholder="010-1234-5678">
+                            <label for="depositorEmail">이메일 *</label>
+                            <input type="email" id="depositorEmail" name="depositorEmail" required placeholder="email@example.com">
+                            <small>입금 확인 시 이메일로 알려드립니다</small>
                         </div>
-                    </div>
-                    
-                    <!-- 이용약관 동의 -->
-                    <div class="agreement-section">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="agree-all">
-                            <span>전체 동의</span>
-                        </label>
-                        <div class="agreement-items">
-                            <label class="checkbox-container">
-                                <input type="checkbox" class="agree-item" required>
-                                <span>[필수] 구매조건 및 개인정보처리 동의</span>
-                            </label>
-                            <label class="checkbox-container">
-                                <input type="checkbox" class="agree-item" required>
-                                <span>[필수] 결제 서비스 이용약관 동의</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <button id="payment-button" class="payment-btn">
-                        <i class="fas fa-credit-card"></i>
-                        결제하기
+                    </form>
+                </div>
+
+                <!-- 안내사항 -->
+                <div class="payment-notice">
+                    <h3>무통장입금 안내</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> 입금 후 1~2시간 내에 자동으로 입금 확인이 진행됩니다</li>
+                        <li><i class="fas fa-check"></i> 22시 이후 입금은 다음날 오전에 확인됩니다</li>
+                        <li><i class="fas fa-check"></i> 입금자명이 다를 경우 고객센터로 연락 주세요</li>
+                        <li><i class="fas fa-check"></i> 3일 이내 미입금 시 주문이 자동 취소됩니다</li>
+                        <li><i class="fas fa-check"></i> 입금 확인 후 바로 서비스가 시작됩니다</li>
+                    </ul>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="payment-buttons">
+                    <button type="button" class="btn-cancel" onclick="cancelOrder()">
+                        <i class="fas fa-times"></i> 주문 취소
+                    </button>
+                    <button type="button" class="btn-confirm" onclick="confirmDeposit()">
+                        <i class="fas fa-check"></i> 입금 예정 확인
                     </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 로딩 모달 -->
-    <div id="loadingModal" class="modal">
-        <div class="modal-content loading-content">
-            <div class="loading-spinner"></div>
-            <h3>결제 처리 중입니다...</h3>
-            <p>잠시만 기다려주세요.</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li>전화: 010-5772-8658</li>
+                        <li>이메일: marketgrow.kr@gmail.com</li>
+                        <li>카카오톡: @marketgrow</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
         </div>
-    </div>
+    </footer>
 
-    <script src="js/logger.js"></script>
-    <script src="js/kg-inicis.js"></script>
-    <script src="auth.js"></script>
-    <script src="payment.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        // 페이지 로드 시 주문 정보 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL 파라미터에서 주문 정보 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderData = urlParams.get('order');
+            
+            if (orderData) {
+                try {
+                    const order = JSON.parse(decodeURIComponent(orderData));
+                    displayOrderDetails(order);
+                } catch (e) {
+                    // localStorage에서 주문 정보 가져오기
+                    const savedOrder = localStorage.getItem('currentOrder');
+                    if (savedOrder) {
+                        displayOrderDetails(JSON.parse(savedOrder));
+                    }
+                }
+            } else {
+                // localStorage에서 주문 정보 가져오기
+                const savedOrder = localStorage.getItem('currentOrder');
+                if (savedOrder) {
+                    displayOrderDetails(JSON.parse(savedOrder));
+                }
+            }
+
+            // 입금 기한 설정 (3일 후)
+            const deadline = new Date();
+            deadline.setDate(deadline.getDate() + 3);
+            document.getElementById('depositDeadline').textContent = 
+                deadline.toLocaleDateString('ko-KR', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+            // 사용자 정보 자동 입력
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            if (userInfo.email) {
+                document.getElementById('depositorEmail').value = userInfo.email;
+            }
+            if (userInfo.phone) {
+                document.getElementById('depositorPhone').value = userInfo.phone;
+            }
+            if (userInfo.name) {
+                document.getElementById('depositorName').value = userInfo.name;
+            }
+        });
+
+        // 주문 정보 표시
+        function displayOrderDetails(order) {
+            const orderDetails = document.getElementById('orderDetails');
+            const totalAmount = document.getElementById('totalAmount');
+            
+            if (!order || !order.items) {
+                orderDetails.innerHTML = '<p>주문 정보가 없습니다.</p>';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            order.items.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                html += `
+                    <div class="order-item">
+                        <div class="item-info">
+                            <h4>${item.platform} - ${item.service}</h4>
+                            <p>수량: ${item.quantity.toLocaleString()}</p>
+                        </div>
+                        <div class="item-price">
+                            ${itemTotal.toLocaleString()}원
+                        </div>
+                    </div>
+                `;
+            });
+
+            orderDetails.innerHTML = html;
+            totalAmount.textContent = total.toLocaleString() + '원';
+            
+            // 총액 저장
+            window.orderTotal = total;
+        }
+
+        // 계좌번호 복사
+        function copyAccount() {
+            const accountNumber = '123456-78-901234';
+            navigator.clipboard.writeText(accountNumber).then(() => {
+                alert('계좌번호가 복사되었습니다!');
+            }).catch(() => {
+                alert('계좌번호: ' + accountNumber);
+            });
+        }
+
+        // 주문 취소
+        function cancelOrder() {
+            if (confirm('주문을 취소하시겠습니까?')) {
+                localStorage.removeItem('currentOrder');
+                alert('주문이 취소되었습니다.');
+                window.location.href = '/services.html';
+            }
+        }
+
+        // 입금 예정 확인
+        async function confirmDeposit() {
+            const depositorName = document.getElementById('depositorName').value;
+            const depositorPhone = document.getElementById('depositorPhone').value;
+            const depositorEmail = document.getElementById('depositorEmail').value;
+
+            if (!depositorName || !depositorPhone || !depositorEmail) {
+                alert('입금자 정보를 모두 입력해주세요.');
+                return;
+            }
+
+            // 주문 정보 준비
+            const orderData = {
+                orderNumber: 'ORD' + Date.now(),
+                amount: window.orderTotal || 0,
+                depositor: {
+                    name: depositorName,
+                    phone: depositorPhone,
+                    email: depositorEmail
+                },
+                paymentMethod: 'bank_transfer',
+                status: 'pending_deposit',
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // API 호출 (실제 환경에서)
+                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
+                const response = await fetch(`${API_URL}/orders/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                    },
+                    body: JSON.stringify(orderData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // 주문 정보 저장
+                    localStorage.setItem('lastOrder', JSON.stringify(result.data));
+                    
+                    alert('입금 예정이 확인되었습니다.\n입금 후 자동으로 처리됩니다.');
+                    window.location.href = '/payment-success.html?orderNumber=' + orderData.orderNumber;
+                } else {
+                    throw new Error('주문 처리 실패');
+                }
+            } catch (error) {
+                console.error('Order error:', error);
+                
+                // 오프라인 모드에서도 주문 저장
+                localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+                
+                alert('입금 예정이 확인되었습니다.\n입금 확인 후 서비스가 시작됩니다.');
+                window.location.href = '/payment-success.html?orderNumber=' + orderData.orderNumber;
+            }
+        }
+    </script>
     <script src="js/mobile-fix.js"></script>
-    <script src="script.js"></script>
 </body>
 </html>

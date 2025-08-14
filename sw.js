@@ -1,8 +1,8 @@
 // Service Worker - 캐싱 및 오프라인 지원
 
-const CACHE_NAME = 'marketgrow-v2.0.0';
-const STATIC_CACHE = 'marketgrow-static-v2';
-const DYNAMIC_CACHE = 'marketgrow-dynamic-v2';
+const CACHE_NAME = 'marketgrow-v3.0.0';
+const STATIC_CACHE = 'marketgrow-static-v3';
+const DYNAMIC_CACHE = 'marketgrow-dynamic-v3';
 
 // 캐시할 정적 리소스
 const STATIC_ASSETS = [
@@ -40,9 +40,7 @@ const STATIC_ASSETS = [
 // 캐시할 외부 리소스
 const EXTERNAL_ASSETS = [
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap',
-    'https://js.tosspayments.com/v1/payment',
-    'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js'
+    'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap'
 ];
 
 // Service Worker 설치
