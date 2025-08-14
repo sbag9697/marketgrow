@@ -91,7 +91,7 @@ try {
     console.log('⚙️ 프로덕션 설정 파일 생성 중...');
     const configContent = `// Production Configuration
 window.API_CONFIG = {
-    BASE_URL: '${BACKEND_URL}/api',
+    BASE_URL: '/api',  // Netlify proxy 사용
     IS_PRODUCTION: true,
     USE_MOCK: false
 };
