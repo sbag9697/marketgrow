@@ -65,18 +65,20 @@ exports.googleAuth = async (req, res) => {
 
         if (!user) {
             // 새 사용자 생성
-            const username = email.split('@')[0] + '_' + Date.now().toString(36);
+            const username = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + '_' + Date.now().toString(36);
             
             user = await User.create({
-                username,
+                username: username.substring(0, 16), // 최대 16자
                 email,
-                name,
+                name: name || email.split('@')[0],
                 socialProvider: 'google',
                 socialId: id,
                 profileImage: picture,
                 isEmailVerified: true,
                 phone: '0000000000', // 임시 전화번호
-                termsAcceptedAt: new Date()
+                businessType: 'personal', // 기본 비즈니스 타입
+                termsAcceptedAt: new Date(),
+                marketingConsent: false // 기본값
             });
         } else if (!user.socialProvider) {
             // 이메일로 가입한 사용자가 소셜 로그인 시도
@@ -174,15 +176,17 @@ exports.kakaoAuth = async (req, res) => {
             const username = 'kakao_' + id.toString();
             
             user = await User.create({
-                username,
+                username: username.substring(0, 16), // 최대 16자
                 email,
-                name,
+                name: name || 'Kakao User',
                 socialProvider: 'kakao',
                 socialId: id.toString(),
                 profileImage,
                 isEmailVerified: true,
                 phone: '0000000000', // 임시 전화번호
-                termsAcceptedAt: new Date()
+                businessType: 'personal', // 기본 비즈니스 타입
+                termsAcceptedAt: new Date(),
+                marketingConsent: false // 기본값
             });
         } else if (!user.socialProvider) {
             // 이메일로 가입한 사용자가 소셜 로그인 시도
@@ -264,7 +268,7 @@ exports.naverAuth = async (req, res) => {
             const username = 'naver_' + id.substring(0, 10);
             
             user = await User.create({
-                username,
+                username: username.substring(0, 16), // 최대 16자
                 email: email || `naver_${id}@marketgrow.com`,
                 name: name || 'Naver User',
                 socialProvider: 'naver',
@@ -272,7 +276,9 @@ exports.naverAuth = async (req, res) => {
                 profileImage: profile_image,
                 isEmailVerified: true,
                 phone: '0000000000', // 임시 전화번호
-                termsAcceptedAt: new Date()
+                businessType: 'personal', // 기본 비즈니스 타입
+                termsAcceptedAt: new Date(),
+                marketingConsent: false // 기본값
             });
         } else if (!user.socialProvider) {
             // 이메일로 가입한 사용자가 소셜 로그인 시도
