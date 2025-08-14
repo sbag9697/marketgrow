@@ -82,6 +82,7 @@ function initKakaoLogin() {
 // Google 응답 처리
 async function handleGoogleResponse(response) {
     console.log('Google 로그인 응답 받음');
+    console.log('Token received:', response.credential ? 'Yes' : 'No');
 
     try {
         const result = await fetch(`${API_URL}/oauth/google`, {
@@ -95,6 +96,7 @@ async function handleGoogleResponse(response) {
         });
 
         const data = await result.json();
+        console.log('서버 응답:', data);
 
         if (data.success) {
             console.log('Google 로그인 성공');
@@ -103,11 +105,20 @@ async function handleGoogleResponse(response) {
             alert('Google 로그인 성공!');
             window.location.href = '/dashboard.html';
         } else {
-            alert(`Google 로그인 실패: ${data.message}`);
+            // 디버그 정보 포함된 에러 메시지
+            let errorMsg = `Google 로그인 실패: ${data.message}`;
+            if (data.debug) {
+                errorMsg += `\n\n디버그 정보: ${data.debug}`;
+            }
+            if (data.error) {
+                errorMsg += `\n\n상세 에러: ${data.error}`;
+            }
+            console.error('Google 로그인 실패 상세:', data);
+            alert(errorMsg);
         }
     } catch (error) {
         console.error('Google 로그인 오류:', error);
-        alert('Google 로그인 중 오류가 발생했습니다.');
+        alert(`Google 로그인 중 오류가 발생했습니다.\n\n${error.message}`);
     }
 }
 

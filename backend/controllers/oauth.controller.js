@@ -86,24 +86,41 @@ exports.googleAuth = async (req, res) => {
                 });
             } catch (createError) {
                 console.error('User creation error:', createError);
+                console.error('Validation errors:', createError.errors);
                 
                 // username 중복 시 재시도
-                if (createError.code === 11000 && createError.keyPattern && createError.keyPattern.username) {
+                if (createError.code === 11000) {
+                    console.log('Duplicate key error, attempting with new username');
                     const newUsername = `${emailPrefix}_${Date.now().toString(36).substring(-4)}`;
-                    user = await User.create({
-                        username: newUsername.substring(0, 16),
-                        email,
-                        name: name || email.split('@')[0],
-                        socialProvider: 'google',
-                        socialId: googleId,
-                        profileImage: picture,
-                        isEmailVerified: true,
-                        phone: '01000000000',
-                        businessType: 'personal',
-                        termsAcceptedAt: new Date(),
-                        marketingConsent: false
-                    });
+                    
+                    try {
+                        user = await User.create({
+                            username: newUsername.substring(0, 16),
+                            email,
+                            name: name || email.split('@')[0],
+                            socialProvider: 'google',
+                            socialId: googleId,
+                            profileImage: picture,
+                            isEmailVerified: true,
+                            phone: '01000000000',
+                            businessType: 'personal',
+                            termsAcceptedAt: new Date(),
+                            marketingConsent: false
+                        });
+                    } catch (retryError) {
+                        console.error('Retry creation error:', retryError);
+                        console.error('Retry validation errors:', retryError.errors);
+                        throw retryError;
+                    }
                 } else {
+                    // Validation 에러인 경우 자세한 정보 출력
+                    if (createError.name === 'ValidationError') {
+                        const validationDetails = {};
+                        for (const field in createError.errors) {
+                            validationDetails[field] = createError.errors[field].message;
+                        }
+                        console.error('Validation details:', validationDetails);
+                    }
                     throw createError;
                 }
             }
