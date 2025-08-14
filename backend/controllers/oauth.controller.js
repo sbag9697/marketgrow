@@ -79,7 +79,7 @@ exports.googleAuth = async (req, res) => {
                     socialId: googleId,
                     profileImage: picture,
                     isEmailVerified: true,
-                    phone: '01000000000', // 한국 전화번호 형식
+                    phone: '01012345678', // 임시 전화번호 (실제 형식)
                     businessType: 'personal', // 기본 비즈니스 타입
                     termsAcceptedAt: new Date(),
                     marketingConsent: false // 기본값
@@ -102,7 +102,7 @@ exports.googleAuth = async (req, res) => {
                             socialId: googleId,
                             profileImage: picture,
                             isEmailVerified: true,
-                            phone: '01000000000',
+                            phone: '01012345678',
                             businessType: 'personal',
                             termsAcceptedAt: new Date(),
                             marketingConsent: false

@@ -49,7 +49,9 @@ const userSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: [true, '전화번호는 필수입니다'],
+        required: function () {
+            return !this.socialProvider; // 소셜 로그인이 아닌 경우에만 필수
+        },
         match: [/^[0-9]{10,11}$/, '유효한 전화번호를 입력해주세요']
     },
     businessType: {
