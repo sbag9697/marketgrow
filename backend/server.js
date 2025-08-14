@@ -92,6 +92,8 @@ app.use(morgan('combined', { stream: { write: message => logger.info(message.tri
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve frontend static files from parent directory
+app.use(express.static(path.join(__dirname, '..')));
 
 // API routes
 console.log('Registering API routes...');
