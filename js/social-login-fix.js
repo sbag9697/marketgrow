@@ -1,9 +1,9 @@
 // 소셜 로그인 시스템 - 수정된 버전
-const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const SOCIAL_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5001/api'
     : '/api';  // Netlify 프록시 사용
 
-console.log('Social Login API URL:', API_URL);
+console.log('Social Login API URL:', SOCIAL_API_URL);
 
 // 소셜 로그인 설정
 const SOCIAL_CONFIG = {
@@ -85,7 +85,7 @@ async function handleGoogleResponse(response) {
     console.log('Token received:', response.credential ? 'Yes' : 'No');
 
     try {
-        const result = await fetch(`${API_URL}/oauth/google`, {
+        const result = await fetch(`${SOCIAL_API_URL}/oauth/google`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -173,7 +173,7 @@ window.loginWithKakaoPopup = function () {
                 console.log('Kakao 로그인 성공', authObj);
 
                 try {
-                    const result = await fetch(`${API_URL}/oauth/kakao`, {
+                    const result = await fetch(`${SOCIAL_API_URL}/oauth/kakao`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
