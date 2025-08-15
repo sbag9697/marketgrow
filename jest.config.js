@@ -31,19 +31,6 @@ module.exports = {
     restoreMocks: true,
     globals: {
         TossPayments: {},
-        emailjs: {},
-        fetch: global.fetch,
-        localStorage: {
-            getItem: jest.fn(),
-            setItem: jest.fn(),
-            removeItem: jest.fn(),
-            clear: jest.fn()
-        },
-        sessionStorage: {
-            getItem: jest.fn(),
-            setItem: jest.fn(),
-            removeItem: jest.fn(),
-            clear: jest.fn()
-        }
+        emailjs: {}
     }
 };
