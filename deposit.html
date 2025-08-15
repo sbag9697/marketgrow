@@ -3,844 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="예치금 충전 - MarketGrow">
     <title>예치금 충전 - MarketGrow</title>
+    
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="payment.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        .deposit-section {
+            padding: 80px 0;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        
         .deposit-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .deposit-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .deposit-header h1 {
-            color: #1a365d;
-            margin-bottom: 10px;
-        }
-
-        .deposit-header p {
-            color: #64748b;
-        }
-
-        .deposit-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .deposit-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 잔액 카드 */
-        .balance-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
-            border-radius: 16px;
-            color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .balance-label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-
-        .balance-amount {
-            font-size: 48px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .balance-info {
-            display: flex;
-            justify-content: space-between;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .balance-info-item {
-            text-align: center;
-        }
-
-        .balance-info-label {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-bottom: 5px;
-        }
-
-        .balance-info-value {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        /* 충전 카드 */
-        .charge-card {
+            max-width: 800px;
+            margin: 0 auto;
             background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .current-balance {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
         }
-
-        .charge-card h2 {
-            color: #1a365d;
-            margin-bottom: 20px;
+        
+        .balance-display {
+            margin-top: 15px;
         }
-
-        /* 빠른 충전 금액 */
-        .quick-amounts {
+        
+        .balance-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .amount-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin: 20px 0;
         }
-
-        .quick-amount-btn {
-            padding: 15px;
-            border: 2px solid #e5e7eb;
+        
+        .amount-btn {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
             background: white;
             border-radius: 8px;
+            font-size: 1.1em;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
+            transition: all 0.3s;
         }
-
-        .quick-amount-btn:hover {
+        
+        .amount-btn:hover {
             border-color: #667eea;
-            background: #f0f9ff;
+            background: #f8f9ff;
         }
-
-        .quick-amount-btn.selected {
+        
+        .amount-btn.active {
             border-color: #667eea;
             background: #667eea;
             color: white;
         }
-
-        .amount-value {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .amount-bonus {
-            font-size: 12px;
-            color: #10b981;
-            margin-top: 5px;
-        }
-
-        /* 직접 입력 */
+        
         .custom-amount {
-            margin-bottom: 20px;
+            margin: 30px 0;
         }
-
-        .custom-amount label {
-            display: block;
-            color: #475569;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
+        
         .custom-amount input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .custom-amount input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* 결제 방법 선택 */
-        .payment-methods {
-            margin-bottom: 20px;
-        }
-
-        .payment-methods h3 {
-            color: #1a365d;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .payment-method {
-            display: flex;
-            align-items: center;
             padding: 15px;
-            border: 2px solid #e5e7eb;
+            font-size: 1.1em;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            margin-top: 10px;
         }
-
-        .payment-method:hover {
-            border-color: #667eea;
-            background: #f8fafc;
+        
+        .selected-amount {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.2em;
         }
-
-        .payment-method.selected {
-            border-color: #667eea;
-            background: #f0f9ff;
+        
+        .bank-info, .depositor-info, .deposit-benefits, .payment-notice {
+            margin: 30px 0;
         }
-
-        .payment-method input[type="radio"] {
-            margin-right: 15px;
-        }
-
-        .payment-method-info {
-            flex: 1;
-        }
-
-        .payment-method-name {
-            font-weight: 600;
-            color: #1a365d;
-            margin-bottom: 5px;
-        }
-
-        .payment-method-desc {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .payment-method-icon {
-            font-size: 24px;
-            color: #667eea;
-            margin-left: auto;
-        }
-
-        /* 무통장 입금 정보 */
-        .bank-info {
-            background: #f8fafc;
+        
+        .bank-account {
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
             margin-top: 15px;
-            display: none;
         }
-
-        .bank-info.show {
-            display: block;
-        }
-
-        .bank-info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .bank-info-item:last-child {
-            border-bottom: none;
-        }
-
-        .bank-info-label {
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .bank-info-value {
-            font-weight: 600;
-            color: #1a365d;
-        }
-
-        .copy-btn {
-            padding: 4px 8px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .copy-btn:hover {
-            background: #5567d8;
-        }
-
-        /* 충전 버튼 */
-        .charge-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .charge-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .charge-btn:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* 충전 내역 */
-        .history-section {
-            margin-top: 40px;
-        }
-
-        .history-header {
+        
+        .bank-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
         }
-
-        .history-header h2 {
-            color: #1a365d;
-        }
-
-        .history-filter {
-            display: flex;
-            gap: 10px;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #e5e7eb;
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            border-color: #667eea;
-        }
-
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .history-table {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .history-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .history-table th {
-            background: #f8fafc;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #475569;
-            font-size: 14px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .history-table td {
-            padding: 15px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .history-table tr:last-child td {
+        
+        .bank-item:last-child {
             border-bottom: none;
         }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+        
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
         }
-
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
+        
+        .deposit-benefits ul {
+            list-style: none;
+            padding: 0;
         }
-
-        .status-pending {
-            background: #fed7aa;
-            color: #9a3412;
-        }
-
-        .status-failed {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .amount-plus {
-            color: #10b981;
-            font-weight: 600;
-        }
-
-        .amount-minus {
-            color: #ef4444;
-            font-weight: 600;
-        }
-
-        /* 안내 메시지 */
-        .info-message {
-            background: #fef3c7;
-            border: 1px solid #fbbf24;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        
+        .deposit-benefits li {
+            padding: 10px 0;
             display: flex;
-            align-items: start;
-            gap: 10px;
+            align-items: flex-start;
         }
-
-        .info-message i {
-            color: #f59e0b;
-            margin-top: 2px;
+        
+        .deposit-benefits i {
+            color: #667eea;
+            margin-right: 10px;
+            margin-top: 3px;
         }
-
-        .info-message-text {
+        
+        .deposit-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-cancel, .btn-confirm {
             flex: 1;
-            font-size: 14px;
-            color: #92400e;
-            line-height: 1.5;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-confirm {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .deposit-container {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+    <!-- 네비게이션 -->
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
-                <div class="logo-icon">MG</div>
-                <h2><a href="index.html">MarketGrow</a></h2>
+                <a href="index.html"><h2>MarketGrow</h2></a>
             </div>
             <ul class="nav-menu">
+                <li><a href="services.html">서비스목록</a></li>
                 <li><a href="dashboard.html">대시보드</a></li>
-                <li><a href="deposit.html" class="active">예치금 충전</a></li>
-                <li><a href="order.html">주문하기</a></li>
-                <li><a href="payment-history.html">이용내역</a></li>
+                <li><a href="payment-history.html">결제내역</a></li>
             </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </nav>
 
-    <div class="deposit-container">
-        <div class="deposit-header">
-            <h1>예치금 충전</h1>
-            <p>예치금을 충전하고 편리하게 서비스를 이용하세요</p>
-        </div>
-
-        <div class="deposit-content">
-            <!-- 잔액 정보 -->
-            <div class="balance-card">
-                <div class="balance-label">현재 예치금 잔액</div>
-                <div class="balance-amount" id="currentBalance">₩0</div>
-                <div class="balance-info">
-                    <div class="balance-info-item">
-                        <div class="balance-info-label">오늘 사용</div>
-                        <div class="balance-info-value" id="todayUsed">₩0</div>
-                    </div>
-                    <div class="balance-info-item">
-                        <div class="balance-info-label">이번달 충전</div>
-                        <div class="balance-info-value" id="monthCharged">₩0</div>
-                    </div>
-                    <div class="balance-info-item">
-                        <div class="balance-info-label">보유 포인트</div>
-                        <div class="balance-info-value" id="points">0P</div>
+    <!-- 예치금 충전 섹션 -->
+    <section class="deposit-section">
+        <div class="container">
+            <div class="deposit-container">
+                <h1><i class="fas fa-wallet"></i> 예치금 충전</h1>
+                
+                <!-- 현재 예치금 -->
+                <div class="current-balance">
+                    <h3>현재 예치금</h3>
+                    <div class="balance-display">
+                        <span class="balance-amount" id="currentBalance">0원</span>
+                        <small>사용 가능한 예치금</small>
                     </div>
                 </div>
-            </div>
 
-            <!-- 충전 폼 -->
-            <div class="charge-card">
-                <h2>충전하기</h2>
-
-                <!-- 빠른 충전 금액 -->
-                <div class="quick-amounts">
-                    <button class="quick-amount-btn" data-amount="10000">
-                        <div class="amount-value">₩10,000</div>
-                    </button>
-                    <button class="quick-amount-btn" data-amount="30000">
-                        <div class="amount-value">₩30,000</div>
-                    </button>
-                    <button class="quick-amount-btn" data-amount="50000">
-                        <div class="amount-value">₩50,000</div>
-                        <div class="amount-bonus">+5% 보너스</div>
-                    </button>
-                    <button class="quick-amount-btn" data-amount="100000">
-                        <div class="amount-value">₩100,000</div>
-                        <div class="amount-bonus">+10% 보너스</div>
-                    </button>
-                    <button class="quick-amount-btn" data-amount="300000">
-                        <div class="amount-value">₩300,000</div>
-                        <div class="amount-bonus">+15% 보너스</div>
-                    </button>
-                    <button class="quick-amount-btn" data-amount="500000">
-                        <div class="amount-value">₩500,000</div>
-                        <div class="amount-bonus">+20% 보너스</div>
-                    </button>
-                </div>
-
-                <!-- 직접 입력 -->
-                <div class="custom-amount">
-                    <label for="customAmount">직접 입력 (최소 10,000원)</label>
-                    <input type="number" id="customAmount" min="10000" step="1000" placeholder="충전할 금액을 입력하세요">
-                </div>
-
-                <!-- 결제 방법 -->
-                <div class="payment-methods">
-                    <h3>결제 방법</h3>
-                    
-                    <label class="payment-method selected">
-                        <input type="radio" name="paymentMethod" value="bank" checked style="display: none;">
-                        <div class="payment-method-info">
-                            <div class="payment-method-name">무통장 입금</div>
-                            <div class="payment-method-desc">계좌로 직접 입금 (입금 확인 후 자동 충전)</div>
-                        </div>
-                        <i class="fas fa-university payment-method-icon"></i>
-                    </label>
-                </div>
-
-                <!-- 무통장 입금 정보 -->
-                <div class="bank-info show" id="bankInfo">
-                    <div class="info-message">
-                        <i class="fas fa-info-circle"></i>
-                        <div class="info-message-text">
-                            아래 계좌로 입금 후 자동으로 충전됩니다.<br>
-                            입금자명은 회원가입시 등록한 이름과 동일해야 합니다.
-                        </div>
+                <!-- 충전 금액 선택 -->
+                <div class="deposit-amount">
+                    <h3>충전 금액 선택</h3>
+                    <div class="amount-options">
+                        <button type="button" class="amount-btn" onclick="selectAmount(10000)">
+                            10,000원
+                        </button>
+                        <button type="button" class="amount-btn" onclick="selectAmount(30000)">
+                            30,000원
+                        </button>
+                        <button type="button" class="amount-btn" onclick="selectAmount(50000)">
+                            50,000원
+                        </button>
+                        <button type="button" class="amount-btn" onclick="selectAmount(100000)">
+                            100,000원
+                        </button>
+                        <button type="button" class="amount-btn" onclick="selectAmount(300000)">
+                            300,000원
+                        </button>
+                        <button type="button" class="amount-btn" onclick="selectAmount(500000)">
+                            500,000원
+                        </button>
                     </div>
                     
-                    <div class="bank-info-item">
-                        <span class="bank-info-label">입금 은행</span>
-                        <span class="bank-info-value">
-                            국민은행
-                            <button class="copy-btn" onclick="copyText('국민은행')">복사</button>
-                        </span>
+                    <div class="custom-amount">
+                        <label>직접 입력</label>
+                        <input type="number" id="customAmount" placeholder="충전할 금액을 입력하세요" min="10000" step="10000">
+                        <small>최소 충전 금액: 10,000원</small>
                     </div>
-                    <div class="bank-info-item">
-                        <span class="bank-info-label">계좌번호</span>
-                        <span class="bank-info-value">
-                            123-456-789012
-                            <button class="copy-btn" onclick="copyText('123456789012')">복사</button>
-                        </span>
-                    </div>
-                    <div class="bank-info-item">
-                        <span class="bank-info-label">예금주</span>
-                        <span class="bank-info-value">
-                            SNS그로우(박시현)
-                            <button class="copy-btn" onclick="copyText('SNS그로우')">복사</button>
-                        </span>
-                    </div>
-                    <div class="bank-info-item">
-                        <span class="bank-info-label">입금액</span>
-                        <span class="bank-info-value" id="depositAmount">₩0</span>
+                    
+                    <div class="selected-amount">
+                        <span>충전 금액</span>
+                        <strong id="selectedAmount">0원</strong>
                     </div>
                 </div>
 
-                <button class="charge-btn" id="chargeBtn" onclick="processCharge()">
-                    충전하기
-                </button>
-            </div>
-        </div>
+                <!-- 무통장입금 정보 -->
+                <div class="bank-info">
+                    <h3>입금 계좌 정보</h3>
+                    <div class="bank-account">
+                        <div class="bank-item">
+                            <label>은행명</label>
+                            <div class="value">
+                                <i class="fas fa-university"></i>
+                                <strong>국민은행</strong>
+                            </div>
+                        </div>
+                        <div class="bank-item">
+                            <label>계좌번호</label>
+                            <div class="value">
+                                <strong>123456-78-901234</strong>
+                                <button type="button" onclick="copyAccount()" class="copy-btn">
+                                    <i class="fas fa-copy"></i> 복사
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bank-item">
+                            <label>예금주</label>
+                            <div class="value">
+                                <strong>마켓그로우</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- 충전 내역 -->
-        <div class="history-section">
-            <div class="history-header">
-                <h2>충전/사용 내역</h2>
-                <div class="history-filter">
-                    <button class="filter-btn active" onclick="filterHistory('all')">전체</button>
-                    <button class="filter-btn" onclick="filterHistory('charge')">충전</button>
-                    <button class="filter-btn" onclick="filterHistory('use')">사용</button>
+                <!-- 입금자 정보 -->
+                <div class="depositor-info">
+                    <h3>입금자 정보</h3>
+                    <form id="depositForm">
+                        <div class="form-group">
+                            <label for="depositorName">입금자명 *</label>
+                            <input type="text" id="depositorName" name="depositorName" required placeholder="실제 입금하실 분의 성함">
+                            <small>무통장입금 시 입력하신 입금자명과 동일해야 합니다</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="depositorPhone">연락처 *</label>
+                            <input type="tel" id="depositorPhone" name="depositorPhone" required placeholder="010-0000-0000">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 예치금 혜택 안내 -->
+                <div class="deposit-benefits">
+                    <h3>예치금 충전 혜택</h3>
+                    <ul>
+                        <li><i class="fas fa-gift"></i> <strong>충전 보너스</strong>
+                            <ul style="margin-left: 25px; margin-top: 5px; list-style: disc;">
+                                <li>10만원 이상: +3% 보너스</li>
+                                <li>30만원 이상: +5% 보너스</li>
+                                <li>50만원 이상: +10% 보너스</li>
+                            </ul>
+                        </li>
+                        <li><i class="fas fa-bolt"></i> 빠른 주문 처리 - 예치금 결제는 즉시 처리됩니다</li>
+                        <li><i class="fas fa-shield-alt"></i> 안전한 보관 - 예치금은 안전하게 보관됩니다</li>
+                        <li><i class="fas fa-undo"></i> 언제든 환불 가능 - 사용하지 않은 예치금은 환불 가능</li>
+                    </ul>
+                </div>
+
+                <!-- 안내사항 -->
+                <div class="payment-notice">
+                    <h3>충전 안내</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> 입금 후 1~2시간 내에 자동으로 충전됩니다</li>
+                        <li><i class="fas fa-check"></i> 22시 이후 입금은 다음날 오전에 처리됩니다</li>
+                        <li><i class="fas fa-check"></i> 입금자명이 다를 경우 고객센터로 연락 주세요</li>
+                        <li><i class="fas fa-check"></i> 충전된 예치금은 모든 서비스에 사용 가능합니다</li>
+                    </ul>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="deposit-buttons">
+                    <button type="button" class="btn-cancel" onclick="window.history.back()">
+                        <i class="fas fa-arrow-left"></i> 이전으로
+                    </button>
+                    <button type="button" class="btn-confirm" onclick="confirmDeposit()">
+                        <i class="fas fa-check"></i> 충전 신청
+                    </button>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div class="history-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>날짜</th>
-                            <th>구분</th>
-                            <th>금액</th>
-                            <th>결제방법</th>
-                            <th>상태</th>
-                            <th>잔액</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #94a3b8;">
-                                충전 내역이 없습니다
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+                <div class="footer-links">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li>전화: 010-5772-8658</li>
+                        <li>이메일: marketgrow.kr@gmail.com</li>
+                        <li>카카오톡: @marketgrow</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
             </div>
         </div>
-    </div>
+    </footer>
 
+    <script src="js/config.js"></script>
     <script>
-        // 현재 선택된 금액
-        let selectedAmount = 0;
+        let selectedAmountValue = 0;
 
-        // 페이지 로드시 초기화
+        // 페이지 로드 시 현재 예치금 표시
         document.addEventListener('DOMContentLoaded', function() {
-            loadUserBalance();
-            loadTransactionHistory();
-            setupEventListeners();
+            // 현재 예치금 조회 (API 호출)
+            fetchCurrentBalance();
             
-            // 무통장 입금이 기본 선택
-            document.querySelector('input[value="bank"]').checked = true;
-            document.getElementById('bankInfo').classList.add('show');
+            // 사용자 정보 자동 입력
+            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            if (userInfo.phone) {
+                document.getElementById('depositorPhone').value = userInfo.phone;
+            }
+            if (userInfo.name) {
+                document.getElementById('depositorName').value = userInfo.name;
+            }
+
+            // 직접 입력 필드 이벤트
+            document.getElementById('customAmount').addEventListener('input', function(e) {
+                const amount = parseInt(e.target.value) || 0;
+                if (amount >= 10000) {
+                    selectAmount(amount);
+                }
+            });
         });
 
-        // 사용자 잔액 로드
-        function loadUserBalance() {
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            const balance = userInfo.balance || 0;
-            const todayUsed = userInfo.todayUsed || 0;
-            const monthCharged = userInfo.monthCharged || 0;
-            const points = userInfo.points || 0;
-
-            document.getElementById('currentBalance').textContent = '₩' + balance.toLocaleString();
-            document.getElementById('todayUsed').textContent = '₩' + todayUsed.toLocaleString();
-            document.getElementById('monthCharged').textContent = '₩' + monthCharged.toLocaleString();
-            document.getElementById('points').textContent = points.toLocaleString() + 'P';
-        }
-
-        // 이벤트 리스너 설정
-        function setupEventListeners() {
-            // 빠른 충전 금액 버튼
-            document.querySelectorAll('.quick-amount-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 모든 버튼 선택 해제
-                    document.querySelectorAll('.quick-amount-btn').forEach(b => {
-                        b.classList.remove('selected');
-                    });
-                    
-                    // 현재 버튼 선택
-                    this.classList.add('selected');
-                    selectedAmount = parseInt(this.dataset.amount);
-                    
-                    // 직접 입력 필드 초기화
-                    document.getElementById('customAmount').value = '';
-                    
-                    // 무통장 입금액 업데이트
-                    updateDepositAmount(selectedAmount);
-                });
-            });
-
-            // 직접 입력 필드
-            document.getElementById('customAmount').addEventListener('input', function() {
-                // 빠른 충전 버튼 선택 해제
-                document.querySelectorAll('.quick-amount-btn').forEach(btn => {
-                    btn.classList.remove('selected');
-                });
+        // 현재 예치금 조회
+        async function fetchCurrentBalance() {
+            try {
+                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
+                const token = localStorage.getItem('authToken');
                 
-                selectedAmount = parseInt(this.value) || 0;
-                updateDepositAmount(selectedAmount);
-            });
+                const response = await fetch(`${API_URL}/users/balance`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
 
-            // 결제 방법 선택 이벤트 제거 (무통장 입금만 사용)
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('currentBalance').textContent = 
+                        (data.balance || 0).toLocaleString() + '원';
+                }
+            } catch (error) {
+                console.error('Balance fetch error:', error);
+                document.getElementById('currentBalance').textContent = '0원';
+            }
         }
 
-        // 입금액 업데이트
-        function updateDepositAmount(amount) {
-            let totalAmount = amount;
+        // 금액 선택
+        function selectAmount(amount) {
+            selectedAmountValue = amount;
+            
+            // 모든 버튼 비활성화
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 버튼 활성화
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                if (btn.textContent.includes(amount.toLocaleString())) {
+                    btn.classList.add('active');
+                }
+            });
             
             // 보너스 계산
+            let bonus = 0;
+            let bonusText = '';
             if (amount >= 500000) {
-                totalAmount = amount * 1.2; // 20% 보너스
+                bonus = amount * 0.1;
+                bonusText = ' (+10% 보너스)';
             } else if (amount >= 300000) {
-                totalAmount = amount * 1.15; // 15% 보너스
+                bonus = amount * 0.05;
+                bonusText = ' (+5% 보너스)';
             } else if (amount >= 100000) {
-                totalAmount = amount * 1.1; // 10% 보너스
-            } else if (amount >= 50000) {
-                totalAmount = amount * 1.05; // 5% 보너스
+                bonus = amount * 0.03;
+                bonusText = ' (+3% 보너스)';
             }
             
-            document.getElementById('depositAmount').textContent = '₩' + amount.toLocaleString();
+            const totalAmount = amount + bonus;
             
-            // 충전 버튼 활성화
-            const chargeBtn = document.getElementById('chargeBtn');
-            if (amount >= 10000) {
-                chargeBtn.disabled = false;
-                chargeBtn.textContent = `₩${totalAmount.toLocaleString()} 충전하기`;
-            } else {
-                chargeBtn.disabled = true;
-                chargeBtn.textContent = '충전하기';
-            }
+            // 선택된 금액 표시
+            document.getElementById('selectedAmount').innerHTML = 
+                totalAmount.toLocaleString() + '원' + 
+                (bonusText ? `<small style="color: #28a745;">${bonusText}</small>` : '');
+            
+            // 직접 입력 필드에도 반영
+            document.getElementById('customAmount').value = amount;
         }
 
-        // 충전 처리
-        async function processCharge() {
-            if (selectedAmount < 10000) {
-                alert('최소 충전 금액은 10,000원입니다.');
+        // 계좌번호 복사
+        function copyAccount() {
+            const accountNumber = '123456-78-901234';
+            navigator.clipboard.writeText(accountNumber).then(() => {
+                alert('계좌번호가 복사되었습니다!');
+            }).catch(() => {
+                alert('계좌번호: ' + accountNumber);
+            });
+        }
+
+        // 충전 신청
+        async function confirmDeposit() {
+            if (selectedAmountValue < 10000) {
+                alert('충전 금액을 선택해주세요. (최소 10,000원)');
                 return;
             }
 
-            // 무통장 입금만 처리
-            processBankTransfer();
-        }
+            const depositorName = document.getElementById('depositorName').value;
+            const depositorPhone = document.getElementById('depositorPhone').value;
 
-        // 무통장 입금 처리
-        async function processBankTransfer() {
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            
-            // 입금 요청 생성
-            const depositRequest = {
-                userId: userInfo.id,
-                amount: selectedAmount,
-                method: 'bank',
+            if (!depositorName || !depositorPhone) {
+                alert('입금자 정보를 모두 입력해주세요.');
+                return;
+            }
+
+            // 보너스 계산
+            let bonus = 0;
+            if (selectedAmountValue >= 500000) {
+                bonus = selectedAmountValue * 0.1;
+            } else if (selectedAmountValue >= 300000) {
+                bonus = selectedAmountValue * 0.05;
+            } else if (selectedAmountValue >= 100000) {
+                bonus = selectedAmountValue * 0.03;
+            }
+
+            const totalAmount = selectedAmountValue + bonus;
+
+            // 충전 신청 데이터
+            const depositData = {
+                amount: selectedAmountValue,
+                bonus: bonus,
+                totalAmount: totalAmount,
+                depositor: {
+                    name: depositorName,
+                    phone: depositorPhone
+                },
+                method: 'bank_transfer',
                 status: 'pending',
-                bankName: '국민은행',
-                accountNumber: '123-456-789012',
-                depositorName: userInfo.name,
-                requestedAt: new Date().toISOString()
+                createdAt: new Date().toISOString()
             };
 
             try {
-                // API 호출 (실제로는 백엔드 API 호출)
-                // const response = await fetch('/api/deposits/bank', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify(depositRequest)
-                // });
-
-                // 임시로 로컬 스토리지에 저장
-                const deposits = JSON.parse(localStorage.getItem('deposits') || '[]');
-                deposits.push(depositRequest);
-                localStorage.setItem('deposits', JSON.stringify(deposits));
-
-                alert(`무통장 입금 신청이 완료되었습니다.\n\n` +
-                      `입금 정보:\n` +
-                      `은행: 국민은행\n` +
-                      `계좌: 123-456-789012\n` +
-                      `예금주: SNS그로우(박시현)\n` +
-                      `입금액: ₩${selectedAmount.toLocaleString()}\n\n` +
-                      `입금 확인 후 자동으로 충전됩니다.`);
-
-                // 내역에 추가
-                addToHistory('charge', selectedAmount, 'bank', 'pending');
+                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
+                const token = localStorage.getItem('authToken');
                 
-                // 폼 리셋
-                resetForm();
+                const response = await fetch(`${API_URL}/deposits/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(depositData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    alert(`예치금 충전 신청이 완료되었습니다!\n\n충전 금액: ${selectedAmountValue.toLocaleString()}원\n보너스: ${bonus.toLocaleString()}원\n총 충전액: ${totalAmount.toLocaleString()}원\n\n입금 후 1~2시간 내에 자동 충전됩니다.`);
+                    
+                    // 대시보드로 이동
+                    window.location.href = '/dashboard.html';
+                } else {
+                    throw new Error('충전 신청 실패');
+                }
             } catch (error) {
-                alert('충전 신청 중 오류가 발생했습니다.');
-                console.error(error);
+                console.error('Deposit error:', error);
+                
+                // 오프라인에서도 동작
+                localStorage.setItem('pendingDeposit', JSON.stringify(depositData));
+                
+                alert(`예치금 충전 신청이 완료되었습니다!\n\n충전 금액: ${selectedAmountValue.toLocaleString()}원\n보너스: ${bonus.toLocaleString()}원\n총 충전액: ${totalAmount.toLocaleString()}원\n\n입금 확인 후 충전됩니다.`);
+                
+                window.location.href = '/dashboard.html';
             }
-        }
-
-
-        // 텍스트 복사
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('복사되었습니다: ' + text);
-            });
-        }
-
-        // 거래 내역 로드
-        function loadTransactionHistory() {
-            const history = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const tbody = document.getElementById('historyTableBody');
-            
-            if (history.length === 0) {
-                return;
-            }
-
-            tbody.innerHTML = history.map(item => `
-                <tr>
-                    <td>${new Date(item.date).toLocaleString()}</td>
-                    <td>${item.type === 'charge' ? '충전' : '사용'}</td>
-                    <td class="${item.type === 'charge' ? 'amount-plus' : 'amount-minus'}">
-                        ${item.type === 'charge' ? '+' : '-'}₩${item.amount.toLocaleString()}
-                    </td>
-                    <td>${getPaymentMethodName(item.method)}</td>
-                    <td>
-                        <span class="status-badge status-${item.status}">
-                            ${getStatusName(item.status)}
-                        </span>
-                    </td>
-                    <td>₩${item.balance.toLocaleString()}</td>
-                </tr>
-            `).join('');
-        }
-
-        // 결제 방법 이름
-        function getPaymentMethodName(method) {
-            const methods = {
-                'bank': '무통장입금',
-                'card': '카드',
-                'transfer': '계좌이체',
-                'deposit': '예치금'
-            };
-            return methods[method] || method;
-        }
-
-        // 상태 이름
-        function getStatusName(status) {
-            const statuses = {
-                'completed': '완료',
-                'pending': '대기중',
-                'failed': '실패'
-            };
-            return statuses[status] || status;
-        }
-
-        // 내역에 추가
-        function addToHistory(type, amount, method, status) {
-            const history = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            const currentBalance = userInfo.balance || 0;
-            
-            history.unshift({
-                date: new Date().toISOString(),
-                type: type,
-                amount: amount,
-                method: method,
-                status: status,
-                balance: currentBalance
-            });
-            
-            localStorage.setItem('transactionHistory', JSON.stringify(history));
-            loadTransactionHistory();
-        }
-
-        // 내역 필터
-        function filterHistory(type) {
-            // 필터 버튼 스타일 변경
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            // 실제 필터링 로직 구현
-            // TODO: 백엔드 연동시 구현
-        }
-
-        // 폼 리셋
-        function resetForm() {
-            document.querySelectorAll('.quick-amount-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            document.getElementById('customAmount').value = '';
-            selectedAmount = 0;
-            updateDepositAmount(0);
         }
     </script>
     <script src="js/mobile-fix.js"></script>

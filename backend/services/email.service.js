@@ -70,6 +70,7 @@ class EmailService {
         try {
             // 인증 코드 생성
             const code = this.generateVerificationCode();
+            console.log(`📧 Generated verification code for ${email}: ${code}`); // 디버깅용
             this.saveVerificationCode(email, code);
 
             const mailOptions = {
@@ -143,6 +144,7 @@ class EmailService {
     async sendVerificationCode(email, username) {
         try {
             const code = this.generateVerificationCode();
+            console.log(`📧 Generated verification code for ${email}: ${code}`); // 디버깅용
             this.saveVerificationCode(email, code);
 
             const mailOptions = {

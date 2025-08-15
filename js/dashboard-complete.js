@@ -233,6 +233,13 @@ function updateMembershipInfo(profile) {
         userMembershipLevel.textContent = profile.membershipLevel || 'Bronze';
     }
 
+    // 예치금 잔액 표시
+    const userDepositBalance = document.getElementById('userDepositBalance');
+    if (userDepositBalance) {
+        const balance = profile.depositBalance || profile.data?.depositBalance || 0;
+        userDepositBalance.textContent = `₩${balance.toLocaleString()}`;
+    }
+
     // 등급별 혜택 표시
     displayMembershipBenefits(profile.membershipLevel);
 }
