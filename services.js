@@ -285,7 +285,7 @@ class ServiceManager {
             serviceName: this.services[this.currentService].name,
             targetUrl: document.getElementById('targetUrl').value,
             quantity: parseInt(document.getElementById('quantity').value),
-            paymentMethod: document.getElementById('paymentMethod').value,
+            paymentMethod: 'card', // 기본값으로 카드 결제 설정
             totalPrice: parseInt(document.getElementById('totalPrice').textContent.replace(/[₩,]/g, '')),
             status: 'pending',
             createdAt: new Date().toISOString(),
