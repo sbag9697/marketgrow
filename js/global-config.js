@@ -7,7 +7,7 @@
                          window.location.hostname === '127.0.0.1' ||
                          window.location.hostname === ''
         ? 'http://localhost:5001/api'
-        : 'https://marketgrow-backend.up.railway.app/api'; // Railway 백엔드 서버 사용
+        : '/api'; // Netlify 프록시 사용
     
     // 전역 API 설정
     window.API_BASE = API_BASE_URL;
