@@ -87,23 +87,14 @@ try {
         });
     }
 
-    // 4. config.js 생성 (프로덕션 설정)
-    console.log('⚙️ 프로덕션 설정 파일 생성 중...');
-    const configContent = `// Production Configuration
-window.API_CONFIG = {
-    BASE_URL: '/api',  // Netlify proxy 사용
-    IS_PRODUCTION: true,
-    USE_MOCK: false
-};
-
-// Mock 모드 강제 비활성화
-localStorage.removeItem('useMockServer');
-localStorage.removeItem('mockMode');
-localStorage.removeItem('testMode');
-
-console.log('✅ Production mode - Mock disabled');
-`;
-    fs.writeFileSync(path.join(jsBuildDir, 'config.js'), configContent);
+    // 4. config.js는 복사만 하고 덮어쓰지 않음 (이미 올바른 설정이 있음)
+    console.log('⚙️ config.js 파일 유지...');
+    const configSrc = path.join(jsDir, 'config.js');
+    const configDest = path.join(jsBuildDir, 'config.js');
+    if (fs.existsSync(configSrc)) {
+        fs.copyFileSync(configSrc, configDest);
+        console.log('  ✓ config.js (원본 유지)')
+    }
 
     // 5. CSS 파일 복사
     console.log('🎨 CSS 파일 복사 중...');
