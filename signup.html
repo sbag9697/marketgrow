@@ -96,9 +96,6 @@
                         <p>MarketGrow와 함께 SNS 마케팅을 시작하세요</p>
                     </div>
 
-                    <div class="test-mode-notice">
-                        <i class="fas fa-info-circle"></i> 테스트 모드: 인증 코드가 화면에 표시됩니다
-                    </div>
 
                     <form class="auth-form" id="signupForm">
                         <!-- 이메일 -->
@@ -298,12 +295,12 @@
             // 테스트 모드 - 임시 코드 생성
             tempEmailCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // 인증 코드 표시
-            document.getElementById('emailCodeDisplay').textContent = `인증 코드: ${tempEmailCode}`;
-            document.getElementById('emailCodeDisplay').style.display = 'block';
+            // 인증 코드는 이메일로만 발송
+            // document.getElementById('emailCodeDisplay').textContent = `인증 코드: ${tempEmailCode}`;
+            // document.getElementById('emailCodeDisplay').style.display = 'block';
             document.getElementById('emailVerifyGroup').style.display = 'block';
             
-            showStatus('emailStatus', '인증번호가 발송되었습니다. (테스트 모드)', 'success');
+            showStatus('emailStatus', '인증번호가 발송되었습니다.', 'success');
             
             // 타이머 시작
             if (emailTimer) clearInterval(emailTimer);
@@ -388,7 +385,7 @@
                 usernameChecked = true;
                 document.getElementById('username').readOnly = true;
                 this.style.display = 'none';
-                showStatus('usernameStatus', '✅ 사용 가능한 아이디입니다 (테스트 모드)', 'success');
+                showStatus('usernameStatus', '✅ 사용 가능한 아이디입니다', 'success');
             } finally {
                 this.disabled = false;
                 this.textContent = '중복확인';
