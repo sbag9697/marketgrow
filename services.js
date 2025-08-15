@@ -235,7 +235,7 @@ class ServiceManager {
         }, 100);
     }
 
-    // 주문 모달 열기 (새로운 주문 페이지로 리다이렉트)
+    // 주문 모달 열기
     openOrderModal(serviceType) {
         // 로그인 확인
         if (!authManager.isAuthenticated()) {
@@ -245,12 +245,29 @@ class ServiceManager {
         }
 
         const service = this.services[serviceType];
-        if (service) {
-            // 새로운 주문 페이지로 리다이렉트 (플랫폼별 필터 적용)
-            window.location.href = `order.html?platform=${service.category}`;
-        } else {
-            // 일반 주문 페이지로 이동
-            window.location.href = 'order.html';
+        if (!service) {
+            alert('선택한 서비스를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 현재 서비스 설정
+        this.currentService = serviceType;
+        
+        // 모달 표시
+        const modal = document.getElementById('orderModal');
+        if (modal) {
+            modal.style.display = 'block';
+            
+            // 서비스 정보 설정
+            document.getElementById('serviceType').value = service.name;
+            
+            // 예치금 잔액 표시
+            const currentUser = authManager.getCurrentUser();
+            const userBalance = parseInt(localStorage.getItem(`balance_${currentUser.id}`) || '0');
+            document.getElementById('currentBalance').textContent = `₩${userBalance.toLocaleString()}`;
+            
+            // 초기 가격 업데이트
+            this.updatePrice();
         }
     }
 
@@ -274,30 +291,122 @@ class ServiceManager {
         const finalPrice = Math.max(totalPrice, 100);
 
         document.getElementById('totalPrice').textContent = `₩${finalPrice.toLocaleString()}`;
+        
+        // 예치금 잔액 업데이트
+        const currentUser = authManager.getCurrentUser();
+        if (currentUser) {
+            const userBalance = parseInt(localStorage.getItem(`balance_${currentUser.id}`) || '0');
+            const afterBalance = userBalance - finalPrice;
+            
+            // 현재 잔액 표시
+            const currentBalanceElement = document.getElementById('currentBalance');
+            if (currentBalanceElement) {
+                currentBalanceElement.textContent = `₩${userBalance.toLocaleString()}`;
+            }
+            
+            // 결제 후 잔액 표시
+            const afterBalanceElement = document.getElementById('afterBalance');
+            if (afterBalanceElement) {
+                afterBalanceElement.textContent = `₩${afterBalance.toLocaleString()}`;
+                // 잔액 부족 시 색상 변경
+                if (afterBalance < 0) {
+                    afterBalanceElement.style.color = '#f44336';
+                } else {
+                    afterBalanceElement.style.color = '#333';
+                }
+            }
+        }
     }
 
     // 주문 처리
     processOrder() {
+        const currentUser = authManager.getCurrentUser();
+        const totalPrice = parseInt(document.getElementById('totalPrice').textContent.replace(/[₩,]/g, ''));
+        
+        // 예치금 잔액 확인 (localStorage에서 가져오기)
+        const userBalance = parseInt(localStorage.getItem(`balance_${currentUser.id}`) || '0');
+        
+        if (userBalance < totalPrice) {
+            // 잔액 부족
+            const shortage = totalPrice - userBalance;
+            if (confirm(`예치금이 부족합니다.\n\n현재 잔액: ₩${userBalance.toLocaleString()}\n필요 금액: ₩${totalPrice.toLocaleString()}\n부족 금액: ₩${shortage.toLocaleString()}\n\n충전 페이지로 이동하시겠습니까?`)) {
+                window.location.href = 'deposit.html';
+            }
+            return;
+        }
+        
         const orderData = {
             id: `ORDER_${Date.now()}`,
-            userId: authManager.getCurrentUser().id,
+            userId: currentUser.id,
             serviceType: this.currentService,
             serviceName: this.services[this.currentService].name,
             targetUrl: document.getElementById('targetUrl').value,
             quantity: parseInt(document.getElementById('quantity').value),
-            paymentMethod: 'card', // 기본값으로 카드 결제 설정
-            totalPrice: parseInt(document.getElementById('totalPrice').textContent.replace(/[₩,]/g, '')),
+            paymentMethod: 'deposit', // 예치금 사용
+            totalPrice: totalPrice,
             status: 'pending',
             createdAt: new Date().toISOString(),
             completedAt: null,
             progress: 0
         };
 
-        // 실제 토스페이먼츠 결제로 이동
-        this.redirectToPayment(orderData);
+        // 예치금으로 즉시 결제 처리
+        this.processDepositPayment(orderData);
     }
 
-    // 토스페이먼츠 결제 페이지로 리다이렉트
+    // 예치금으로 결제 처리
+    processDepositPayment(orderData) {
+        const currentUser = authManager.getCurrentUser();
+        const userBalance = parseInt(localStorage.getItem(`balance_${currentUser.id}`) || '0');
+        
+        // 예치금 차감
+        const newBalance = userBalance - orderData.totalPrice;
+        localStorage.setItem(`balance_${currentUser.id}`, newBalance.toString());
+        
+        // 주문 완료 처리
+        orderData.status = 'processing';
+        orderData.paidAt = new Date().toISOString();
+        orderData.paymentId = `DEPOSIT_${Date.now()}`;
+        
+        // 주문 저장
+        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orders.push(orderData);
+        localStorage.setItem('orders', JSON.stringify(orders));
+        
+        // 사용자별 주문 저장
+        const userOrders = JSON.parse(localStorage.getItem(`userOrders_${currentUser.id}`) || '[]');
+        userOrders.push(orderData);
+        localStorage.setItem(`userOrders_${currentUser.id}`, JSON.stringify(userOrders));
+        
+        // 거래 내역 저장
+        const transaction = {
+            id: `TXN_${Date.now()}`,
+            userId: currentUser.id,
+            type: 'purchase',
+            amount: -orderData.totalPrice,
+            balance: newBalance,
+            description: `${orderData.serviceName} ${orderData.quantity}개 구매`,
+            orderId: orderData.id,
+            createdAt: new Date().toISOString()
+        };
+        
+        const transactions = JSON.parse(localStorage.getItem(`transactions_${currentUser.id}`) || '[]');
+        transactions.push(transaction);
+        localStorage.setItem(`transactions_${currentUser.id}`, JSON.stringify(transactions));
+        
+        // 성공 메시지
+        alert(`주문이 완료되었습니다!\n\n주문번호: ${orderData.id}\n서비스: ${orderData.serviceName}\n결제금액: ₩${orderData.totalPrice.toLocaleString()}\n남은 예치금: ₩${newBalance.toLocaleString()}`);
+        
+        // 모달 닫기
+        this.closeOrderModal();
+        
+        // 대시보드로 이동
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    }
+    
+    // 토스페이먼츠 결제 페이지로 리다이렉트 (예치금 충전용)
     redirectToPayment(orderData) {
         try {
             // 세션 스토리지에 주문 정보 저장

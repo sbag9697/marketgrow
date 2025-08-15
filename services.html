@@ -619,7 +619,22 @@
                     <label>총 금액</label>
                     <div class="total-price" id="totalPrice">₩0</div>
                 </div>
-                <button type="submit" class="submit-btn">주문하기</button>
+                <div class="form-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="color: #666;">현재 예치금 잔액</span>
+                        <span id="currentBalance" style="font-size: 18px; font-weight: bold; color: #4CAF50;">₩0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #666;">결제 후 잔액</span>
+                        <span id="afterBalance" style="font-size: 16px; color: #333;">₩0</span>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">예치금으로 결제하기</button>
+                <div style="text-align: center; margin-top: 10px;">
+                    <a href="deposit.html" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                        <i class="fas fa-plus-circle"></i> 예치금 충전하기
+                    </a>
+                </div>
             </form>
         </div>
     </div>
