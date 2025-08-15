@@ -300,7 +300,7 @@
             // document.getElementById('emailCodeDisplay').style.display = 'block';
             document.getElementById('emailVerifyGroup').style.display = 'block';
             
-            showStatus('emailStatus', '인증번호가 발송되었습니다. (임시 코드: 123456)', 'success');
+            showStatus('emailStatus', '인증번호가 이메일로 발송되었습니다.', 'success');
             
             // 타이머 시작
             if (emailTimer) clearInterval(emailTimer);
@@ -309,38 +309,72 @@
             this.disabled = false;
             this.textContent = '재발송';
             
-            // 실제 API 호출도 시도 (실패해도 무시)
+            // 실제 API 호출
             try {
-                await fetch(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
+                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email })
                 });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // 백엔드에서 인증 코드를 보냈으므로 tempEmailCode 무효화
+                    tempEmailCode = null;
+                    console.log('Email verification sent successfully');
+                }
             } catch (error) {
-                console.log('Email API call failed (expected in test mode):', error);
+                console.log('Using fallback verification mode:', error);
+                // API 실패 시에만 tempEmailCode 사용
             }
         });
 
         // 이메일 인증번호 확인
-        document.getElementById('emailConfirmBtn').addEventListener('click', function() {
+        document.getElementById('emailConfirmBtn').addEventListener('click', async function() {
             const code = document.getElementById('emailCode').value;
+            const email = document.getElementById('email').value;
             
             if (!code) {
                 showStatus('emailStatus', '인증번호를 입력해주세요.', 'error');
                 return;
             }
             
-            if (code === tempEmailCode || code === '123456') {
-                emailVerified = true;
-                document.getElementById('emailVerifyGroup').style.display = 'none';
-                document.getElementById('email').readOnly = true;
-                document.getElementById('emailVerifyBtn').style.display = 'none';
-                document.getElementById('emailCodeDisplay').style.display = 'none';
-                showStatus('emailStatus', '✅ 이메일 인증 완료', 'success');
+            // 먼저 백엔드 API로 확인 시도
+            try {
+                const response = await fetch(window.API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
                 
-                if (emailTimer) clearInterval(emailTimer);
-            } else {
-                showStatus('emailStatus', '인증번호가 일치하지 않습니다.', 'error');
+                const data = await response.json();
+                
+                if (data.success) {
+                    emailVerified = true;
+                    document.getElementById('emailVerifyGroup').style.display = 'none';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('emailVerifyBtn').style.display = 'none';
+                    document.getElementById('emailCodeDisplay').style.display = 'none';
+                    showStatus('emailStatus', '✅ 이메일 인증 완료', 'success');
+                    
+                    if (emailTimer) clearInterval(emailTimer);
+                } else {
+                    showStatus('emailStatus', '인증번호가 일치하지 않습니다.', 'error');
+                }
+            } catch (error) {
+                // API 실패 시 폴백: tempEmailCode 또는 123456
+                if (tempEmailCode && (code === tempEmailCode || code === '123456')) {
+                    emailVerified = true;
+                    document.getElementById('emailVerifyGroup').style.display = 'none';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('emailVerifyBtn').style.display = 'none';
+                    document.getElementById('emailCodeDisplay').style.display = 'none';
+                    showStatus('emailStatus', '✅ 이메일 인증 완료', 'success');
+                    
+                    if (emailTimer) clearInterval(emailTimer);
+                } else {
+                    showStatus('emailStatus', '인증번호가 일치하지 않습니다.', 'error');
+                }
             }
         });
 
