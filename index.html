@@ -336,7 +336,7 @@
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="faq-answer">
-                        <p>안전하고 편리한 무통장입금을 통해 결제하실 수 있습니다. 주문 후 3일 이내 입금하시면 자동으로 서비스가 시작됩니다.</p>
+                        <p>예치금 충전 시스템을 사용합니다. 무통장입금으로 예치금을 충전하신 후, 충전된 예치금으로 모든 서비스를 즉시 이용하실 수 있습니다. 10만원 이상 충전 시 보너스가 제공됩니다.</p>
                     </div>
                 </div>
             </div>
@@ -420,6 +420,9 @@
     <script src="js/lazy-load.js" defer></script>
     <script src="js/performance-utils.js" defer></script>
     
+    <!-- Global Config -->
+    <script src="js/global-config.js"></script>
+    
     <!-- Core scripts -->
     <script src="js/logger.js"></script>
     <script src="js/config.js"></script>
@@ -429,8 +432,8 @@
     <script>
         // 로그인 상태 확인 및 UI 업데이트
         function checkLoginStatus() {
-            const token = localStorage.getItem('authToken');
-            const userInfo = localStorage.getItem('userInfo');
+            const token = localStorage.getItem(window.STORAGE_KEYS.AUTH_TOKEN);
+            const userInfo = localStorage.getItem(window.STORAGE_KEYS.USER_INFO);
             
             const navMenu = document.querySelector('.nav-menu');
             if (!navMenu) return;
@@ -456,8 +459,8 @@
         // 로그아웃 함수
         function logout() {
             if (confirm('로그아웃 하시겠습니까?')) {
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
+                localStorage.removeItem(window.STORAGE_KEYS.AUTH_TOKEN);
+                localStorage.removeItem(window.STORAGE_KEYS.USER_INFO);
                 window.location.reload();
             }
         }
@@ -476,7 +479,7 @@
                     const password = heroLoginForm.querySelector('input[name="password"]').value;
                     
                     try {
-                        const response = await fetch('/api/auth/login', {
+                        const response = await fetch(window.API_ENDPOINTS.AUTH.LOGIN, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -490,8 +493,8 @@
                         const data = await response.json();
                         
                         if (data.success) {
-                            localStorage.setItem('authToken', data.data.token);
-                            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                            localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, data.data.token);
+                            localStorage.setItem(window.STORAGE_KEYS.USER_INFO, JSON.stringify(data.data.user));
                             alert('로그인 성공!');
                             window.location.href = '/dashboard.html';
                         } else {

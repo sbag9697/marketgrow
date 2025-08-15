@@ -1,5 +1,5 @@
-// API 기본 설정 (config.js에서 가져오기)
-const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : 'http://localhost:5001/api';
+// API 기본 설정 (global-config.js에서 가져오기)
+const API_BASE_URL = window.API_BASE || 'http://localhost:5001/api';
 
 // API 클래스
 class API {

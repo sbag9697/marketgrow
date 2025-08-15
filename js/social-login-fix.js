@@ -1,7 +1,6 @@
 // 소셜 로그인 시스템 - 수정된 버전
-const SOCIAL_API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5001/api'
-    : '/api';  // Netlify 프록시 사용
+// API URL은 global-config.js에서 가져옴
+const SOCIAL_API_URL = window.API_BASE || 'http://localhost:5001/api';
 
 console.log('Social Login API URL:', SOCIAL_API_URL);
 

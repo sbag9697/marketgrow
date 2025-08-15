@@ -212,20 +212,22 @@
                             </div>
                         </div>
 
-                        <!-- 무통장입금 결제 -->
+                        <!-- 예치금 결제 -->
                         <div class="payment-methods">
                             <h3>결제 방법</h3>
-                            <div class="bank-transfer-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
-                                <div>
-                                    <h4 style="margin: 0 0 15px 0; color: white;"><i class="fas fa-university"></i> 무통장입금</h4>
-                                    <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 5px;">
-                                        <p style="margin: 5px 0;"><strong>은행:</strong> 국민은행</p>
-                                        <p style="margin: 5px 0;"><strong>계좌번호:</strong> 123456-78-901234</p>
-                                        <p style="margin: 5px 0;"><strong>예금주:</strong> 마켓그로우</p>
+                            <div class="deposit-payment-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <h4 style="margin: 0; color: white;"><i class="fas fa-wallet"></i> 예치금 결제</h4>
+                                        <p style="margin: 5px 0; opacity: 0.9;">보유 예치금: <span id="availableBalance" style="font-size: 1.2em; font-weight: bold;">0원</span></p>
                                     </div>
-                                    <p style="margin: 15px 0 0 0; font-size: 0.9em; opacity: 0.9;">
-                                        <i class="fas fa-info-circle"></i> 주문 후 3일 이내 입금해주세요
-                                    </p>
+                                    <div id="balanceStatus"></div>
+                                </div>
+                                <div id="insufficientBalance" style="display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                                    <p style="margin: 0 0 10px 0;"><i class="fas fa-exclamation-circle"></i> 예치금이 부족합니다</p>
+                                    <a href="deposit.html" class="btn" style="background: white; color: #667eea; padding: 8px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">
+                                        예치금 충전하기
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -247,7 +249,7 @@
                         </button>
                         <button class="order-btn" id="orderBtn" onclick="submitOrder()">
                             <i class="fas fa-check"></i>
-                            무통장입금 주문하기
+                            예치금으로 결제하기
                         </button>
                     </div>
                 </div>
@@ -288,23 +290,23 @@
 
     <!-- KG이니시스 SDK는 js/kg-inicis.js에서 동적 로드 -->
     
+    <!-- Global Config -->
+    <script src="js/global-config.js"></script>
+    
     <!-- 인라인 스크립트로 모든 JS 로직 통합 -->
     <script>
-    // Configuration
-    const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5001/api' : '/api';
-    
     // API utilities
     const api = {
-        token: localStorage.getItem('authToken'),
+        token: localStorage.getItem(window.STORAGE_KEYS.AUTH_TOKEN),
         
         setToken(token) {
             this.token = token;
-            localStorage.setItem('authToken', token);
+            localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, token);
         },
         
         clearToken() {
             this.token = null;
-            localStorage.removeItem('authToken');
+            localStorage.removeItem(window.STORAGE_KEYS.AUTH_TOKEN);
         },
         
         async request(url, options = {}) {
@@ -318,7 +320,7 @@
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}${url}`, {
+                const response = await fetch(`${window.API_BASE}${url}`, {
                     ...options,
                     headers
                 });
@@ -644,8 +646,47 @@
             return;
         }
         
+        if (step === 3) {
+            // Step 3로 이동할 때 주문 요약 및 예치금 확인
+            updateOrderSummary();
+            updatePaymentStep();
+        }
+        
         currentStep = step;
         updateStepUI();
+    }
+    
+    // 주문 요약 업데이트
+    function updateOrderSummary() {
+        const summaryElement = document.getElementById('orderSummary');
+        if (!summaryElement || !selectedService) return;
+        
+        const quantity = parseInt(document.getElementById('quantity')?.value || '100');
+        const targetUrl = document.getElementById('targetUrl')?.value || '';
+        const totalAmount = calculateOrderAmount();
+        
+        summaryElement.innerHTML = `
+            <div class="summary-item">
+                <label>플랫폼</label>
+                <strong>${getPlatformName(selectedPlatform)}</strong>
+            </div>
+            <div class="summary-item">
+                <label>서비스</label>
+                <strong>${selectedService.name}</strong>
+            </div>
+            <div class="summary-item">
+                <label>대상 URL</label>
+                <strong>${targetUrl || '미입력'}</strong>
+            </div>
+            <div class="summary-item">
+                <label>수량</label>
+                <strong>${quantity.toLocaleString()}개</strong>
+            </div>
+            <div class="summary-item total">
+                <label>총 결제금액</label>
+                <strong id="totalAmount">${totalAmount.toLocaleString()}원</strong>
+            </div>
+        `;
     }
     
     function updateStepUI() {
@@ -720,10 +761,10 @@
             const token = localStorage.getItem('authToken');
             if (!token) {
                 window.location.href = 'login.html';
-                return;
+                return 0;
             }
 
-            const response = await fetch(API_CONFIG.BASE_URL + '/users/profile', {
+            const response = await fetch(window.API_ENDPOINTS.USER.PROFILE, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -731,21 +772,12 @@
 
             if (response.ok) {
                 const data = await response.json();
-                const balance = data.data.depositBalance || 0;
-                document.getElementById('availableBalance').textContent = balance.toLocaleString() + '원';
+                const balance = data.data?.depositBalance || data.depositBalance || 0;
                 
-                // 주문 금액과 비교
-                const orderAmount = parseInt(document.getElementById('totalAmount')?.textContent.replace(/[^0-9]/g, '') || '0');
-                
-                if (balance < orderAmount) {
-                    document.getElementById('insufficientBalance').style.display = 'block';
-                    document.getElementById('orderBtn').disabled = true;
-                    document.getElementById('orderBtn').innerHTML = '<i class="fas fa-exclamation-circle"></i> 예치금 부족';
-                    document.getElementById('orderBtn').style.background = '#94a3b8';
-                } else {
-                    document.getElementById('insufficientBalance').style.display = 'none';
-                    document.getElementById('orderBtn').disabled = false;
-                    document.getElementById('orderBtn').innerHTML = '<i class="fas fa-check-circle"></i> 예치금으로 결제';
+                // 예치금 표시 업데이트
+                const balanceElement = document.getElementById('availableBalance');
+                if (balanceElement) {
+                    balanceElement.textContent = balance.toLocaleString() + '원';
                 }
                 
                 return balance;
@@ -755,9 +787,52 @@
         }
         return 0;
     }
+    
+    // Step 3로 이동할 때 예치금 확인 및 UI 업데이트
+    async function updatePaymentStep() {
+        const balance = await checkDepositBalance();
+        const orderAmount = calculateOrderAmount();
+        
+        if (balance < orderAmount) {
+            document.getElementById('insufficientBalance').style.display = 'block';
+            document.getElementById('orderBtn').disabled = true;
+            document.getElementById('orderBtn').innerHTML = '<i class="fas fa-exclamation-circle"></i> 예치금 부족';
+            document.getElementById('orderBtn').style.background = '#94a3b8';
+        } else {
+            document.getElementById('insufficientBalance').style.display = 'none';
+            document.getElementById('orderBtn').disabled = false;
+            document.getElementById('orderBtn').innerHTML = '<i class="fas fa-check-circle"></i> 예치금으로 결제';
+            document.getElementById('orderBtn').style.background = '';
+        }
+    }
+    
+    // 주문 금액 계산
+    function calculateOrderAmount() {
+        const quantity = parseInt(document.getElementById('quantity')?.value || '100');
+        let unitPrice = 10; // 기본값
+        
+        if (selectedService && selectedService.pricing && selectedService.pricing.length > 0) {
+            const pricing = selectedService.pricing[0];
+            if (pricing.price && pricing.quantity) {
+                unitPrice = pricing.price / pricing.quantity;
+            }
+        }
+        
+        const baseAmount = quantity * unitPrice;
+        const guaranteeOption = document.getElementById('guaranteeOption')?.checked || false;
+        const priorityOption = document.getElementById('priorityOption')?.checked || false;
+        
+        let totalAmount = baseAmount;
+        if (guaranteeOption) totalAmount *= 1.2; // +20%
+        if (priorityOption) totalAmount *= 1.1; // +10%
+        
+        return Math.round(totalAmount);
+    }
 
-    // 페이지 로드 시 예치금 확인
-    checkDepositBalance();
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        // 기존 초기화 함수가 이미 있으므로 제거
+    });
 
     window.submitOrder = async function() {
         const agreeTerms = document.getElementById('agreeTerms').checked;
@@ -766,32 +841,71 @@
             return;
         }
 
+        // 주문 금액 확인
         const orderAmount = parseInt(document.getElementById('totalAmount')?.textContent.replace(/[^0-9]/g, '') || '0');
         
-        // 무통장입금 주문 데이터
+        // 예치금 잔액 확인
+        const balance = await checkDepositBalance();
+        
+        if (balance < orderAmount) {
+            // 예치금 부족
+            alert('예치금이 부족합니다.\n충전 후 다시 시도해주세요.');
+            window.location.href = '/deposit.html';
+            return;
+        }
+        
+        // 예치금 결제 진행
         const orderData = {
-            serviceId: currentOrder.serviceId,
-            quantity: currentOrder.quantity,
-            targetUrl: currentOrder.targetUrl,
-            targetUsername: currentOrder.targetUsername,
-            paymentMethod: 'bank_transfer', // 무통장입금
+            serviceId: selectedService?._id,
+            serviceName: selectedService?.name,
+            platform: selectedPlatform,
+            quantity: parseInt(document.getElementById('quantity')?.value || '100'),
+            targetUrl: document.getElementById('targetUrl')?.value,
+            paymentMethod: 'deposit', // 예치금 결제
             totalAmount: orderAmount,
-            status: 'pending_deposit' // 입금 대기 상태
+            status: 'processing' // 즉시 처리
         };
 
-        // localStorage에 주문 정보 저장 (결제 페이지로 전달)
-        localStorage.setItem('currentOrder', JSON.stringify({
-            items: [{
-                platform: currentOrder.platform || 'Instagram',
-                service: currentOrder.serviceName || '서비스',
-                quantity: currentOrder.quantity,
-                price: orderAmount / currentOrder.quantity
-            }],
-            totalAmount: orderAmount
-        }));
+        try {
+            const token = localStorage.getItem(window.STORAGE_KEYS.AUTH_TOKEN);
+            const response = await fetch(window.API_ENDPOINTS.ORDERS.CREATE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(orderData)
+            });
 
-        // 무통장입금 페이지로 이동
-        window.location.href = '/payment.html';
+            if (response.ok) {
+                const result = await response.json();
+                
+                // 예치금 차감
+                const deductResponse = await fetch(window.API_BASE + '/users/deduct-deposit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        amount: orderAmount,
+                        orderId: result.data.orderId
+                    })
+                });
+                
+                if (deductResponse.ok) {
+                    alert('주문이 완료되었습니다!\n예치금이 차감되었습니다.');
+                    window.location.href = '/order-success.html?orderId=' + result.data.orderId;
+                } else {
+                    throw new Error('예치금 차감 실패');
+                }
+            } else {
+                throw new Error('주문 생성 실패');
+            }
+        } catch (error) {
+            console.error('Order error:', error);
+            alert('주문 처리 중 오류가 발생했습니다.\n다시 시도해주세요.');
+        }
     };
     window.toggleUserMenu = function() {
         const dropdown = document.getElementById('userDropdown');

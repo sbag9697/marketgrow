@@ -164,6 +164,9 @@
         </div>
     </footer>
 
+    <!-- Global Config -->
+    <script src="js/global-config.js"></script>
+    
     <script src="js/config.js"></script>
     <script>
         // 페이지 로드 시 주문 정보 표시
@@ -299,12 +302,11 @@
 
             try {
                 // API 호출 (실제 환경에서)
-                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
-                const response = await fetch(`${API_URL}/orders/create`, {
+                const response = await fetch(window.API_ENDPOINTS.ORDERS.CREATE, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('authToken')
+                        'Authorization': 'Bearer ' + localStorage.getItem(window.STORAGE_KEYS.AUTH_TOKEN)
                     },
                     body: JSON.stringify(orderData)
                 });

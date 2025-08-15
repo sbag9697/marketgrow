@@ -66,13 +66,14 @@
                             <p>회원 등급</p>
                         </div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <div class="stat-icon">
-                            <i class="fas fa-coins"></i>
+                            <i class="fas fa-wallet"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 id="userPoints">0</h3>
-                            <p>보유 포인트</p>
+                            <h3 id="userDepositBalance" style="color: white;">₩0</h3>
+                            <p style="color: rgba(255,255,255,0.9);">예치금 잔액</p>
+                            <a href="deposit.html" style="color: white; font-size: 12px; text-decoration: underline; margin-top: 5px; display: inline-block;">충전하기</a>
                         </div>
                     </div>
                 </div>
@@ -257,6 +258,9 @@
         </div>
     </footer>
 
+    <!-- Global Config -->
+    <script src="js/global-config.js"></script>
+    
     <script src="js/dashboard-complete.js"></script>
     <script src="js/notification-system.js"></script>
     <script src="js/mobile-fix.js"></script>

@@ -102,15 +102,15 @@
                         </div>
 
                         <div class="social-login">
-                            <button type="button" class="social-btn kakao social-login-kakao" onclick="if(window.socialLogin) socialLogin.loginWithKakaoPopup(); else alert('소셜 로그인 로딩중...');">
+                            <button type="button" class="social-btn kakao" id="kakaoLoginBtn">
                                 <i class="fas fa-comment"></i>
                                 카카오톡으로 로그인
                             </button>
-                            <button type="button" class="social-btn google social-login-google" onclick="if(window.socialLogin) socialLogin.loginWithGoogle(); else alert('소셜 로그인 로딩중...');">
+                            <button type="button" class="social-btn google" id="googleLoginBtn">
                                 <i class="fab fa-google"></i>
                                 구글로 로그인
                             </button>
-                            <button type="button" class="social-btn naver social-login-naver" onclick="if(window.socialLogin) socialLogin.loginWithNaverPopup(); else alert('소셜 로그인 로딩중...');">
+                            <button type="button" class="social-btn naver" id="naverLoginBtn">
                                 <i class="fas fa-n"></i>
                                 네이버로 로그인
                             </button>
@@ -223,7 +223,10 @@
         </div>
     </footer>
 
-    <!-- 설정 파일 로드 (가장 먼저) -->
+    <!-- Global Config -->
+    <script src="js/global-config.js"></script>
+    
+    <!-- 설정 파일 로드 -->
     <script src="js/config.js"></script>
     
     <!-- 소셜 로그인 스크립트 -->
@@ -231,8 +234,52 @@
     
     <!-- 인라인 스크립트로 직접 처리 -->
     <script>
-        // 소셜 로그인 로드 확인
+        
+        console.log('Login Page Initialized');
+        console.log('API URL:', window.API_BASE);
+
+        // 소셜 로그인 버튼 설정
         window.addEventListener('DOMContentLoaded', () => {
+            // 이미 로그인된 경우 대시보드로 리디렉션
+            const token = localStorage.getItem(window.STORAGE_KEYS.AUTH_TOKEN);
+            if (token) {
+                window.location.href = '/dashboard.html';
+            }
+
+            // 소셜 로그인 버튼 이벤트 리스너
+            const kakaoBtn = document.getElementById('kakaoLoginBtn');
+            if (kakaoBtn) {
+                kakaoBtn.addEventListener('click', function() {
+                    if (window.socialLogin && window.socialLogin.loginWithKakaoPopup) {
+                        window.socialLogin.loginWithKakaoPopup();
+                    } else {
+                        alert('카카오 로그인 준비중입니다. 잠시 후 다시 시도해주세요.');
+                    }
+                });
+            }
+            
+            const googleBtn = document.getElementById('googleLoginBtn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', function() {
+                    if (window.socialLogin && window.socialLogin.loginWithGoogle) {
+                        window.socialLogin.loginWithGoogle();
+                    } else {
+                        alert('구글 로그인 준비중입니다. 잠시 후 다시 시도해주세요.');
+                    }
+                });
+            }
+            
+            const naverBtn = document.getElementById('naverLoginBtn');
+            if (naverBtn) {
+                naverBtn.addEventListener('click', function() {
+                    if (window.socialLogin && window.socialLogin.loginWithNaverPopup) {
+                        window.socialLogin.loginWithNaverPopup();
+                    } else {
+                        alert('네이버 로그인 준비중입니다. 잠시 후 다시 시도해주세요.');
+                    }
+                });
+            }
+
             setTimeout(() => {
                 if (window.socialLogin) {
                     console.log('✅ 소셜 로그인 시스템 준비 완료');
@@ -241,6 +288,7 @@
                 }
             }, 1000);
         });
+
         // 로그인 처리
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -256,8 +304,7 @@
             console.log('로그인 시도:', username);
             
             try {
-                const API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
-                const response = await fetch(API_URL + '/auth/login', {
+                const response = await fetch(window.API_ENDPOINTS.AUTH.LOGIN, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -273,8 +320,8 @@
                 
                 if (data.success) {
                     // 성공
-                    localStorage.setItem('authToken', data.data.token);
-                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, data.data.token);
+                    localStorage.setItem(window.STORAGE_KEYS.USER_INFO, JSON.stringify(data.data.user));
                     
                     alert('로그인 성공!');
                     window.location.href = 'dashboard.html';
