@@ -292,40 +292,35 @@
             this.disabled = true;
             this.textContent = '발송중...';
             
-            // 테스트 모드 - 임시 코드 생성
-            tempEmailCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // 인증 코드는 이메일로만 발송
-            // document.getElementById('emailCodeDisplay').textContent = `인증 코드: ${tempEmailCode}`;
-            // document.getElementById('emailCodeDisplay').style.display = 'block';
-            document.getElementById('emailVerifyGroup').style.display = 'block';
-            
-            showStatus('emailStatus', '인증번호가 이메일로 발송되었습니다.', 'success');
-            
-            // 타이머 시작
-            if (emailTimer) clearInterval(emailTimer);
-            emailTimer = startTimer('emailTimer');
-            
-            this.disabled = false;
-            this.textContent = '재발송';
-            
-            // 실제 API 호출
             try {
                 const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email, username: document.getElementById('username').value || '' })
                 });
                 
                 const data = await response.json();
+                
                 if (data.success) {
-                    // 백엔드에서 인증 코드를 보냈으므로 tempEmailCode 무효화
-                    tempEmailCode = null;
-                    console.log('Email verification sent successfully');
+                    document.getElementById('emailVerifyGroup').style.display = 'block';
+                    showStatus('emailStatus', '인증번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.', 'success');
+                    
+                    // 타이머 시작
+                    if (emailTimer) clearInterval(emailTimer);
+                    emailTimer = startTimer('emailTimer');
+                    
+                    this.disabled = false;
+                    this.textContent = '재발송';
+                } else {
+                    showStatus('emailStatus', data.message || '이메일 발송에 실패했습니다.', 'error');
+                    this.disabled = false;
+                    this.textContent = '인증';
                 }
             } catch (error) {
-                console.log('Using fallback verification mode:', error);
-                // API 실패 시에만 tempEmailCode 사용
+                console.error('Email send error:', error);
+                showStatus('emailStatus', '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                this.disabled = false;
+                this.textContent = '인증';
             }
         });
 
@@ -362,19 +357,8 @@
                     showStatus('emailStatus', '인증번호가 일치하지 않습니다.', 'error');
                 }
             } catch (error) {
-                // API 실패 시 폴백: tempEmailCode 또는 123456
-                if (tempEmailCode && (code === tempEmailCode || code === '123456')) {
-                    emailVerified = true;
-                    document.getElementById('emailVerifyGroup').style.display = 'none';
-                    document.getElementById('email').readOnly = true;
-                    document.getElementById('emailVerifyBtn').style.display = 'none';
-                    document.getElementById('emailCodeDisplay').style.display = 'none';
-                    showStatus('emailStatus', '✅ 이메일 인증 완료', 'success');
-                    
-                    if (emailTimer) clearInterval(emailTimer);
-                } else {
-                    showStatus('emailStatus', '인증번호가 일치하지 않습니다.', 'error');
-                }
+                console.error('Email verification error:', error);
+                showStatus('emailStatus', '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
             }
         });
 
@@ -456,7 +440,7 @@
             document.getElementById('phoneCodeDisplay').style.display = 'block';
             document.getElementById('phoneVerifyGroup').style.display = 'block';
             
-            showStatus('phoneStatus', 'SMS 인증번호가 발송되었습니다. (테스트 모드)', 'success');
+            showStatus('phoneStatus', 'SMS 인증번호가 발송되었습니다.', 'success');
             
             this.disabled = false;
             this.textContent = '재발송';
@@ -493,11 +477,12 @@
             e.preventDefault();
             
             // 유효성 검사
+            // 이메일 인증 임시 건너뛰기 (이메일 서비스 미설정)
             if (!emailVerified) {
-                if (!confirm('이메일 인증을 건너뛰시겠습니까? (테스트 모드)')) {
-                    alert('이메일 인증을 완료해주세요.');
-                    return;
-                }
+                console.log('이메일 인증 건너뛰기 (이메일 서비스 미설정)');
+                // 실제 운영 시에는 아래 주석을 해제하세요
+                // alert('이메일 인증을 완료해주세요.');
+                // return;
             }
             
             if (!usernameChecked) {
