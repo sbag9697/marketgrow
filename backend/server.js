@@ -36,9 +36,16 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Initialize database connection and seed data
+let dbReady = false;
 const initializeApp = async () => {
-    const connected = await connectDB();
-    if (connected) {
+    try {
+        dbReady = await connectDB();
+    } catch (err) {
+        logger.error('Database initialization error:', err);
+        dbReady = false;
+    }
+    
+    if (dbReady) {
         // Auto-seed database on server start
         try {
             const { createAdminUser, createSampleServices } = require('./utils/seed');
@@ -48,7 +55,12 @@ const initializeApp = async () => {
         } catch (error) {
             logger.info('Seed data already exists or failed to create:', error.message);
         }
+    } else {
+        logger.warn('Server running without database connection');
     }
+    
+    // Store DB status for route guards
+    app.locals.dbReady = dbReady;
 };
 
 initializeApp();
@@ -176,16 +188,16 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on port ${PORT}`);
 
-    // SMM 패널 주문 동기화 (프로덕션에서는 기본 비활성화)
+    // SMM 패널 주문 동기화 (DB 연결 필수)
     const ENABLE_ORDER_SYNC = process.env.SMM_ENABLED === 'true' && 
-                               process.env.NODE_ENV !== 'production' && 
-                               process.env.FORCE_SYNC !== 'true';
+                               dbReady &&
+                               (process.env.NODE_ENV !== 'production' || process.env.FORCE_SYNC === 'true');
     
     if (ENABLE_ORDER_SYNC && process.env.SMM_API_KEY) {
         const orderSync = new OrderSyncService();
         orderSync.startAutoSync();
         console.log('📦 SMM order sync service started');
     } else {
-        console.log('📦 SMM order sync service disabled (production mode or SMM_ENABLED=false)');
+        console.log('📦 SMM order sync service disabled (no DB, production mode, or SMM_ENABLED=false)');
     }
 });

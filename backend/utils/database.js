@@ -6,57 +6,68 @@ let mongoServer = null;
 
 const connectDB = async () => {
     try {
-        let mongoUri;
-
+        const mongoUri = process.env.MONGODB_URI;
+        
+        // MongoDB URI 확인
+        if (!mongoUri) {
+            logger.warn('MONGODB_URI is empty. Running without DB.');
+            mongoose.set('bufferCommands', false);
+            return false;
+        }
+        
+        // 내부 전용 호스트 사용 방지
+        if (mongoUri.includes('mongodb.railway.internal')) {
+            logger.error('MONGODB_URI is using internal Railway host. Use the PUBLIC external host/port URI.');
+            mongoose.set('bufferCommands', false);
+            return false;
+        }
+        
         // 테스트 모드 확인
-        if (process.env.USE_TEST_MODE === 'true') {
+        if (process.env.USE_TEST_MODE === 'true' || mongoUri.includes('localhost')) {
             logger.info('Test mode enabled - using in-memory database');
             // 아래 in-memory DB 로직으로 이동
-        } else if (process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('localhost')) {
-            mongoUri = process.env.MONGODB_URI;
-            
-            // Railway MongoDB는 직접 연결 가능
-            // Atlas의 경우 DNS 문제가 있을 수 있음
-            if (mongoUri.includes('railway.app')) {
-                logger.info('Using Railway MongoDB');
+        } else {
+            // 연결 타입 로그
+            if (mongoUri.includes('containers') && mongoUri.includes('railway.app')) {
+                logger.info('Using Railway MongoDB (External Connection)');
             } else if (mongoUri.includes('mongodb+srv://')) {
                 logger.info('Using MongoDB Atlas (SRV connection)');
             } else {
                 logger.info('Using standard MongoDB connection');
             }
             
-            logger.info('Attempting to connect to cloud MongoDB...');
+            logger.info('Attempting to connect to MongoDB...');
             
-            // DNS 문제 해결을 위한 연결 옵션
+            // 최신 드라이버 옵션 (useNewUrlParser/useUnifiedTopology 제거)
             const options = {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-                serverSelectionTimeoutMS: 30000, // 30초로 증가
+                maxPoolSize: 10,
+                serverSelectionTimeoutMS: 20000,
                 socketTimeoutMS: 45000,
-                family: 4, // IPv4 강제 사용
+                family: 4, // IPv4 강제
                 retryWrites: true,
                 w: 'majority',
-                // DNS 관련 추가 옵션
-                directConnection: false,
-                ssl: true,
-                sslValidate: true,
                 authSource: 'admin'
             };
             
+            // TLS 설정 (필요한 경우만)
+            if (mongoUri.includes('tls=true') || mongoUri.includes('ssl=true')) {
+                options.tls = true;
+            }
+            
+            // 전역 버퍼링 금지
+            mongoose.set('bufferCommands', false);
+            mongoose.set('strictQuery', true);
+            
             try {
                 await mongoose.connect(mongoUri, options);
-                logger.info('MongoDB Atlas connected successfully');
+                logger.info('✅ MongoDB connected successfully');
                 return true;
             } catch (cloudError) {
-                logger.error('Cloud MongoDB connection failed:', cloudError);
+                logger.error('MongoDB connection failed:', cloudError);
                 
                 // 프로덕션 환경에서는 in-memory DB 사용하지 않고 계속 진행
                 if (process.env.NODE_ENV === 'production') {
                     logger.warn('Running without database connection in production mode');
-                    // Mongoose buffering 완전 비활성화
-                    mongoose.set('bufferCommands', false);
-                    mongoose.set('bufferTimeoutMS', 0);
-                    mongoose.set('autoCreate', false);
                     return false;
                 }
                 
