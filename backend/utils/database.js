@@ -43,16 +43,13 @@ const connectDB = async () => {
                 maxPoolSize: 10,
                 serverSelectionTimeoutMS: 20000,
                 socketTimeoutMS: 45000,
-                family: 4, // IPv4 강제
+                directConnection: true,  // Railway 프록시 직접 연결
+                family: 4,               // IPv4 우선
                 retryWrites: true,
-                w: 'majority',
-                authSource: 'admin'
+                w: 'majority'
+                // authSource는 URI에 포함됨
+                // TLS 옵션은 현재 미사용 (Railway MongoDB가 TLS 미설정 상태)
             };
-            
-            // TLS 설정 (필요한 경우만)
-            if (mongoUri.includes('tls=true') || mongoUri.includes('ssl=true')) {
-                options.tls = true;
-            }
             
             // 전역 버퍼링 금지
             mongoose.set('bufferCommands', false);
