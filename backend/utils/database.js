@@ -8,8 +8,11 @@ const connectDB = async () => {
     try {
         let mongoUri;
 
-        // MongoDB URI 환경변수 확인
-        if (process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('localhost')) {
+        // 테스트 모드 확인
+        if (process.env.USE_TEST_MODE === 'true') {
+            logger.info('Test mode enabled - using in-memory database');
+            // 아래 in-memory DB 로직으로 이동
+        } else if (process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('localhost')) {
             mongoUri = process.env.MONGODB_URI;
             
             // DNS 문제 해결: mongodb+srv를 mongodb로 변경하고 직접 호스트 지정
