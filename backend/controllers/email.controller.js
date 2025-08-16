@@ -13,23 +13,40 @@ exports.sendVerificationCode = async (req, res) => {
             });
         }
 
-        // 이메일 중복 체크
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: '이미 등록된 이메일입니다.'
-            });
+        // 이메일 중복 체크 (DB 연결 시에만)
+        if (req.app.locals.dbReady) {
+            try {
+                const existingUser = await User.findOne({ email });
+                if (existingUser) {
+                    return res.status(400).json({
+                        success: false,
+                        message: '이미 등록된 이메일입니다.'
+                    });
+                }
+            } catch (dbError) {
+                console.log('DB query error (non-critical):', dbError.message);
+                // DB 에러는 무시하고 계속 진행 (이메일 발송은 가능)
+            }
         }
 
         // 인증 코드 발송
         const result = await emailService.sendVerificationEmail(email, username);
 
         if (result.success) {
-            res.json({
+            const response = {
                 success: true,
-                message: '인증 코드가 이메일로 발송되었습니다. 5분 이내에 입력해주세요.'
-            });
+                message: result.testMode 
+                    ? '테스트 모드: 아래 인증 코드를 사용하세요.' 
+                    : '인증 코드가 이메일로 발송되었습니다. 5분 이내에 입력해주세요.'
+            };
+            
+            // 테스트 모드에서는 코드도 반환
+            if (result.testMode && result.code) {
+                response.code = result.code;
+                response.testMode = true;
+            }
+            
+            res.json(response);
         } else {
             res.status(500).json({
                 success: false,

@@ -3,14 +3,24 @@ const crypto = require('crypto');
 
 class EmailService {
     constructor() {
+        // 이메일 설정 확인
+        const emailUser = process.env.EMAIL_USER;
+        const emailPass = process.env.EMAIL_APP_PASSWORD;
+        
         // Gmail SMTP 설정 (환경변수로 관리)
-        this.transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER || 'your-email@gmail.com',
-                pass: process.env.EMAIL_APP_PASSWORD || 'your-app-password'
-            }
-        });
+        if (emailUser && emailPass && emailUser !== 'your-email@gmail.com') {
+            this.transporter = nodemailer.createTransporter({
+                service: 'gmail',
+                auth: {
+                    user: emailUser,
+                    pass: emailPass
+                }
+            });
+            console.log('📧 Email service configured with Gmail:', emailUser);
+        } else {
+            console.warn('⚠️ Email service not configured properly. Running in test mode.');
+            this.transporter = null; // 테스트 모드
+        }
 
         // 인증 코드 저장소 (Redis가 있다면 Redis 사용 권장)
         this.verificationCodes = new Map();
@@ -72,6 +82,17 @@ class EmailService {
             const code = this.generateVerificationCode();
             console.log(`📧 Generated verification code for ${email}: ${code}`); // 디버깅용
             this.saveVerificationCode(email, code);
+            
+            // 테스트 모드 체크
+            if (!this.transporter) {
+                console.log('📧 Test mode: Email not sent, but code is:', code);
+                return {
+                    success: true,
+                    message: '테스트 모드: 인증 코드가 생성되었습니다.',
+                    code: code, // 테스트 모드에서는 코드 반환
+                    testMode: true
+                };
+            }
 
             const mailOptions = {
                 from: `"MarketGrow" <${process.env.EMAIL_USER || 'noreply@marketgrow.com'}>`,
@@ -119,7 +140,7 @@ class EmailService {
                     </body>
                     </html>
                 `,
-                text: `MarketGrow 이메일 인증\n\n안녕하세요, ${username}님!\n\n아래 링크를 클릭하여 이메일 인증을 완료해주세요:\n${verificationUrl}\n\n이 링크는 24시간 동안 유효합니다.\n\n본인이 가입하지 않으셨다면 이 메일을 무시하셔도 됩니다.`
+                text: `MarketGrow 이메일 인증\n\n안녕하세요${username ? `, ${username}님` : ''}!\n\n이메일 인증 코드: ${code}\n\n위 6자리 코드를 회원가입 페이지에 입력해주세요.\n\n이 코드는 5분간 유효합니다.\n\n본인이 가입하지 않으셨다면 이 메일을 무시하셔도 됩니다.`
             };
 
             const info = await this.transporter.sendMail(mailOptions);

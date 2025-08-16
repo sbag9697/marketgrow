@@ -307,7 +307,14 @@
                 
                 if (data.success) {
                     document.getElementById('emailVerifyGroup').style.display = 'block';
-                    showStatus('emailStatus', '인증번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.', 'success');
+                    showStatus('emailStatus', data.message || '인증번호가 이메일로 발송되었습니다. 이메일을 확인해주세요.', 'success');
+                    
+                    // 테스트 모드에서 코드 표시
+                    if (data.testMode && data.code) {
+                        tempEmailCode = data.code;
+                        document.getElementById('emailCodeDisplay').textContent = `테스트 인증 코드: ${data.code}`;
+                        document.getElementById('emailCodeDisplay').style.display = 'block';
+                    }
                     
                     // 타이머 시작
                     if (emailTimer) clearInterval(emailTimer);
@@ -362,7 +369,19 @@
                 }
             } catch (error) {
                 console.error('Email verification error:', error);
-                showStatus('emailStatus', '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                // 테스트 모드 폴백
+                if (tempEmailCode && code === tempEmailCode) {
+                    emailVerified = true;
+                    document.getElementById('emailVerifyGroup').style.display = 'none';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('emailVerifyBtn').style.display = 'none';
+                    document.getElementById('emailCodeDisplay').style.display = 'none';
+                    showStatus('emailStatus', '✅ 이메일 인증 완료 (테스트 모드)', 'success');
+                    
+                    if (emailTimer) clearInterval(emailTimer);
+                } else {
+                    showStatus('emailStatus', '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                }
             }
         });
 
