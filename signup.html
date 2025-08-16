@@ -227,19 +227,8 @@
     
     <!-- JavaScript 구현 -->
     <script>
-        // API 엔드포인트 설정
+        // global-config.js에서 API 설정을 가져옴
         const API_BASE = window.API_BASE || 'http://localhost:5001/api';
-        
-        window.API_ENDPOINTS = {
-            AUTH: {
-                SEND_EMAIL_VERIFICATION: `${API_BASE}/email/send-verification`,
-                VERIFY_EMAIL: `${API_BASE}/email/verify-code`,
-                CHECK_USERNAME: `${API_BASE}/auth/check-username`,
-                REGISTER: `${API_BASE}/auth/register`,
-                SEND_SMS_VERIFICATION: `${API_BASE}/auth/send-sms`,
-                VERIFY_SMS: `${API_BASE}/auth/verify-sms`
-            }
-        };
         
         // 전역 변수
         let emailVerified = false;
@@ -449,7 +438,7 @@
             
             try {
                 // 실제 SMS API 호출 시도
-                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_SMS_VERIFICATION, {
+                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_PHONE_VERIFICATION, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone })
