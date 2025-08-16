@@ -11,17 +11,35 @@ const connectDB = async () => {
         // MongoDB URI 환경변수 확인
         if (process.env.MONGODB_URI && !process.env.MONGODB_URI.includes('localhost')) {
             mongoUri = process.env.MONGODB_URI;
+            
+            // DNS 문제 해결: mongodb+srv를 mongodb로 변경하고 직접 호스트 지정
+            // MongoDB Atlas 클러스터의 실제 호스트를 사용
+            if (mongoUri.includes('mongodb+srv://')) {
+                // SRV 레코드 대신 직접 연결 방식 사용
+                mongoUri = 'mongodb://marketgrow:JXcmH4vNz26QKjEo@' +
+                          'cluster0-shard-00-00.c586sbu.mongodb.net:27017,' +
+                          'cluster0-shard-00-01.c586sbu.mongodb.net:27017,' +
+                          'cluster0-shard-00-02.c586sbu.mongodb.net:27017/' +
+                          'marketgrow?ssl=true&replicaSet=atlas-13qgzv-shard-0&authSource=admin&retryWrites=true&w=majority';
+                logger.info('Using direct connection string for MongoDB Atlas');
+            }
+            
             logger.info('Attempting to connect to cloud MongoDB...');
             
             // DNS 문제 해결을 위한 연결 옵션
             const options = {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
-                serverSelectionTimeoutMS: 10000,
+                serverSelectionTimeoutMS: 30000, // 30초로 증가
                 socketTimeoutMS: 45000,
                 family: 4, // IPv4 강제 사용
                 retryWrites: true,
-                w: 'majority'
+                w: 'majority',
+                // DNS 관련 추가 옵션
+                directConnection: false,
+                ssl: true,
+                sslValidate: true,
+                authSource: 'admin'
             };
             
             try {
@@ -34,6 +52,9 @@ const connectDB = async () => {
                 // 프로덕션 환경에서는 in-memory DB 사용하지 않고 계속 진행
                 if (process.env.NODE_ENV === 'production') {
                     logger.warn('Running without database connection in production mode');
+                    // Mongoose buffering 비활성화
+                    mongoose.set('bufferCommands', false);
+                    mongoose.set('autoCreate', false);
                     return false;
                 }
                 

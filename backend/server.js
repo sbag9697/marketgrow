@@ -171,10 +171,13 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on port ${PORT}`);
 
-    // SMM 패널 주문 동기화 시작 (API 키가 있을 때만)
-    if (process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {
+    // SMM 패널 주문 동기화 비활성화 (MongoDB 연결 문제로 인한 임시 조치)
+    // MongoDB 연결이 안정화되면 다시 활성화
+    if (false && process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {
         const orderSync = new OrderSyncService();
         orderSync.startAutoSync();
         console.log('📦 SMM order sync service started');
+    } else {
+        console.log('📦 SMM order sync service disabled');
     }
 });
