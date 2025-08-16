@@ -227,6 +227,20 @@
     
     <!-- JavaScript 구현 -->
     <script>
+        // API 엔드포인트 설정
+        const API_BASE = window.API_BASE || 'http://localhost:5001/api';
+        
+        window.API_ENDPOINTS = {
+            AUTH: {
+                SEND_EMAIL_VERIFICATION: `${API_BASE}/email/send-verification`,
+                VERIFY_EMAIL: `${API_BASE}/email/verify-code`,
+                CHECK_USERNAME: `${API_BASE}/auth/check-username`,
+                REGISTER: `${API_BASE}/auth/register`,
+                SEND_SMS_VERIFICATION: `${API_BASE}/auth/send-sms`,
+                VERIFY_SMS: `${API_BASE}/auth/verify-sms`
+            }
+        };
+        
         // 전역 변수
         let emailVerified = false;
         let phoneVerified = false;
@@ -237,7 +251,8 @@
         let tempPhoneCode = '';
 
         console.log('Signup Page Initialized');
-        console.log('API URL:', window.API_BASE);
+        console.log('API URL:', API_BASE);
+        console.log('Endpoints:', window.API_ENDPOINTS);
 
         // 상태 메시지 표시 함수
         function showStatus(elementId, message, type) {
@@ -421,7 +436,7 @@
         });
 
         // 휴대폰 인증
-        document.getElementById('phoneVerifyBtn').addEventListener('click', function() {
+        document.getElementById('phoneVerifyBtn').addEventListener('click', async function() {
             const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
             
             if (!phone || phone.length < 10) {
@@ -432,21 +447,61 @@
             this.disabled = true;
             this.textContent = '발송중...';
             
-            // 테스트 모드 - 임시 코드 생성
-            tempPhoneCode = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            // 인증 코드 표시
-            document.getElementById('phoneCodeDisplay').textContent = `인증 코드: ${tempPhoneCode}`;
-            document.getElementById('phoneCodeDisplay').style.display = 'block';
-            document.getElementById('phoneVerifyGroup').style.display = 'block';
-            
-            showStatus('phoneStatus', 'SMS 인증번호가 발송되었습니다.', 'success');
-            
-            this.disabled = false;
-            this.textContent = '재발송';
-            
-            if (phoneTimer) clearInterval(phoneTimer);
-            phoneTimer = startTimer('phoneTimer');
+            try {
+                // 실제 SMS API 호출 시도
+                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_SMS_VERIFICATION, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('phoneVerifyGroup').style.display = 'block';
+                    showStatus('phoneStatus', 'SMS 인증번호가 발송되었습니다.', 'success');
+                    
+                    // 개발 모드에서는 인증 코드 표시
+                    if (data.code) {
+                        tempPhoneCode = data.code;
+                        document.getElementById('phoneCodeDisplay').textContent = `테스트 인증 코드: ${tempPhoneCode}`;
+                        document.getElementById('phoneCodeDisplay').style.display = 'block';
+                    }
+                    
+                    if (phoneTimer) clearInterval(phoneTimer);
+                    phoneTimer = startTimer('phoneTimer');
+                    
+                    this.disabled = false;
+                    this.textContent = '재발송';
+                } else {
+                    // SMS 발송 실패 시 테스트 모드로 폴백
+                    tempPhoneCode = Math.floor(100000 + Math.random() * 900000).toString();
+                    document.getElementById('phoneCodeDisplay').textContent = `테스트 인증 코드: ${tempPhoneCode}`;
+                    document.getElementById('phoneCodeDisplay').style.display = 'block';
+                    document.getElementById('phoneVerifyGroup').style.display = 'block';
+                    showStatus('phoneStatus', 'SMS 서비스 미설정 - 테스트 모드로 진행', 'success');
+                    
+                    if (phoneTimer) clearInterval(phoneTimer);
+                    phoneTimer = startTimer('phoneTimer');
+                    
+                    this.disabled = false;
+                    this.textContent = '재발송';
+                }
+            } catch (error) {
+                // API 호출 실패 시 테스트 모드
+                console.log('SMS API error, using test mode:', error);
+                tempPhoneCode = Math.floor(100000 + Math.random() * 900000).toString();
+                document.getElementById('phoneCodeDisplay').textContent = `테스트 인증 코드: ${tempPhoneCode}`;
+                document.getElementById('phoneCodeDisplay').style.display = 'block';
+                document.getElementById('phoneVerifyGroup').style.display = 'block';
+                showStatus('phoneStatus', 'SMS 테스트 모드 - 아래 코드를 입력하세요', 'success');
+                
+                if (phoneTimer) clearInterval(phoneTimer);
+                phoneTimer = startTimer('phoneTimer');
+                
+                this.disabled = false;
+                this.textContent = '재발송';
+            }
         });
 
         // 휴대폰 인증번호 확인
