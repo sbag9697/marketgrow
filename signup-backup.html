@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MarketGrow 회원가입 - SNS 마케팅 서비스 이용을 위한 회원가입">
+    <title>회원가입 - MarketGrow</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="mobile-fix.css">
+    <link rel="stylesheet" href="auth.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <div class="logo-icon">MG</div>
+                <h2><a href="index.html">MarketGrow</a></h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="login.html">로그인</a></li>
+                <li><a href="signup.html" class="active">가입하기</a></li>
+                <li><a href="order-method.html">주문방법</a></li>
+                <li><a href="services.html">서비스목록</a></li>
+                <li><a href="blog.html">마케팅 블로그</a></li>
+            </ul>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-container signup">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>회원가입</h1>
+                        <p>MarketGrow와 함께 SNS 마케팅을 시작하세요</p>
+                    </div>
+
+                    <form class="auth-form" id="signupForm" novalidate>
+                        <div class="form-group">
+                            <label for="email">이메일 주소 *</label>
+                            <div class="input-group">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" id="email" name="email" placeholder="이메일 주소를 입력하세요" required>
+                                <button type="button" class="verify-btn" id="emailVerifyBtn">인증</button>
+                            </div>
+                            <small class="form-hint">이메일 인증이 필요합니다</small>
+                        </div>
+
+                        <div class="form-group" id="emailVerifyGroup" style="display: none;">
+                            <label for="emailCode">인증번호</label>
+                            <div class="input-group">
+                                <i class="fas fa-key"></i>
+                                <input type="text" id="emailCode" name="emailCode" placeholder="인증번호 6자리를 입력하세요" maxlength="6">
+                                <button type="button" class="verify-btn" id="emailConfirmBtn">확인</button>
+                                <span class="verify-timer">05:00</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signupUsername">아이디 *</label>
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="signupUsername" name="username" placeholder="아이디를 입력하세요 (4-16자)" required minlength="4" maxlength="16">
+                                <button type="button" class="verify-btn" id="usernameCheckBtn">중복확인</button>
+                            </div>
+                            <small class="form-hint" id="usernameHint">영문, 숫자 조합 4-16자</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signupPassword">비밀번호 *</label>
+                            <div class="input-group">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="signupPassword" name="password" placeholder="비밀번호를 입력하세요" required minlength="8">
+                            </div>
+                            <small class="form-hint">영문, 숫자, 특수문자 조합 8자 이상</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">이름 *</label>
+                            <div class="input-group">
+                                <i class="fas fa-user-tag"></i>
+                                <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required minlength="2" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">휴대폰 번호 *</label>
+                            <div class="input-group">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="phone" name="phone" placeholder="휴대폰 번호를 입력하세요" required>
+                                <button type="button" class="verify-btn" id="phoneVerifyBtn">인증</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="phoneVerifyGroup" style="display: none;">
+                            <label for="phoneCode">인증번호</label>
+                            <div class="input-group">
+                                <i class="fas fa-key"></i>
+                                <input type="text" id="phoneCode" name="phoneCode" placeholder="인증번호 6자리를 입력하세요" maxlength="6">
+                                <button type="button" class="verify-btn" id="phoneConfirmBtn">확인</button>
+                                <span class="verify-timer">05:00</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="auth-btn primary">
+                            <i class="fas fa-user-plus"></i>
+                            회원가입 완료
+                        </button>
+
+                        <div class="divider">
+                            <span>또는</span>
+                        </div>
+
+                        <div class="social-login">
+                            <button type="button" class="social-btn kakao social-login-kakao" onclick="if(window.socialLogin) socialLogin.loginWithKakaoPopup(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fas fa-comment"></i>
+                                카카오로 시작하기
+                            </button>
+                            <button type="button" class="social-btn google social-login-google" onclick="if(window.socialLogin) socialLogin.loginWithGoogle(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fab fa-google"></i>
+                                구글로 시작하기
+                            </button>
+                            <button type="button" class="social-btn naver social-login-naver" onclick="if(window.socialLogin) socialLogin.loginWithNaverPopup(); else alert('소셜 로그인 로딩중...');">
+                                <i class="fas fa-n"></i>
+                                네이버로 시작하기
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>이미 계정이 있으신가요? <a href="login.html">로그인</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>MarketGrow</h3>
+                    <p>24시간 SNS 마케팅 전문 서비스</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MarketGrow. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 설정 파일 로드 (가장 먼저) -->
+    <script src="js/config.js"></script>
+    
+    <!-- 소셜 로그인 스크립트 -->
+    <script src="js/social-login-fix.js"></script>
+
+    <script>
+        // DOM이 완전히 로드된 후 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Signup page DOM loaded');
+            
+            // API URL은 이미 config.js에서 선언됨
+            const SIGNUP_API_URL = window.API_CONFIG ? window.API_CONFIG.BASE_URL : '/api';
+            console.log('Signup API URL:', SIGNUP_API_URL);
+            
+            // 모든 Mock 관련 제거
+            localStorage.removeItem('useMockServer');
+            localStorage.removeItem('mockMode');
+            localStorage.removeItem('testMode');
+            sessionStorage.clear();
+        
+        // 간단한 알림 시스템
+        function showMessage(message, type = 'info') {
+            const color = type === 'error' ? '#dc3545' : 
+                         type === 'success' ? '#28a745' : 
+                         type === 'warning' ? '#ffc107' : '#007bff';
+            
+            const div = document.createElement('div');
+            div.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${color};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 9999;
+                max-width: 300px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            `;
+            div.textContent = message;
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, 3000);
+        }
+        
+        // 이메일 인증 - 임시로 로컬 검증만 수행
+        let emailVerified = false;
+        let tempEmailCode = null;
+        
+        // 버튼 요소 확인
+        const emailVerifyBtn = document.getElementById('emailVerifyBtn');
+        const usernameCheckBtn = document.getElementById('usernameCheckBtn');
+        
+        console.log('이메일 인증 버튼:', emailVerifyBtn);
+        console.log('아이디 중복확인 버튼:', usernameCheckBtn);
+        
+        if (!emailVerifyBtn) {
+            console.error('❌ 이메일 인증 버튼을 찾을 수 없습니다!');
+            return;
+        }
+        
+        if (!usernameCheckBtn) {
+            console.error('❌ 아이디 중복확인 버튼을 찾을 수 없습니다!');
+            return;
+        }
+        
+        emailVerifyBtn.addEventListener('click', async function() {
+            console.log('이메일 인증 버튼 클릭됨');
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showMessage('이메일을 입력해주세요', 'error');
+                return;
+            }
+            
+            // 이메일 형식 검증
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('올바른 이메일 형식이 아닙니다', 'error');
+                return;
+            }
+            
+            this.disabled = true;
+            this.textContent = '발송 중...';
+            
+            // 임시 인증 코드 생성 (실제로는 서버에서 이메일 발송)
+            tempEmailCode = Math.floor(100000 + Math.random() * 900000).toString();
+            console.log('임시 인증 코드:', tempEmailCode);
+            
+            // UI 업데이트
+            setTimeout(() => {
+                document.getElementById('emailVerifyGroup').style.display = 'block';
+                showMessage(`테스트 모드: 인증 코드는 ${tempEmailCode} 입니다`, 'info');
+                this.textContent = '재발송';
+                this.disabled = false;
+                
+                // 타이머 시작
+                startTimer();
+            }, 1000);
+        });
+        
+        // 아이디 중복확인
+        let usernameChecked = false;
+        usernameCheckBtn.addEventListener('click', async function() {
+            console.log('아이디 중복확인 버튼 클릭됨');
+            const username = document.getElementById('signupUsername').value;
+            const hint = document.getElementById('usernameHint');
+            
+            if (!username) {
+                showMessage('아이디를 입력해주세요', 'error');
+                return;
+            }
+            
+            if (username.length < 4 || username.length > 16) {
+                showMessage('아이디는 4-16자여야 합니다', 'error');
+                return;
+            }
+            
+            // 영문, 숫자만 허용
+            const usernameRegex = /^[a-zA-Z0-9]+$/;
+            if (!usernameRegex.test(username)) {
+                showMessage('아이디는 영문과 숫자만 사용 가능합니다', 'error');
+                return;
+            }
+            
+            this.disabled = true;
+            this.textContent = '확인 중...';
+            
+            try {
+                console.log('Checking username:', username);
+                console.log('API URL:', `${SIGNUP_API_URL}/auth/check-username`);
+                
+                const response = await fetch(`${SIGNUP_API_URL}/auth/check-username`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username})
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    throw new Error(`서버 응답 오류: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.available) {
+                    showMessage('사용 가능한 아이디입니다', 'success');
+                    hint.textContent = '✅ 사용 가능한 아이디입니다';
+                    hint.style.color = '#28a745';
+                    usernameChecked = true;
+                    document.getElementById('signupUsername').readOnly = true;
+                    this.style.display = 'none';
+                } else {
+                    showMessage('이미 사용 중인 아이디입니다', 'error');
+                    hint.textContent = '❌ 이미 사용 중인 아이디입니다';
+                    hint.style.color = '#dc3545';
+                    usernameChecked = false;
+                }
+            } catch (error) {
+                console.error('Username check error:', error);
+                showMessage('중복확인 중 오류가 발생했습니다', 'error');
+                hint.textContent = '중복확인 실패';
+                hint.style.color = '#dc3545';
+                usernameChecked = false;
+            } finally {
+                this.disabled = false;
+                this.textContent = '중복확인';
+            }
+        });
+        
+        // 아이디 입력 변경 시 중복확인 초기화
+        document.getElementById('signupUsername').addEventListener('input', function() {
+            if (this.readOnly) {
+                this.readOnly = false;
+                usernameChecked = false;
+                document.getElementById('usernameCheckBtn').style.display = 'inline-block';
+                const hint = document.getElementById('usernameHint');
+                hint.textContent = '영문, 숫자 조합 4-16자';
+                hint.style.color = '#6c757d';
+            }
+        });
+        
+        // 이메일 인증 확인 - 임시 로컬 검증
+        document.getElementById('emailConfirmBtn').addEventListener('click', function() {
+            const code = document.getElementById('emailCode').value;
+            
+            if (!code) {
+                showMessage('인증번호를 입력해주세요', 'error');
+                return;
+            }
+            
+            // 임시 코드 확인
+            if (code === tempEmailCode) {
+                showMessage('이메일 인증 완료!', 'success');
+                emailVerified = true;
+                document.getElementById('emailVerifyGroup').style.display = 'none';
+                document.getElementById('email').readOnly = true;
+                document.getElementById('emailVerifyBtn').style.display = 'none';
+                document.querySelector('.form-hint').textContent = '✅ 이메일 인증 완료';
+            } else {
+                showMessage('인증번호가 올바르지 않습니다', 'error');
+            }
+        });
+        
+        // 전화번호 인증
+        const phoneVerifyBtn = document.getElementById('phoneVerifyBtn');
+        const phoneConfirmBtn = document.getElementById('phoneConfirmBtn');
+        
+        if (phoneVerifyBtn) {
+            phoneVerifyBtn.addEventListener('click', async function() {
+                console.log('휴대폰 인증 버튼 클릭됨');
+            const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
+            if (!phone) {
+                showMessage('전화번호를 입력해주세요', 'error');
+                return;
+            }
+            
+            this.disabled = true;
+            this.textContent = '발송 중...';
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/send-sms-verification`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({phoneNumber: phone})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('phoneVerifyGroup').style.display = 'block';
+                    showMessage('인증번호가 SMS로 발송되었습니다', 'success');
+                    this.textContent = '재발송';
+                } else {
+                    showMessage(data.message || 'SMS 발송 실패', 'error');
+                    this.textContent = '인증';
+                }
+            } catch (error) {
+                showMessage('서버 연결 실패', 'error');
+                this.textContent = '인증';
+            } finally {
+                this.disabled = false;
+            }
+        });
+        }
+        
+        // 전화번호 인증 확인
+        if (phoneConfirmBtn) {
+            phoneConfirmBtn.addEventListener('click', async function() {
+                console.log('휴대폰 인증확인 버튼 클릭됨');
+            const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
+            const code = document.getElementById('phoneCode').value;
+            
+            if (!code) {
+                showMessage('인증번호를 입력해주세요', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/verify-sms-code`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({phoneNumber: phone, code})
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('전화번호 인증 완료!', 'success');
+                    document.getElementById('phoneVerifyGroup').style.display = 'none';
+                    document.getElementById('phone').readOnly = true;
+                    document.getElementById('phoneVerifyBtn').style.display = 'none';
+                } else {
+                    showMessage('인증번호가 올바르지 않습니다', 'error');
+                }
+            } catch (error) {
+                showMessage('인증 확인 실패', 'error');
+            }
+        });
+        }
+        
+        // 타이머 함수
+        function startTimer() {
+            let time = 300; // 5분
+            const timerElements = document.querySelectorAll('.verify-timer');
+            
+            const interval = setInterval(() => {
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                timerElements.forEach(element => {
+                    element.textContent = timeString;
+                });
+                
+                if (time <= 0) {
+                    clearInterval(interval);
+                    tempEmailCode = null;
+                    timerElements.forEach(element => {
+                        element.textContent = '만료됨';
+                    });
+                    showMessage('인증 시간이 만료되었습니다. 다시 시도해주세요.', 'warning');
+                }
+                time--;
+            }, 1000);
+        }
+        
+        // 회원가입 제출 - simple-auth.js로 처리하므로 주석 처리
+        /* document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 아이디 중복확인 체크
+            if (!usernameChecked) {
+                showMessage('아이디 중복확인을 해주세요', 'error');
+                document.getElementById('usernameCheckBtn').focus();
+                return;
+            }
+            
+            const formData = {
+                email: document.getElementById('email').value,
+                username: document.getElementById('signupUsername').value,
+                password: document.getElementById('signupPassword').value,
+                name: document.getElementById('name').value, // 이름 필드
+                phone: document.getElementById('phone').value,
+                businessType: 'personal' // 기본값
+            };
+            
+            try {
+                const response = await fetch(`${SIGNUP_API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('회원가입 완료! 로그인 페이지로 이동합니다', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || '회원가입 실패', 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결 실패', 'error');
+            }
+        }); */
+        
+        console.log('✅ Clean signup page loaded - No mock, No test mode');
+        
+        // 새로운 간단한 회원가입 처리
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('signupUsername').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('signupPassword').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value.replace(/-/g, ''),  // 하이픈 제거
+                businessType: 'personal',  // 개인 회원으로 기본 설정
+                termsAcceptedAt: new Date().toISOString()  // 약관 동의 시간
+            };
+            
+            console.log('회원가입 시도:', formData);
+            
+            // 간단한 검증
+            if (!formData.username || !formData.email || !formData.password || !formData.name || !formData.phone) {
+                alert('모든 필수 항목을 입력하세요');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${SIGNUP_API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                console.log('회원가입 응답:', data);
+                
+                if (data.success) {
+                    alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+                    window.location.href = '/login.html';
+                } else {
+                    alert('회원가입 실패: ' + (data.message || '입력 정보를 확인하세요'));
+                }
+            } catch (error) {
+                console.error('회원가입 오류:', error);
+                alert('서버 연결 실패. 잠시 후 다시 시도하세요.');
+            }
+        });
+        
+        }); // DOMContentLoaded 끝
+    </script>
+    <script src="js/mobile-fix.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,4 +1,3 @@
-const axios = require('axios');
 const crypto = require('crypto');
 const User = require('../models/User');
 const Deposit = require('../models/Deposit');
@@ -6,91 +5,16 @@ const logger = require('../utils/logger');
 
 class VirtualAccountService {
     constructor() {
-        // 토스페이먼츠 설정
-        this.tossPayments = {
-            secretKey: process.env.TOSS_SECRET_KEY || 'test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R', // 테스트 키
-            baseUrl: process.env.TOSS_API_URL || 'https://api.tosspayments.com/v1',
-            clientKey: process.env.TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq'
-        };
-
-        // Base64 인코딩된 시크릿 키 (Basic Auth용)
-        this.authHeader = `Basic ${Buffer.from(`${this.tossPayments.secretKey}:`).toString('base64')}`;
+        // 가상계좌 서비스 설정
+        // 토스페이먼츠 연동 제거 - 필요시 다른 결제 서비스로 교체
     }
 
     /**
-     * 가상계좌 발급
+     * 가상계좌 발급 (비활성화)
      */
     async createVirtualAccount(userId, amount, depositorName) {
         try {
-            const orderId = `DEPOSIT_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-            const requestData = {
-                amount,
-                orderId,
-                orderName: `예치금 충전 ${amount.toLocaleString()}원`,
-                customerName: depositorName,
-                bank: '국민', // 국민은행 고정
-                validHours: 24, // 24시간 유효
-                cashReceipt: {
-                    type: '소득공제'
-                },
-                useEscrow: false,
-                customerMobilePhone: '', // 선택사항
-                _virtual: true
-            };
-
-            // 토스페이먼츠 가상계좌 발급 API 호출
-            const response = await axios.post(
-                `${this.tossPayments.baseUrl}/virtual-accounts`,
-                requestData,
-                {
-                    headers: {
-                        Authorization: this.authHeader,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            const virtualAccount = response.data;
-
-            // 가상계좌 정보 저장
-            const deposit = new Deposit({
-                user: userId,
-                amount,
-                bonusAmount: this.calculateBonus(amount),
-                finalAmount: amount + this.calculateBonus(amount),
-                depositorName,
-                method: 'virtual_account',
-                status: 'pending',
-                virtualAccount: {
-                    bank: virtualAccount.bank,
-                    accountNumber: virtualAccount.accountNumber,
-                    accountHolder: virtualAccount.accountHolder || 'SNS그로우',
-                    dueDate: virtualAccount.dueDate,
-                    orderId,
-                    paymentKey: virtualAccount.paymentKey
-                }
-            });
-
-            await deposit.save();
-
-            logger.info(`Virtual account created: ${virtualAccount.accountNumber} for user ${userId}`);
-
-            return {
-                success: true,
-                data: {
-                    bank: virtualAccount.bank,
-                    accountNumber: virtualAccount.accountNumber,
-                    accountHolder: virtualAccount.accountHolder || 'SNS그로우',
-                    amount,
-                    dueDate: virtualAccount.dueDate,
-                    depositId: deposit._id
-                }
-            };
-        } catch (error) {
-            logger.error('Virtual account creation failed:', error);
-
-            // 테스트 모드에서는 가상의 계좌 정보 반환
+            // 테스트 모드에서만 가상의 계좌 정보 반환
             if (process.env.NODE_ENV !== 'production') {
                 const testAccountNumber = `123${Date.now().toString().slice(-10)}`;
 
@@ -127,12 +51,16 @@ class VirtualAccountService {
                 };
             }
 
+            // 프로덕션에서는 가상계좌 발급 비활성화
+            throw new Error('가상계좌 발급 기능이 비활성화되었습니다. 다른 결제 방법을 이용해주세요.');
+        } catch (error) {
+            logger.error('Virtual account creation failed:', error);
             throw error;
         }
     }
 
     /**
-     * Webhook 처리 - 입금 완료 시 토스페이먼츠에서 호출
+     * Webhook 처리 - 입금 완료 시 호출
      */
     async handleWebhook(paymentData) {
         try {
@@ -186,16 +114,12 @@ class VirtualAccountService {
     }
 
     /**
-     * Webhook 서명 검증
+     * Webhook 서명 검증 (비활성화)
      */
     verifyWebhookSignature(body, signature) {
-        const secretKey = this.tossPayments.secretKey;
-        const computedSignature = crypto
-            .createHmac('sha256', secretKey)
-            .update(JSON.stringify(body))
-            .digest('base64');
-
-        return computedSignature === signature;
+        // 토스페이먼츠 연동 제거로 인해 비활성화
+        logger.warn('Webhook signature verification is disabled');
+        return false;
     }
 
     /**
@@ -231,24 +155,11 @@ class VirtualAccountService {
     }
 
     /**
-     * 가상계좌 입금 상태 확인
+     * 가상계좌 입금 상태 확인 (비활성화)
      */
     async checkPaymentStatus(paymentKey) {
-        try {
-            const response = await axios.get(
-                `${this.tossPayments.baseUrl}/payments/${paymentKey}`,
-                {
-                    headers: {
-                        Authorization: this.authHeader
-                    }
-                }
-            );
-
-            return response.data;
-        } catch (error) {
-            logger.error('Payment status check failed:', error);
-            throw error;
-        }
+        logger.warn('Payment status check is disabled');
+        throw new Error('결제 상태 확인 기능이 비활성화되었습니다.');
     }
 
     /**

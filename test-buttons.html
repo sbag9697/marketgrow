@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>버튼 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #log {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #4CAF50;
+            background: white;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+        .success {
+            border-left-color: #4CAF50;
+        }
+        .info {
+            border-left-color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <h1>회원가입 버튼 작동 테스트</h1>
+    
+    <div class="test-section">
+        <h2>1. 기본 버튼 테스트</h2>
+        <button onclick="testBasicButton()">기본 onclick 테스트</button>
+        <button id="testBtn1">addEventListener 테스트</button>
+        <button id="testBtn2">jQuery 테스트 (없으면 실패)</button>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 이메일 인증 테스트</h2>
+        <input type="email" id="emailTest" placeholder="test@example.com" value="test@example.com">
+        <button onclick="testEmailDirect()">직접 호출</button>
+        <button id="emailBtnEvent">이벤트 리스너</button>
+        <button onclick="testEmailAPI()">API 테스트</button>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 아이디 중복확인 테스트</h2>
+        <input type="text" id="usernameTest" placeholder="testuser" value="testuser">
+        <button onclick="testUsernameDirect()">직접 호출</button>
+        <button id="usernameBtnEvent">이벤트 리스너</button>
+        <button onclick="testUsernameAPI()">API 테스트</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 스크립트 로드 확인</h2>
+        <button onclick="checkScripts()">스크립트 상태 확인</button>
+        <button onclick="checkAPIs()">API 상태 확인</button>
+        <button onclick="clearAllLogs()">로그 초기화</button>
+    </div>
+
+    <h3>실행 로그:</h3>
+    <div id="log"></div>
+
+    <script>
+        // 로그 함수
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString();
+            entry.textContent = `[${time}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            console.log(`[${type}] ${message}`);
+        }
+
+        // 로그 초기화
+        function clearAllLogs() {
+            document.getElementById('log').innerHTML = '';
+            addLog('로그를 초기화했습니다', 'info');
+        }
+
+        // 1. 기본 버튼 테스트
+        function testBasicButton() {
+            addLog('✅ onclick 직접 호출 성공!', 'success');
+        }
+
+        // addEventListener 테스트
+        document.addEventListener('DOMContentLoaded', function() {
+            addLog('DOMContentLoaded 이벤트 발생', 'info');
+            
+            const btn1 = document.getElementById('testBtn1');
+            if (btn1) {
+                btn1.addEventListener('click', function() {
+                    addLog('✅ addEventListener 성공!', 'success');
+                });
+                addLog('addEventListener 등록 완료', 'info');
+            } else {
+                addLog('❌ testBtn1을 찾을 수 없음', 'error');
+            }
+
+            // jQuery 테스트
+            const btn2 = document.getElementById('testBtn2');
+            if (btn2) {
+                btn2.addEventListener('click', function() {
+                    if (typeof $ !== 'undefined') {
+                        addLog('✅ jQuery 로드됨', 'success');
+                    } else {
+                        addLog('❌ jQuery 없음 (정상)', 'info');
+                    }
+                });
+            }
+
+            // 이메일 버튼 이벤트
+            const emailBtn = document.getElementById('emailBtnEvent');
+            if (emailBtn) {
+                emailBtn.addEventListener('click', function() {
+                    addLog('✅ 이메일 버튼 이벤트 리스너 작동!', 'success');
+                    const email = document.getElementById('emailTest').value;
+                    addLog(`이메일 값: ${email}`, 'info');
+                });
+            }
+
+            // 아이디 버튼 이벤트
+            const usernameBtn = document.getElementById('usernameBtnEvent');
+            if (usernameBtn) {
+                usernameBtn.addEventListener('click', function() {
+                    addLog('✅ 아이디 버튼 이벤트 리스너 작동!', 'success');
+                    const username = document.getElementById('usernameTest').value;
+                    addLog(`아이디 값: ${username}`, 'info');
+                });
+            }
+        });
+
+        // 2. 이메일 테스트
+        function testEmailDirect() {
+            addLog('이메일 직접 호출 테스트', 'info');
+            const email = document.getElementById('emailTest').value;
+            if (!email) {
+                addLog('❌ 이메일이 비어있음', 'error');
+                return;
+            }
+            
+            // 임시 코드 생성
+            const tempCode = Math.floor(100000 + Math.random() * 900000).toString();
+            addLog(`✅ 임시 인증 코드 생성: ${tempCode}`, 'success');
+        }
+
+        async function testEmailAPI() {
+            addLog('이메일 API 테스트 시작', 'info');
+            const email = document.getElementById('emailTest').value;
+            
+            const API_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:5001/api' 
+                : '/api';
+            
+            addLog(`API URL: ${API_URL}`, 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/send-email-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                if (response.ok) {
+                    addLog('✅ 이메일 API 호출 성공', 'success');
+                } else {
+                    addLog(`⚠️ API 응답: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                addLog(`❌ API 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 3. 아이디 테스트
+        function testUsernameDirect() {
+            addLog('아이디 직접 호출 테스트', 'info');
+            const username = document.getElementById('usernameTest').value;
+            if (!username) {
+                addLog('❌ 아이디가 비어있음', 'error');
+                return;
+            }
+            
+            const usernameRegex = /^[a-zA-Z0-9]{4,16}$/;
+            if (!usernameRegex.test(username)) {
+                addLog('❌ 아이디 형식 오류', 'error');
+                return;
+            }
+            
+            addLog('✅ 아이디 형식 검증 통과', 'success');
+        }
+
+        async function testUsernameAPI() {
+            addLog('아이디 API 테스트 시작', 'info');
+            const username = document.getElementById('usernameTest').value;
+            
+            const API_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:5001/api' 
+                : '/api';
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/check-username`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                
+                const data = await response.json();
+                if (data.available) {
+                    addLog('✅ 사용 가능한 아이디', 'success');
+                } else {
+                    addLog('⚠️ 이미 사용중인 아이디', 'info');
+                }
+            } catch (error) {
+                addLog(`❌ API 오류: ${error.message}`, 'error');
+            }
+        }
+
+        // 4. 스크립트 확인
+        function checkScripts() {
+            addLog('===== 스크립트 로드 상태 =====', 'info');
+            
+            // config.js 확인
+            if (window.API_CONFIG) {
+                addLog('✅ config.js 로드됨', 'success');
+                addLog(`  - API URL: ${window.API_CONFIG.BASE_URL}`, 'info');
+            } else {
+                addLog('❌ config.js 없음', 'error');
+            }
+            
+            // social-login-fix.js 확인
+            if (window.socialLogin) {
+                addLog('✅ social-login-fix.js 로드됨', 'success');
+            } else {
+                addLog('❌ social-login-fix.js 없음', 'error');
+            }
+            
+            // 전역 변수 확인
+            if (typeof emailVerified !== 'undefined') {
+                addLog('✅ 회원가입 전역 변수 존재', 'success');
+            } else {
+                addLog('⚠️ 회원가입 전역 변수 없음', 'info');
+            }
+        }
+
+        function checkAPIs() {
+            addLog('===== API 엔드포인트 확인 =====', 'info');
+            
+            const API_URL = window.location.hostname === 'localhost' 
+                ? 'http://localhost:5001/api' 
+                : '/api';
+            
+            addLog(`현재 호스트: ${window.location.hostname}`, 'info');
+            addLog(`API Base URL: ${API_URL}`, 'info');
+            addLog(`/auth/check-username: ${API_URL}/auth/check-username`, 'info');
+            addLog(`/auth/send-email-verification: ${API_URL}/auth/send-email-verification`, 'info');
+            addLog(`/auth/register: ${API_URL}/auth/register`, 'info');
+        }
+
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('load', function() {
+            addLog('===== 페이지 로드 완료 =====', 'success');
+            addLog(`현재 URL: ${window.location.href}`, 'info');
+            addLog(`User Agent: ${navigator.userAgent.substring(0, 50)}...`, 'info');
+        });
+    </script>
+</body>
+</html>

@@ -69,18 +69,25 @@ app.use(cors({
     maxAge: 86400 // 24 hours
 }));
 
-// Rate limiting - 개발중이므로 제한을 높임
+// Rate limiting 설정
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // 개발중이므로 1000 요청으로 증가
-    message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.'
+    max: 1000, // 15분당 최대 1000 요청
+    message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Render 배포 환경을 위한 설정
+    skip: (req) => {
+        // health check는 rate limit 제외
+        return req.path === '/api/health';
+    }
 });
 
-// 개발 환경에서는 rate limit 비활성화
-if (process.env.NODE_ENV !== 'production') {
-    console.log('Development mode - Rate limiting relaxed');
-} else {
+// 프로덕션 환경에서만 rate limit 적용
+if (process.env.NODE_ENV === 'production') {
     app.use('/api/', limiter);
+} else {
+    console.log('Development mode - Rate limiting disabled');
 }
 
 // Body parsing middleware
@@ -160,9 +167,9 @@ app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
 
     // SMM 패널 주문 동기화 시작 (API 키가 있을 때만)
     if (process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {

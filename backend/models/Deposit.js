@@ -49,8 +49,15 @@ const depositSchema = new mongoose.Schema({
         bank: String,
         accountNumber: String,
         accountHolder: String,
+        identificationCode: String,  // 입금자 식별 코드
+        depositorName: String,        // 입금자명
+        requestedAt: Date,
+        expiresAt: Date,
         transferredAt: Date
     },
+    confirmedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },  // 입금 확인한 관리자
+    orderId: String,
+    cancelReason: String,
     completedAt: Date,
     cancelledAt: Date,
     expiredAt: Date,

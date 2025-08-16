@@ -1,22 +1,7 @@
 // 결제 시스템 통합 JavaScript
 class PaymentManager {
     constructor() {
-        this.tossPayments = null;
         this.currentPaymentData = null;
-        this.initTossPayments();
-    }
-
-    // 토스페이먼츠 초기화
-    initTossPayments() {
-        // 토스페이먼츠 클라이언트 키 (테스트용)
-        const clientKey = 'test_ck_4yKeq5bgrpWzD1k5BzQ8KfYgZdXJ';
-
-        // 토스페이먼츠 SDK 로드 확인
-        if (typeof TossPayments !== 'undefined') {
-            this.tossPayments = TossPayments(clientKey);
-        } else {
-            console.error('토스페이먼츠 SDK가 로드되지 않았습니다.');
-        }
     }
 
     // 결제 요청
@@ -24,46 +9,12 @@ class PaymentManager {
         const { method, orderData } = paymentData;
 
         switch (method) {
-            case 'card':
-                return await this.requestTossCardPayment(orderData);
             case 'bank':
                 return await this.requestBankTransfer(orderData);
             case 'paypal':
                 return await this.requestPayPalPayment(orderData);
             default:
                 throw new Error('지원하지 않는 결제 방법입니다.');
-        }
-    }
-
-    // 토스페이먼츠 카드 결제
-    async requestTossCardPayment(orderData) {
-        if (!this.tossPayments) {
-            throw new Error('토스페이먼츠가 초기화되지 않았습니다.');
-        }
-
-        try {
-            const paymentRequest = {
-                amount: orderData.totalPrice,
-                orderId: this.generateOrderId(),
-                orderName: this.generateOrderName(orderData),
-                customerName: orderData.customerName || '고객',
-                customerEmail: orderData.customerEmail || 'customer@example.com',
-                successUrl: `${window.location.origin}/payment-success.html`,
-                failUrl: `${window.location.origin}/payment-fail.html`
-            };
-
-            // 결제 정보 저장 (결제 완료 후 사용)
-            this.currentPaymentData = {
-                ...paymentRequest,
-                orderData
-            };
-            localStorage.setItem('currentPaymentData', JSON.stringify(this.currentPaymentData));
-
-            // 토스페이먼츠 결제창 호출
-            await this.tossPayments.requestPayment('카드', paymentRequest);
-        } catch (error) {
-            console.error('토스페이먼츠 결제 오류:', error);
-            throw new Error('결제 처리 중 오류가 발생했습니다.');
         }
     }
 
