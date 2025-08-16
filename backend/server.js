@@ -32,8 +32,8 @@ const OrderSyncService = require('./services/orderSync.service');
 
 const app = express();
 
-// Trust proxy for Railway deployment
-app.set('trust proxy', true);
+// Trust proxy for Render deployment (1 hop only for security)
+app.set('trust proxy', 1);
 
 // Initialize database connection and seed data
 const initializeApp = async () => {
@@ -69,13 +69,18 @@ app.use(cors({
     maxAge: 86400 // 24 hours
 }));
 
-// Rate limiting 설정
+// Rate limiting 설정 (보안 강화)
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 1000, // 15분당 최대 1000 요청
     message: '너무 많은 요청이 발생했습니다. 잠시 후 다시 시도해주세요.',
     standardHeaders: true,
     legacyHeaders: false,
+    trustProxy: false, // 라이브러리 내부 trust proxy 비활성화
+    keyGenerator: (req) => {
+        // Express의 trust proxy 설정을 통해 얻은 IP 사용
+        return req.ip || req.connection.remoteAddress || 'unknown';
+    },
     // Render 배포 환경을 위한 설정
     skip: (req) => {
         // health check는 rate limit 제외
@@ -171,13 +176,16 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on port ${PORT}`);
 
-    // SMM 패널 주문 동기화 비활성화 (MongoDB 연결 문제로 인한 임시 조치)
-    // MongoDB 연결이 안정화되면 다시 활성화
-    if (false && process.env.SMM_API_KEY && process.env.SMM_ENABLED === 'true') {
+    // SMM 패널 주문 동기화 (프로덕션에서는 기본 비활성화)
+    const ENABLE_ORDER_SYNC = process.env.SMM_ENABLED === 'true' && 
+                               process.env.NODE_ENV !== 'production' && 
+                               process.env.FORCE_SYNC !== 'true';
+    
+    if (ENABLE_ORDER_SYNC && process.env.SMM_API_KEY) {
         const orderSync = new OrderSyncService();
         orderSync.startAutoSync();
         console.log('📦 SMM order sync service started');
     } else {
-        console.log('📦 SMM order sync service disabled');
+        console.log('📦 SMM order sync service disabled (production mode or SMM_ENABLED=false)');
     }
 });
