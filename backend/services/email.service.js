@@ -3,24 +3,26 @@ const crypto = require('crypto');
 
 class EmailService {
     constructor() {
-        // 이메일 설정 확인
-        const emailUser = process.env.EMAIL_USER;
+        // Gmail SMTP 설정 (환경변수로 관리)
+        const emailUser = process.env.EMAIL_USER || 'marketgrow.kr@gmail.com';
         const emailPass = process.env.EMAIL_APP_PASSWORD;
         
-        // Gmail SMTP 설정 (환경변수로 관리)
-        if (emailUser && emailPass && emailUser !== 'your-email@gmail.com') {
-            this.transporter = nodemailer.createTransporter({
-                service: 'gmail',
-                auth: {
-                    user: emailUser,
-                    pass: emailPass
-                }
-            });
-            console.log('📧 Email service configured with Gmail:', emailUser);
-        } else {
-            console.warn('⚠️ Email service not configured properly. Running in test mode.');
-            this.transporter = null; // 테스트 모드
+        if (!emailPass) {
+            console.error('❌ EMAIL_APP_PASSWORD not set in environment variables!');
         }
+        
+        this.transporter = nodemailer.createTransporter({
+            service: 'gmail',
+            auth: {
+                user: emailUser,
+                pass: emailPass || ''
+            },
+            tls: {
+                rejectUnauthorized: false // 개발 환경에서 SSL 인증서 문제 회피
+            }
+        });
+        
+        console.log('📧 Email service configured with Gmail:', emailUser);
 
         // 인증 코드 저장소 (Redis가 있다면 Redis 사용 권장)
         this.verificationCodes = new Map();
@@ -83,16 +85,6 @@ class EmailService {
             console.log(`📧 Generated verification code for ${email}: ${code}`); // 디버깅용
             this.saveVerificationCode(email, code);
             
-            // 테스트 모드 체크
-            if (!this.transporter) {
-                console.log('📧 Test mode: Email not sent, but code is:', code);
-                return {
-                    success: true,
-                    message: '테스트 모드: 인증 코드가 생성되었습니다.',
-                    code: code, // 테스트 모드에서는 코드 반환
-                    testMode: true
-                };
-            }
 
             const mailOptions = {
                 from: `"MarketGrow" <${process.env.EMAIL_USER || 'noreply@marketgrow.com'}>`,

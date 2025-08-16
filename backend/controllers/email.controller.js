@@ -33,24 +33,14 @@ exports.sendVerificationCode = async (req, res) => {
         const result = await emailService.sendVerificationEmail(email, username);
 
         if (result.success) {
-            const response = {
+            res.json({
                 success: true,
-                message: result.testMode 
-                    ? '테스트 모드: 아래 인증 코드를 사용하세요.' 
-                    : '인증 코드가 이메일로 발송되었습니다. 5분 이내에 입력해주세요.'
-            };
-            
-            // 테스트 모드에서는 코드도 반환
-            if (result.testMode && result.code) {
-                response.code = result.code;
-                response.testMode = true;
-            }
-            
-            res.json(response);
+                message: '인증 코드가 이메일로 발송되었습니다. 5분 이내에 입력해주세요.'
+            });
         } else {
             res.status(500).json({
                 success: false,
-                message: result.message
+                message: result.message || '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.'
             });
         }
     } catch (error) {
