@@ -5,6 +5,14 @@
  * HTML 404 페이지를 JSON으로 파싱하려다 실패하는 문제 방지
  */
 async function fetchJSON(url, options = {}) {
+    // URL undefined 체크
+    if (!url) {
+        console.error('fetchJSON: URL is undefined!');
+        throw new Error('URL_REQUIRED: fetchJSON이 undefined URL을 받았습니다');
+    }
+    
+    console.log('fetchJSON request:', url);
+    
     try {
         const response = await fetch(url, {
             ...options,

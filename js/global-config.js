@@ -12,10 +12,20 @@
     const API_PREFIX = '/api';
     const API_BASE_URL = `${API_ORIGIN}${API_PREFIX}`;
     
-    // 안전한 API URL 빌더
+    // 안전한 API URL 빌더 - 슬래시 함정 방지
     window.apiUrl = function(path) {
-        const cleanPath = path.startsWith('/') ? path : `/${path}`;
-        return `${API_ORIGIN}${API_PREFIX}${cleanPath}`;
+        // undefined 체크
+        if (!path) {
+            console.error('apiUrl: path is undefined!');
+            throw new Error('URL_REQUIRED: apiUrl path가 undefined입니다');
+        }
+        // API_PREFIX가 /로 끝나면 제거
+        const base = API_PREFIX.endsWith('/') ? API_PREFIX.slice(0, -1) : API_PREFIX;
+        // path가 /로 시작하지 않으면 추가
+        const p = path.startsWith('/') ? path : `/${path}`;
+        const url = `${API_ORIGIN}${base}${p}`;
+        console.log('apiUrl:', path, '->', url);
+        return url;
     };
     
     // 전역 API 설정
@@ -23,14 +33,24 @@
     window.API_URL = API_BASE_URL; // 별칭
     window.API_ORIGIN = API_ORIGIN;
     
-    // API 엔드포인트 정의
+    // 엔드포인트 경로만 정의 (apiUrl과 함께 사용)
+    window.ENDPOINT_PATHS = {
+        EMAIL_SEND_CODE: 'email/send-code',
+        EMAIL_SEND_VERIFICATION: 'email/send-verification',
+        EMAIL_VERIFY_CODE: 'email/verify-code',
+        AUTH_LOGIN: 'auth/login',
+        AUTH_REGISTER: 'auth/register',
+        AUTH_CHECK_USERNAME: 'auth/check-username'
+    };
+    
+    // API 엔드포인트 정의 (기존 코드 호환성을 위해 유지)
     window.API_ENDPOINTS = {
         // 인증 관련
         AUTH: {
             LOGIN: `${API_BASE_URL}/auth/login`,
             REGISTER: `${API_BASE_URL}/auth/register`,
             CHECK_USERNAME: `${API_BASE_URL}/auth/check-username`,
-            SEND_EMAIL_VERIFICATION: `${API_BASE_URL}/email/send-verification`,
+            SEND_EMAIL_VERIFICATION: `${API_BASE_URL}/email/send-code`,  // send-code로 통일
             VERIFY_EMAIL: `${API_BASE_URL}/email/verify-code`,
             SEND_PHONE_VERIFICATION: `${API_BASE_URL}/auth/send-sms`,
             VERIFY_PHONE: `${API_BASE_URL}/auth/verify-sms`,

@@ -296,7 +296,11 @@
             this.textContent = '발송중...';
             
             try {
-                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
+                // URL 명확하게 빌드
+                const url = window.apiUrl ? window.apiUrl('email/send-code') : 'https://marketgrow.onrender.com/api/email/send-code';
+                console.log('Email send URL:', url);
+                
+                const data = await window.fetchJSON(url, {
                     method: 'POST',
                     body: JSON.stringify({ email, username: document.getElementById('username').value || '' })
                 });
@@ -336,7 +340,11 @@
             
             // 먼저 백엔드 API로 확인 시도
             try {
-                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
+                // URL 명확하게 빌드
+                const url = window.apiUrl ? window.apiUrl('email/verify-code') : 'https://marketgrow.onrender.com/api/email/verify-code';
+                console.log('Email verify URL:', url);
+                
+                const data = await window.fetchJSON(url, {
                     method: 'POST',
                     body: JSON.stringify({ email, code })
                 });
@@ -377,7 +385,11 @@
             this.textContent = '확인중...';
             
             try {
-                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.CHECK_USERNAME, {
+                // URL 명확하게 빌드
+                const url = window.apiUrl ? window.apiUrl('auth/check-username') : 'https://marketgrow.onrender.com/api/auth/check-username';
+                console.log('Username check URL:', url);
+                
+                const data = await window.fetchJSON(url, {
                     method: 'POST',
                     body: JSON.stringify({ username })
                 });
@@ -427,7 +439,10 @@
             
             try {
                 // 실제 SMS API 호출 시도
-                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_PHONE_VERIFICATION, {
+                const url = window.apiUrl ? window.apiUrl('auth/send-sms') : 'https://marketgrow.onrender.com/api/auth/send-sms';
+                console.log('SMS send URL:', url);
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone })
@@ -553,7 +568,11 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 처리중...';
             
             try {
-                const response = await fetch(window.API_ENDPOINTS.AUTH.REGISTER, {
+                // URL 명확하게 빌드
+                const url = window.apiUrl ? window.apiUrl('auth/register') : 'https://marketgrow.onrender.com/api/auth/register';
+                console.log('Register URL:', url);
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
