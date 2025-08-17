@@ -35,8 +35,16 @@ async function fetchJSON(url, options = {}) {
             // JSON 에러 응답 파싱 시도
             try {
                 const errorData = JSON.parse(text);
-                throw new Error(errorData.message || `서버 오류: ${response.status}`);
+                // 비즈니스 로직 에러는 메시지를 그대로 전달
+                if (errorData.message) {
+                    throw new Error(errorData.message);
+                }
+                throw new Error(`서버 오류: ${response.status}`);
             } catch (e) {
+                // JSON 파싱 실패 시에만 일반 에러
+                if (e.message && !e.message.includes('JSON')) {
+                    throw e;
+                }
                 throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
             }
         }

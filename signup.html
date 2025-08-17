@@ -322,7 +322,16 @@
                 }
             } catch (error) {
                 console.error('Email send error:', error);
-                showStatus('emailStatus', error.message || '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                // 에러 메시지를 더 친화적으로 표시
+                let errorMessage = error.message;
+                if (errorMessage.includes('이미 등록된')) {
+                    errorMessage = '이미 가입된 이메일입니다. 다른 이메일을 사용하거나 로그인해주세요.';
+                } else if (errorMessage.includes('URL_REQUIRED') || errorMessage.includes('undefined')) {
+                    errorMessage = '서버 연결에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.';
+                } else if (errorMessage.includes('Failed to fetch')) {
+                    errorMessage = '네트워크 연결을 확인해주세요.';
+                }
+                showStatus('emailStatus', errorMessage, 'error');
                 this.disabled = false;
                 this.textContent = '인증';
             }
