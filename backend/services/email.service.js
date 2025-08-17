@@ -5,7 +5,7 @@ class EmailService {
     constructor() {
         // Gmail SMTP 설정 (환경변수로 관리)
         const emailUser = process.env.EMAIL_USER || 'marketgrow.kr@gmail.com';
-        const emailPass = process.env.EMAIL_APP_PASSWORD;
+        const emailPass = process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASS; // 두 환경변수 모두 지원
         
         console.log('📧 Email configuration check:', {
             user: emailUser,
@@ -13,38 +13,45 @@ class EmailService {
             passLength: emailPass ? emailPass.length : 0
         });
         
-        if (!emailPass) {
-            console.error('❌ EMAIL_APP_PASSWORD not set in environment variables!');
-            this.transporter = null;
-            return;
-        }
-        
-        this.transporter = nodemailer.createTransporter({
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // true for 465, false for other ports
-            auth: {
-                user: emailUser,
-                pass: emailPass
-            },
-            tls: {
-                rejectUnauthorized: false, // 개발 환경에서 SSL 인증서 문제 회피
-                ciphers: 'SSLv3'
-            },
-            debug: true, // 디버깅 활성화
-            logger: true // 로깅 활성화
-        });
-        
-        console.log('📧 Email service configured with Gmail:', emailUser);
-        
-        // SMTP 연결 테스트
-        this.transporter.verify((error, success) => {
-            if (error) {
-                console.error('❌ SMTP connection failed:', error);
-            } else {
-                console.log('✅ SMTP server is ready to send emails');
+        try {
+            if (!emailPass) {
+                console.error('❌ EMAIL_APP_PASSWORD/EMAIL_PASS not set in environment variables!');
+                this.transporter = null;
+                this.fallback = true;
+                return;
             }
-        });
+            
+            // createTransport (오타 수정: createTransporter -> createTransport)
+            this.transporter = nodemailer.createTransport({
+                host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+                port: Number(process.env.EMAIL_PORT || 465),
+                secure: true, // 465 포트는 true
+                auth: {
+                    user: emailUser,
+                    pass: emailPass
+                },
+                pool: true,
+                maxConnections: 3,
+                maxMessages: 100
+            });
+            
+            console.log('📧 Email service configured with Gmail:', emailUser);
+            
+            // SMTP 연결 테스트 (비동기)
+            this.transporter.verify()
+                .then(() => {
+                    console.log('✅ SMTP transporter verified and ready');
+                })
+                .catch(err => {
+                    console.error('📧 SMTP verify failed:', err.message);
+                });
+                
+        } catch (err) {
+            console.error('📧 Failed to create nodemailer transporter:', err);
+            // 폴백: 서버는 죽지 않게 메일을 콘솔로만 출력
+            this.transporter = null;
+            this.fallback = true;
+        }
 
         // 인증 코드 저장소 (Redis가 있다면 Redis 사용 권장)
         this.verificationCodes = new Map();

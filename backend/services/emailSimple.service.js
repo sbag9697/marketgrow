@@ -7,7 +7,7 @@ class SimpleEmailService {
         
         // Gmail 설정
         this.emailUser = process.env.EMAIL_USER || 'marketgrow.kr@gmail.com';
-        this.emailPass = process.env.EMAIL_APP_PASSWORD;
+        this.emailPass = process.env.EMAIL_APP_PASSWORD || process.env.EMAIL_PASS; // 두 환경변수 모두 지원
         
         console.log('📧 Simple Email Service initialized');
     }
@@ -87,12 +87,11 @@ class SimpleEmailService {
                 };
             }
 
-            // 매번 새로운 transporter 생성
-            const transporter = nodemailer.createTransporter({
-                service: 'gmail',
+            // 매번 새로운 transporter 생성 (createTransport 사용)
+            const transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
-                port: 587,
-                secure: false,
+                port: 465,
+                secure: true, // 465 포트는 true
                 auth: {
                     user: this.emailUser,
                     pass: this.emailPass
