@@ -63,7 +63,17 @@ class SMSService {
 
     // 인증 코드 검증
     verifyCode(phoneNumber, code) {
-        const stored = this.verificationCodes.get(phoneNumber);
+        // 전화번호 형식 정규화
+        const formattedNumber = this.formatPhoneNumber(phoneNumber);
+        const stored = this.verificationCodes.get(formattedNumber);
+
+        console.log('SMS Verify:', {
+            phoneNumber,
+            formattedNumber,
+            inputCode: code,
+            storedCode: stored?.code,
+            hasStored: !!stored
+        });
 
         if (!stored) {
             return { success: false, message: '인증 코드가 만료되었거나 존재하지 않습니다.' };
@@ -71,7 +81,7 @@ class SMSService {
 
         // 5회 시도 제한
         if (stored.attempts >= 5) {
-            this.verificationCodes.delete(phoneNumber);
+            this.verificationCodes.delete(formattedNumber);
             return { success: false, message: '인증 시도 횟수를 초과했습니다. 다시 인증을 요청해주세요.' };
         }
 
@@ -79,12 +89,12 @@ class SMSService {
 
         // 3분 경과 체크
         if (Date.now() - stored.createdAt > 3 * 60 * 1000) {
-            this.verificationCodes.delete(phoneNumber);
+            this.verificationCodes.delete(formattedNumber);
             return { success: false, message: '인증 코드가 만료되었습니다.' };
         }
 
         if (stored.code === code) {
-            this.verificationCodes.delete(phoneNumber);
+            this.verificationCodes.delete(formattedNumber);
             return { success: true, message: 'SMS 인증이 완료되었습니다.' };
         }
 
@@ -202,6 +212,13 @@ class SMSService {
             const formattedNumber = this.formatPhoneNumber(phoneNumber);
             const code = this.generateVerificationCode();
             this.saveVerificationCode(formattedNumber, code);
+
+            console.log('SMS Send:', {
+                originalNumber: phoneNumber,
+                formattedNumber,
+                code,
+                storedCodes: Array.from(this.verificationCodes.keys())
+            });
 
             const message = `[MarketGrow] 인증번호는 ${code}입니다. 3분 이내에 입력해주세요.`;
 

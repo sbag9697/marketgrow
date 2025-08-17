@@ -511,25 +511,61 @@
         });
 
         // 휴대폰 인증번호 확인
-        document.getElementById('phoneConfirmBtn').addEventListener('click', function() {
+        document.getElementById('phoneConfirmBtn').addEventListener('click', async function() {
             const code = document.getElementById('phoneCode').value;
+            const phone = document.getElementById('phone').value.replace(/[^0-9]/g, '');
             
             if (!code) {
                 showStatus('phoneStatus', '인증번호를 입력해주세요.', 'error');
                 return;
             }
             
-            if (code === tempPhoneCode || code === '123456') {
-                phoneVerified = true;
-                document.getElementById('phoneVerifyGroup').style.display = 'none';
-                document.getElementById('phone').readOnly = true;
-                document.getElementById('phoneVerifyBtn').style.display = 'none';
-                document.getElementById('phoneCodeDisplay').style.display = 'none';
-                showStatus('phoneStatus', '✅ 휴대폰 인증 완료', 'success');
+            this.disabled = true;
+            this.textContent = '확인중...';
+            
+            try {
+                // 백엔드 API로 인증번호 검증
+                const url = window.apiUrl ? window.apiUrl('auth/verify-sms') : 'https://marketgrow.onrender.com/api/auth/verify-sms';
+                console.log('SMS verify URL:', url);
                 
-                if (phoneTimer) clearInterval(phoneTimer);
-            } else {
-                showStatus('phoneStatus', '인증번호가 일치하지 않습니다.', 'error');
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone, code: code })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    phoneVerified = true;
+                    document.getElementById('phoneVerifyGroup').style.display = 'none';
+                    document.getElementById('phone').readOnly = true;
+                    document.getElementById('phoneVerifyBtn').style.display = 'none';
+                    document.getElementById('phoneCodeDisplay').style.display = 'none';
+                    showStatus('phoneStatus', '✅ 휴대폰 인증 완료', 'success');
+                    
+                    if (phoneTimer) clearInterval(phoneTimer);
+                } else {
+                    showStatus('phoneStatus', data.message || '인증번호가 일치하지 않습니다.', 'error');
+                }
+            } catch (error) {
+                console.error('SMS verification error:', error);
+                // 개발 모드 폴백
+                if (code === tempPhoneCode || code === '123456') {
+                    phoneVerified = true;
+                    document.getElementById('phoneVerifyGroup').style.display = 'none';
+                    document.getElementById('phone').readOnly = true;
+                    document.getElementById('phoneVerifyBtn').style.display = 'none';
+                    document.getElementById('phoneCodeDisplay').style.display = 'none';
+                    showStatus('phoneStatus', '✅ 휴대폰 인증 완료', 'success');
+                    
+                    if (phoneTimer) clearInterval(phoneTimer);
+                } else {
+                    showStatus('phoneStatus', '인증번호가 일치하지 않습니다.', 'error');
+                }
+            } finally {
+                this.disabled = false;
+                this.textContent = '확인';
             }
         });
 
