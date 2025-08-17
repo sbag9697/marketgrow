@@ -7,15 +7,23 @@ class EmailService {
         const emailUser = process.env.EMAIL_USER || 'marketgrow.kr@gmail.com';
         const emailPass = process.env.EMAIL_APP_PASSWORD;
         
+        console.log('📧 Email configuration check:', {
+            user: emailUser,
+            passExists: !!emailPass,
+            passLength: emailPass ? emailPass.length : 0
+        });
+        
         if (!emailPass) {
             console.error('❌ EMAIL_APP_PASSWORD not set in environment variables!');
+            this.transporter = null;
+            return;
         }
         
         this.transporter = nodemailer.createTransporter({
             service: 'gmail',
             auth: {
                 user: emailUser,
-                pass: emailPass || ''
+                pass: emailPass
             },
             tls: {
                 rejectUnauthorized: false // 개발 환경에서 SSL 인증서 문제 회피
@@ -80,6 +88,16 @@ class EmailService {
     // 회원가입 인증 링크 발송
     async sendVerificationEmail(email, username) {
         try {
+            // transporter 확인
+            if (!this.transporter) {
+                console.error('❌ Email transporter not initialized!');
+                return {
+                    success: false,
+                    message: '이메일 서비스가 설정되지 않았습니다. 관리자에게 문의해주세요.',
+                    error: 'Email service not configured'
+                };
+            }
+            
             // 인증 코드 생성
             const code = this.generateVerificationCode();
             console.log(`📧 Generated verification code for ${email}: ${code}`); // 디버깅용
@@ -144,7 +162,22 @@ class EmailService {
                 messageId: info.messageId
             };
         } catch (error) {
-            console.error('Email sending error:', error);
+            console.error('Email sending error:', {
+                message: error.message,
+                code: error.code,
+                response: error.response,
+                stack: error.stack
+            });
+            
+            // Gmail 인증 에러 처리
+            if (error.code === 'EAUTH' || error.message.includes('Invalid login')) {
+                return {
+                    success: false,
+                    message: 'Gmail 인증에 실패했습니다. 앱 비밀번호를 확인해주세요.',
+                    error: error.message
+                };
+            }
+            
             return {
                 success: false,
                 message: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
@@ -218,7 +251,22 @@ class EmailService {
                 messageId: info.messageId
             };
         } catch (error) {
-            console.error('Email sending error:', error);
+            console.error('Email sending error:', {
+                message: error.message,
+                code: error.code,
+                response: error.response,
+                stack: error.stack
+            });
+            
+            // Gmail 인증 에러 처리
+            if (error.code === 'EAUTH' || error.message.includes('Invalid login')) {
+                return {
+                    success: false,
+                    message: 'Gmail 인증에 실패했습니다. 앱 비밀번호를 확인해주세요.',
+                    error: error.message
+                };
+            }
+            
             return {
                 success: false,
                 message: '이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.',
