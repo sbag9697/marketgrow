@@ -1,4 +1,5 @@
-const emailService = require('../services/email.service');
+// 간단한 이메일 서비스 사용 (Gmail 문제 해결을 위해)
+const emailService = require('../services/emailSimple.service');
 const User = require('../models/User');
 
 // 이메일 인증 코드 발송

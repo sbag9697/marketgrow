@@ -20,17 +20,31 @@ class EmailService {
         }
         
         this.transporter = nodemailer.createTransporter({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: emailUser,
                 pass: emailPass
             },
             tls: {
-                rejectUnauthorized: false // 개발 환경에서 SSL 인증서 문제 회피
-            }
+                rejectUnauthorized: false, // 개발 환경에서 SSL 인증서 문제 회피
+                ciphers: 'SSLv3'
+            },
+            debug: true, // 디버깅 활성화
+            logger: true // 로깅 활성화
         });
         
         console.log('📧 Email service configured with Gmail:', emailUser);
+        
+        // SMTP 연결 테스트
+        this.transporter.verify((error, success) => {
+            if (error) {
+                console.error('❌ SMTP connection failed:', error);
+            } else {
+                console.log('✅ SMTP server is ready to send emails');
+            }
+        });
 
         // 인증 코드 저장소 (Redis가 있다면 Redis 사용 권장)
         this.verificationCodes = new Map();
