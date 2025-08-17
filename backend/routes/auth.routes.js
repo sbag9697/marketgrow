@@ -142,8 +142,8 @@ router.get('/check-email/:email', checkEmail);
 // Verification routes (인증)
 router.post('/send-email-verification', authLimiter, sendEmailVerification);
 router.post('/verify-email-code', verifyEmailCode);
-router.post('/send-sms-verification', authLimiter, sendSMSVerification);
-router.post('/verify-sms-code', verifySMSCode);
+router.post(['/send-sms-verification', '/send-sms'], authLimiter, sendSMSVerification);
+router.post(['/verify-sms-code', '/verify-sms'], verifySMSCode);
 
 // Protected routes
 router.get('/profile', auth, getProfile);

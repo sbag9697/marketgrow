@@ -118,6 +118,8 @@
                                 <button type="button" class="verify-btn" id="emailConfirmBtn">확인</button>
                                 <span class="verify-timer" id="emailTimer">05:00</span>
                             </div>
+                            <!-- 테스트 모드 인증 코드 표시 -->
+                            <div id="emailCodeDisplay" class="verification-code-display" style="display: none;"></div>
                         </div>
 
                         <!-- 아이디 -->
@@ -170,6 +172,8 @@
                                 <button type="button" class="verify-btn" id="phoneConfirmBtn">확인</button>
                                 <span class="verify-timer" id="phoneTimer">05:00</span>
                             </div>
+                            <!-- 테스트 모드 인증 코드 표시 -->
+                            <div id="phoneCodeDisplay" class="verification-code-display" style="display: none;"></div>
                         </div>
 
                         <button type="submit" class="auth-btn primary" id="submitBtn">
@@ -448,13 +452,13 @@
             
             try {
                 // 실제 SMS API 호출 시도
-                const url = window.apiUrl ? window.apiUrl('auth/send-sms') : 'https://marketgrow.onrender.com/api/auth/send-sms';
+                const url = window.apiUrl ? window.apiUrl('auth/send-sms-verification') : 'https://marketgrow.onrender.com/api/auth/send-sms-verification';
                 console.log('SMS send URL:', url);
                 
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone })
+                    body: JSON.stringify({ phoneNumber: phone })  // phoneNumber로 수정
                 });
                 
                 const data = await response.json();
