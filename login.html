@@ -225,6 +225,7 @@
 
     <!-- Global Config -->
     <script src="js/global-config.js"></script>
+    <script src="js/api-utils.js"></script>
     
     <!-- 설정 파일 로드 -->
     <script src="js/config.js"></script>
@@ -304,18 +305,22 @@
             console.log('로그인 시도:', username);
             
             try {
-                const response = await fetch(window.API_ENDPOINTS.AUTH.LOGIN, {
+                // URL 명확하게 빌드
+                const url = window.apiUrl ? window.apiUrl('auth/login') : 'https://marketgrow.onrender.com/api/auth/login';
+                console.log('Login URL:', url);
+                
+                const loginData = {
+                    login: username,  // 백엔드는 'login' 필드를 요구
+                    password: password
+                };
+                console.log('Login data:', { login: username });
+                
+                // fetchJSON 사용하여 에러 처리 개선
+                const data = await window.fetchJSON(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        login: username,  // 백엔드는 'login' 필드를 요구
-                        password: password
-                    })
+                    body: JSON.stringify(loginData)
                 });
                 
-                const data = await response.json();
                 console.log('응답:', data);
                 
                 if (data.success) {
@@ -330,8 +335,12 @@
                     alert(data.message || '로그인 실패. 아이디와 비밀번호를 확인하세요.');
                 }
             } catch (error) {
-                console.error('오류:', error);
-                alert('서버 연결 실패. 잠시 후 다시 시도하세요.');
+                console.error('Login error:', error);
+                let errorMessage = '서버 연결에 실패했습니다.';
+                if (error.message) {
+                    errorMessage = error.message;
+                }
+                alert(errorMessage);
             }
         });
         
