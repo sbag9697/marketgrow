@@ -200,7 +200,19 @@ app.get('/api/debug/routes', (req, res) => {
     res.json({ routes });
 });
 
-// 404 handler
+// API 404를 JSON으로 반환
+app.use('/api/*', (req, res) => {
+    console.log(`API 404: ${req.method} ${req.originalUrl}`);
+    res.status(404).json({
+        success: false,
+        error: 'NOT_FOUND',
+        message: '요청하신 API 엔드포인트를 찾을 수 없습니다.',
+        path: req.originalUrl,
+        method: req.method
+    });
+});
+
+// 기타 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,

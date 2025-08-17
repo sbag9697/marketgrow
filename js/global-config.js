@@ -3,16 +3,25 @@
     'use strict';
     
     // API 기본 URL 설정 - Render 백엔드 직접 연결
-    const API_ORIGIN = 'https://marketgrow.onrender.com'; // 백엔드 서버 주소
-    const API_BASE_URL = window.location.hostname === 'localhost' || 
-                         window.location.hostname === '127.0.0.1' ||
-                         window.location.hostname === ''
-        ? 'http://localhost:5001/api'
-        : `${API_ORIGIN}/api`; // 프로덕션: Render 백엔드 직접 연결
+    const API_ORIGIN = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1' ||
+                       window.location.hostname === ''
+        ? 'http://localhost:5001'
+        : 'https://marketgrow.onrender.com'; // 백엔드 서버 주소
+    
+    const API_PREFIX = '/api';
+    const API_BASE_URL = `${API_ORIGIN}${API_PREFIX}`;
+    
+    // 안전한 API URL 빌더
+    window.apiUrl = function(path) {
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        return `${API_ORIGIN}${API_PREFIX}${cleanPath}`;
+    };
     
     // 전역 API 설정
     window.API_BASE = API_BASE_URL;
     window.API_URL = API_BASE_URL; // 별칭
+    window.API_ORIGIN = API_ORIGIN;
     
     // API 엔드포인트 정의
     window.API_ENDPOINTS = {

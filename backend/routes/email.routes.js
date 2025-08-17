@@ -17,9 +17,10 @@ const verifyLimiter = rateLimit({
     message: '너무 많은 시도입니다. 잠시 후 다시 시도해주세요.'
 });
 
-// 이메일 인증 코드 발송
-router.post('/send-verification', emailLimiter, (req, res, next) => {
+// 이메일 인증 코드 발송 (여러 경로 지원)
+router.post(['/send-verification', '/send-code', '/send'], emailLimiter, (req, res, next) => {
     console.log('📧 Email verification request:', {
+        path: req.path,
         origin: req.headers.origin,
         email: req.body.email,
         ip: req.ip

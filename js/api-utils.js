@@ -62,9 +62,12 @@ async function fetchJSON(url, options = {}) {
  * API 요청 헬퍼 함수
  */
 async function apiRequest(endpoint, options = {}) {
+    // apiUrl 함수를 사용하여 안전하게 URL 생성
     const url = endpoint.startsWith('http') 
         ? endpoint 
-        : `${window.API_BASE || 'https://marketgrow.onrender.com/api'}${endpoint}`;
+        : window.apiUrl ? window.apiUrl(endpoint) : `${window.API_BASE || 'https://marketgrow.onrender.com/api'}${endpoint}`;
+    
+    console.log('API Request:', url); // 디버깅용
     
     const token = localStorage.getItem('authToken');
     
