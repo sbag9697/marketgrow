@@ -1,9 +1,10 @@
 // API 설정
 const API_CONFIG = {
-    // API URL - Netlify는 프록시 사용, 로컬은 직접 연결
-    BASE_URL: window.location.hostname === 'localhost'
+    // API URL - Render 백엔드 직접 연결
+    BASE_URL: window.location.hostname === 'localhost' || 
+              window.location.hostname === '127.0.0.1'
         ? 'http://localhost:5001/api'
-        : '/api',  // Netlify 프록시 사용
+        : 'https://marketgrow.onrender.com/api',  // Render 백엔드 직접 연결
     TIMEOUT: 30000,
     HEADERS: {
         'Content-Type': 'application/json'

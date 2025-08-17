@@ -1,6 +1,14 @@
 // 소셜 로그인 시스템 - 수정된 버전
-// API URL은 global-config.js에서 가져옴
-const SOCIAL_API_URL = window.API_BASE || 'http://localhost:5001/api';
+// API URL은 global-config.js의 apiUrl 빌더 사용
+const SOCIAL_API_URL = window.API_BASE || 'https://marketgrow.onrender.com/api';
+
+const buildSocialApiUrl = (path) => {
+    if (window.apiUrl) {
+        return window.apiUrl(path);
+    }
+    // fallback
+    return `${SOCIAL_API_URL}/${path}`;
+};
 
 console.log('Social Login API URL:', SOCIAL_API_URL);
 
@@ -84,7 +92,10 @@ async function handleGoogleResponse(response) {
     console.log('Token received:', response.credential ? 'Yes' : 'No');
 
     try {
-        const result = await fetch(`${SOCIAL_API_URL}/oauth/google`, {
+        const url = buildSocialApiUrl('oauth/google');
+        console.log('Google OAuth URL:', url);
+        
+        const result = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -172,13 +183,16 @@ window.loginWithKakaoPopup = function () {
                 console.log('Kakao 로그인 성공', authObj);
 
                 try {
-                    const result = await fetch(`${SOCIAL_API_URL}/oauth/kakao`, {
+                    const url = buildSocialApiUrl('oauth/kakao');
+                    console.log('Kakao OAuth URL:', url);
+                    
+                    const result = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            token: authObj.access_token
+                            accessToken: authObj.access_token
                         })
                     });
 
