@@ -2,12 +2,13 @@
 (function() {
     'use strict';
     
-    // API 기본 URL 설정
+    // API 기본 URL 설정 - Render 백엔드 직접 연결
+    const API_ORIGIN = 'https://marketgrow.onrender.com'; // 백엔드 서버 주소
     const API_BASE_URL = window.location.hostname === 'localhost' || 
                          window.location.hostname === '127.0.0.1' ||
                          window.location.hostname === ''
         ? 'http://localhost:5001/api'
-        : '/api'; // Netlify 프록시 사용
+        : `${API_ORIGIN}/api`; // 프로덕션: Render 백엔드 직접 연결
     
     // 전역 API 설정
     window.API_BASE = API_BASE_URL;

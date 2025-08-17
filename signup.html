@@ -220,8 +220,9 @@
         </div>
     </footer>
 
-    <!-- Global Config -->
+    <!-- Global Config & API Utils -->
     <script src="js/global-config.js"></script>
+    <script src="js/api-utils.js"></script>
     
     <!-- JavaScript 구현 -->
     <script>
@@ -295,13 +296,10 @@
             this.textContent = '발송중...';
             
             try {
-                const response = await fetch(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
+                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.SEND_EMAIL_VERIFICATION, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, username: document.getElementById('username').value || '' })
                 });
-                
-                const data = await response.json();
                 
                 if (data.success) {
                     document.getElementById('emailVerifyGroup').style.display = 'block';
@@ -320,7 +318,7 @@
                 }
             } catch (error) {
                 console.error('Email send error:', error);
-                showStatus('emailStatus', '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                showStatus('emailStatus', error.message || '서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
                 this.disabled = false;
                 this.textContent = '인증';
             }
@@ -338,13 +336,10 @@
             
             // 먼저 백엔드 API로 확인 시도
             try {
-                const response = await fetch(window.API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
+                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.VERIFY_EMAIL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, code })
                 });
-                
-                const data = await response.json();
                 
                 if (data.success) {
                     emailVerified = true;
@@ -382,13 +377,10 @@
             this.textContent = '확인중...';
             
             try {
-                const response = await fetch(window.API_ENDPOINTS.AUTH.CHECK_USERNAME, {
+                const data = await window.fetchJSON(window.API_ENDPOINTS.AUTH.CHECK_USERNAME, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username })
                 });
-                
-                const data = await response.json();
                 
                 if (data.available) {
                     usernameChecked = true;
