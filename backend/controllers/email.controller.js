@@ -45,10 +45,20 @@ exports.sendVerificationCode = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Send verification code error:', error);
+        console.error('Send verification code error:', {
+            message: error.message,
+            stack: error.stack,
+            email: req.body.email
+        });
+        
+        // CORS 헤더가 누락되지 않도록 명시적으로 설정
+        res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        
         res.status(500).json({
             success: false,
-            message: '인증 코드 발송 중 오류가 발생했습니다.'
+            message: '인증 코드 발송 중 오류가 발생했습니다.',
+            error: process.env.NODE_ENV !== 'production' ? error.message : undefined
         });
     }
 };

@@ -18,7 +18,14 @@ const verifyLimiter = rateLimit({
 });
 
 // 이메일 인증 코드 발송
-router.post('/send-verification', emailLimiter, emailController.sendVerificationCode);
+router.post('/send-verification', emailLimiter, (req, res, next) => {
+    console.log('📧 Email verification request:', {
+        origin: req.headers.origin,
+        email: req.body.email,
+        ip: req.ip
+    });
+    next();
+}, emailController.sendVerificationCode);
 
 // 이메일 인증 코드 검증
 router.post('/verify-code', verifyLimiter, emailController.verifyEmailCode);

@@ -71,15 +71,44 @@ app.use(helmet({
     crossOriginEmbedderPolicy: false
 }));
 
-// CORS configuration - 모든 origin 허용 (임시)
+// CORS configuration - 프로덕션 도메인 허용
+const ALLOWED_ORIGINS = [
+    'https://marketgrow.kr',
+    'https://www.marketgrow.kr',
+    'https://marketgrow-snsmarketing.netlify.app',
+    'https://marketgrow.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5500'
+];
+
 app.use(cors({
-    origin: true, // 모든 origin 허용
+    origin: function(origin, callback) {
+        // origin이 없는 요청 (Postman, 서버 직접 호출 등) 허용
+        if (!origin) return callback(null, true);
+        
+        // 허용된 origin 확인
+        if (ALLOWED_ORIGINS.includes(origin)) {
+            return callback(null, true);
+        }
+        
+        // 개발 환경에서는 모든 origin 허용
+        if (process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
+        
+        console.warn(`CORS blocked for origin: ${origin}`);
+        return callback(new Error(`CORS policy: ${origin} is not allowed`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     exposedHeaders: ['X-Total-Count', 'X-Page', 'X-Limit'],
     maxAge: 86400 // 24 hours
 }));
+
+// OPTIONS 프리플라이트 요청 빠른 응답
+app.options('*', cors());
 
 // Rate limiting 설정 (보안 강화)
 const limiter = rateLimit({
