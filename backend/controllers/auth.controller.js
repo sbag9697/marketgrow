@@ -628,6 +628,11 @@ const verifyEmailCode = async (req, res) => {
 const sendSMSVerification = async (req, res) => {
     try {
         const { phoneNumber } = req.body;
+        
+        console.log('SMS Send Request:', {
+            body: req.body,
+            phoneNumber
+        });
 
         if (!phoneNumber) {
             return res.status(400).json({
@@ -676,6 +681,12 @@ const sendSMSVerification = async (req, res) => {
 const verifySMSCode = async (req, res) => {
     try {
         const { phoneNumber, code } = req.body;
+        
+        console.log('SMS Verify Request:', {
+            body: req.body,
+            phoneNumber,
+            code
+        });
 
         if (!phoneNumber || !code) {
             return res.status(400).json({

@@ -67,12 +67,22 @@ class SMSService {
         const formattedNumber = this.formatPhoneNumber(phoneNumber);
         const stored = this.verificationCodes.get(formattedNumber);
 
+        // 현재 저장된 모든 인증 코드 확인 (디버깅용)
+        const allStoredNumbers = Array.from(this.verificationCodes.keys());
+        const allStoredCodes = Array.from(this.verificationCodes.entries()).map(([num, data]) => ({
+            number: num,
+            code: data.code,
+            age: Math.floor((Date.now() - data.createdAt) / 1000) + '초'
+        }));
+
         console.log('SMS Verify:', {
             phoneNumber,
             formattedNumber,
             inputCode: code,
             storedCode: stored?.code,
-            hasStored: !!stored
+            hasStored: !!stored,
+            allStoredNumbers,
+            allStoredCodes
         });
 
         if (!stored) {
@@ -103,24 +113,39 @@ class SMSService {
 
     // 전화번호 포맷 정규화
     formatPhoneNumber(phoneNumber) {
-        // 한국 번호 기준
-        const cleaned = phoneNumber.replace(/\D/g, '');
+        if (!phoneNumber) return '';
+        
+        // 모든 non-digit 제거
+        const cleaned = String(phoneNumber).replace(/\D/g, '');
+        
+        console.log('formatPhoneNumber:', {
+            input: phoneNumber,
+            cleaned: cleaned,
+            length: cleaned.length
+        });
 
-        // 010-1234-5678 형식
-        if (cleaned.startsWith('010')) {
+        // 한국 번호 기준 정규화
+        // 010XXXXXXXX 형식으로 통일
+        if (cleaned.startsWith('010') && cleaned.length === 11) {
+            return cleaned;
+        }
+        
+        // 01X로 시작하는 다른 번호들 (011, 016, 017, 018, 019 등)
+        if (cleaned.match(/^01[0-9]/) && cleaned.length === 10 || cleaned.length === 11) {
             return cleaned;
         }
 
-        // +82 10 1234 5678 형식
+        // +82 10 형식
         if (cleaned.startsWith('8210')) {
             return `0${cleaned.slice(2)}`;
         }
 
-        // 82 없이 10으로 시작
-        if (cleaned.startsWith('10')) {
+        // 10으로 시작하는 경우 앞에 0 추가
+        if (cleaned.startsWith('10') && cleaned.length === 10) {
             return `0${cleaned}`;
         }
 
+        // 그 외의 경우 그대로 반환
         return cleaned;
     }
 
