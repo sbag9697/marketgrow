@@ -241,4 +241,14 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     } else {
         console.log('📦 SMM order sync service disabled (no DB, production mode, or SMM_ENABLED=false)');
     }
+
+    // 예치금 자동 확인 스케줄러 시작
+    if (dbReady && process.env.OPENBANKING_CLIENT_ID) {
+        const { getInstance } = require('./services/depositScheduler');
+        const depositScheduler = getInstance();
+        depositScheduler.start();
+        console.log('💰 Deposit auto-check scheduler started');
+    } else if (dbReady) {
+        console.log('💰 Deposit auto-check disabled (OpenBanking not configured)');
+    }
 });
