@@ -264,13 +264,13 @@
                             <label>은행명</label>
                             <div class="value">
                                 <i class="fas fa-university"></i>
-                                <strong>국민은행</strong>
+                                <strong>농협은행</strong>
                             </div>
                         </div>
                         <div class="bank-item">
                             <label>계좌번호</label>
                             <div class="value">
-                                <strong>123456-78-901234</strong>
+                                <strong>301-0373-3754-01</strong>
                                 <button type="button" onclick="copyAccount()" class="copy-btn">
                                     <i class="fas fa-copy"></i> 복사
                                 </button>
@@ -279,7 +279,7 @@
                         <div class="bank-item">
                             <label>예금주</label>
                             <div class="value">
-                                <strong>마켓그로우</strong>
+                                <strong>박시현</strong>
                             </div>
                         </div>
                     </div>
@@ -458,7 +458,7 @@
 
         // 계좌번호 복사
         function copyAccount() {
-            const accountNumber = '123456-78-901234';
+            const accountNumber = '301-0373-3754-01';
             navigator.clipboard.writeText(accountNumber).then(() => {
                 alert('계좌번호가 복사되었습니다!');
             }).catch(() => {
