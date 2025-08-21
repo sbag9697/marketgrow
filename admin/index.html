@@ -8,8 +8,100 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Admin CSS - Custom styles without Bootstrap -->
-    <link rel="stylesheet" href="css/admin-style-fixed.css">
+    <!-- Admin CSS - Version 2.0 with cache bust -->
+    <link rel="stylesheet" href="css/admin-style-fixed.css?v=2.0">
+    <!-- Inline Critical Styles -->
+    <style>
+        /* 즉시 적용되는 중요 스타일 */
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif !important;
+            background: #f0f2f5 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .dashboard {
+            display: flex !important;
+            min-height: 100vh !important;
+        }
+        
+        .sidebar {
+            width: 260px !important;
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%) !important;
+            position: fixed !important;
+            height: 100vh !important;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        
+        .main-content {
+            margin-left: 260px !important;
+            flex: 1 !important;
+            padding: 30px !important;
+        }
+        
+        .btn {
+            padding: 10px 20px !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+        
+        .btn-primary {
+            background: #667eea !important;
+            color: white !important;
+        }
+        
+        .btn-success {
+            background: #48bb78 !important;
+            color: white !important;
+        }
+        
+        .btn-danger {
+            background: #f56565 !important;
+            color: white !important;
+        }
+        
+        .badge {
+            display: inline-block !important;
+            padding: 4px 12px !important;
+            border-radius: 20px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+        }
+        
+        .badge-success {
+            background: #c6f7e2 !important;
+            color: #0e7c53 !important;
+        }
+        
+        .badge-warning {
+            background: #feebc8 !important;
+            color: #92400e !important;
+        }
+        
+        table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+        
+        th, td {
+            padding: 12px !important;
+            text-align: left !important;
+        }
+        
+        .form-control {
+            width: 100% !important;
+            padding: 10px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+        }
+    </style>
 </head>
 <body>
     <!-- 로그인 화면 -->
