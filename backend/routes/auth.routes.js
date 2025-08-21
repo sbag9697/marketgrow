@@ -129,6 +129,7 @@ router.post('/check-username', checkUsername);
 
 // Register new user
 router.post('/register', authLimiter, registerValidation, register);
+router.post('/signup', authLimiter, registerValidation, register); // signup alias
 router.post('/login', authLimiter, loginValidation, login);
 router.post('/forgot-password', passwordResetLimiter, [
     body('email').isEmail().withMessage('유효한 이메일 주소를 입력해주세요.').normalizeEmail()

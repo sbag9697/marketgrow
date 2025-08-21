@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     loadDashboardData();
     setupEventListeners();
+    setupWebSocketListeners();
 });
 
 // 인증 확인
@@ -410,3 +411,130 @@ window.logout = logout;
 
 // 초기화 후 실시간 업데이트 시작
 startRealtimeUpdates();
+
+// WebSocket 리스너 설정
+function setupWebSocketListeners() {
+    if (window.wsClient) {
+        // 잔액 업데이트 리스너
+        window.wsClient.on('balanceUpdate', (data) => {
+            updateBalanceDisplay(data.balance);
+        });
+
+        // 입금 완료 리스너
+        window.wsClient.on('depositComplete', (data) => {
+            // 통계 새로고침
+            loadDashboardData();
+            
+            // 성공 메시지 표시
+            showSuccessMessage(`예치금 ${data.finalAmount.toLocaleString()}원이 충전되었습니다!`);
+        });
+
+        // 사용자 인증
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const token = localStorage.getItem('authToken');
+        if (userInfo.id && token) {
+            window.wsClient.authenticate(userInfo.id, token);
+        }
+    }
+}
+
+// 잔액 표시 업데이트
+function updateBalanceDisplay(balance) {
+    // 예치금 표시 요소 찾기
+    const balanceElements = document.querySelectorAll('.deposit-balance, .user-balance, #userBalance');
+    balanceElements.forEach(element => {
+        element.textContent = `${balance.toLocaleString()}원`;
+        
+        // 애니메이션 효과
+        element.classList.add('balance-updated');
+        setTimeout(() => {
+            element.classList.remove('balance-updated');
+        }, 2000);
+    });
+
+    // localStorage 업데이트
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    userInfo.depositBalance = balance;
+    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+}
+
+// 성공 메시지 표시
+function showSuccessMessage(message) {
+    // 기존 알림 제거
+    const existingAlert = document.querySelector('.dashboard-alert');
+    if (existingAlert) {
+        existingAlert.remove();
+    }
+
+    // 새 알림 생성
+    const alert = document.createElement('div');
+    alert.className = 'dashboard-alert success';
+    alert.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="close-alert">&times;</button>
+    `;
+
+    // 스타일 추가
+    const style = document.createElement('style');
+    if (!document.querySelector('#dashboard-alert-styles')) {
+        style.id = 'dashboard-alert-styles';
+        style.textContent = `
+            .dashboard-alert {
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                max-width: 400px;
+                padding: 15px 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                animation: slideIn 0.3s ease;
+            }
+            
+            .dashboard-alert.success {
+                border-left: 4px solid #28a745;
+            }
+            
+            .dashboard-alert i {
+                color: #28a745;
+                font-size: 20px;
+            }
+            
+            .close-alert {
+                margin-left: auto;
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                color: #999;
+                padding: 0;
+            }
+            
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    document.body.appendChild(alert);
+
+    // 5초 후 자동 제거
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}

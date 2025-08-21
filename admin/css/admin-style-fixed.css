@@ -1,4 +1,11 @@
-/* MarketGrow 관리자 대시보드 - 개선된 스타일 */
+/* MarketGrow 관리자 대시보드 - Bootstrap 없이 독립적으로 작동하는 스타일 */
+
+/* CSS Reset 및 기본 설정 */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 :root {
     --primary-color: #667eea;
@@ -12,10 +19,11 @@
     --sidebar-width: 260px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* 기본 HTML 요소 스타일 */
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -352,38 +360,45 @@ tbody tr:last-child td {
 
 /* 뱃지 개선 */
 .badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: inline-block !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
 }
 
 .badge-success {
-    background: #c6f7e2;
-    color: #0e7c53;
+    background: #c6f7e2 !important;
+    color: #0e7c53 !important;
+    border: 1px solid #0e7c53 !important;
 }
 
 .badge-warning {
-    background: #feebc8;
-    color: #92400e;
+    background: #feebc8 !important;
+    color: #92400e !important;
+    border: 1px solid #92400e !important;
 }
 
 .badge-danger {
-    background: #fed7d7;
-    color: #822727;
+    background: #fed7d7 !important;
+    color: #822727 !important;
+    border: 1px solid #822727 !important;
 }
 
 .badge-info {
-    background: #bee3f8;
-    color: #1e4e8c;
+    background: #bee3f8 !important;
+    color: #1e4e8c !important;
+    border: 1px solid #1e4e8c !important;
 }
 
 .badge-secondary {
-    background: #e2e8f0;
-    color: #4a5568;
+    background: #e2e8f0 !important;
+    color: #4a5568 !important;
+    border: 1px solid #4a5568 !important;
 }
 
 /* 모달 개선 */
@@ -526,4 +541,43 @@ tbody tr:last-child td {
     table {
         min-width: 600px;
     }
+}
+
+/* 추가 유틸리티 클래스 */
+.text-center {
+    text-align: center !important;
+}
+
+.section {
+    display: none !important;
+}
+
+.section.active,
+.section[style*="display: block"] {
+    display: block !important;
+}
+
+/* 대시보드 강제 표시 */
+#dashboardScreen {
+    display: none;
+}
+
+#dashboardScreen[style*="display: flex"] {
+    display: flex !important;
+}
+
+#loginScreen[style*="display: none"] {
+    display: none !important;
+}
+
+/* 테이블 셀 패딩 강제 */
+td, th {
+    padding: 16px !important;
+}
+
+/* 액션 버튼 그룹 */
+.action-buttons {
+    display: flex !important;
+    gap: 5px !important;
+    align-items: center !important;
 }

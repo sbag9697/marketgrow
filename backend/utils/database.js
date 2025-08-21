@@ -6,7 +6,7 @@ let mongoServer = null;
 
 const connectDB = async () => {
     try {
-        const mongoUri = process.env.MONGODB_URI;
+        let mongoUri = process.env.MONGODB_URI;
         
         // MongoDB URI 확인
         if (!mongoUri) {
@@ -43,7 +43,9 @@ const connectDB = async () => {
                 maxPoolSize: 10,
                 serverSelectionTimeoutMS: 20000,
                 socketTimeoutMS: 45000,
-                directConnection: true,  // Railway 프록시 직접 연결
+                // directConnection은 SRV URI에서 사용할 수 없음
+                // MongoDB Atlas (SRV)인 경우 directConnection 사용 안 함
+                directConnection: mongoUri.includes('mongodb+srv://') ? false : true,
                 family: 4,               // IPv4 우선
                 retryWrites: true,
                 w: 'majority'

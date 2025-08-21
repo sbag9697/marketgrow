@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Debug Console</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #569cd6;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        .section {
+            background: #252526;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .section h2 {
+            color: #4ec9b0;
+            margin-top: 0;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        .result {
+            background: #1e1e1e;
+            border: 1px solid #464647;
+            border-radius: 3px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+        .error {
+            color: #f48771;
+        }
+        .info {
+            color: #dcdcaa;
+        }
+        .warning {
+            color: #ce9178;
+        }
+        input {
+            background: #3c3c3c;
+            border: 1px solid #464647;
+            color: #d4d4d4;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        .log-entry {
+            border-left: 3px solid #569cd6;
+            padding-left: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Dashboard Debug Console</h1>
+        
+        <div class="section">
+            <h2>1. API Connection Test</h2>
+            <button onclick="testAPIConnection()">Test API Connection</button>
+            <button onclick="testAuthEndpoints()">Test Auth Endpoints</button>
+            <div id="apiResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>2. Login & Session Test</h2>
+            <input type="email" id="debugEmail" placeholder="Email" value="testadmin@marketgrow.kr">
+            <input type="password" id="debugPassword" placeholder="Password" value="Test123!">
+            <button onclick="testLogin()">Test Login</button>
+            <button onclick="checkSession()">Check Session</button>
+            <div id="loginResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>3. Admin Functions Test</h2>
+            <button onclick="testDashboardData()">Load Dashboard Data</button>
+            <button onclick="testOrdersData()">Load Orders</button>
+            <button onclick="testUsersData()">Load Users</button>
+            <button onclick="testServicesData()">Load Services</button>
+            <div id="dataResult" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>4. Console Output</h2>
+            <button onclick="clearConsole()">Clear</button>
+            <button onclick="runCustomCommand()">Run Command</button>
+            <input type="text" id="customCommand" placeholder="Enter JS command" style="width: 300px;">
+            <div id="consoleOutput" class="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>5. Function Availability</h2>
+            <button onclick="checkFunctions()">Check All Functions</button>
+            <div id="functionResult" class="result"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5002/api' 
+            : 'https://marketgrow-production.up.railway.app/api';
+        
+        let debugToken = localStorage.getItem('adminToken');
+        
+        // Logging helper
+        function log(message, type = 'info') {
+            const output = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+            
+            // Also log to browser console
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+        
+        // Override console methods
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            log(args.join(' '), 'info');
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            log(args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            log(args.join(' '), 'warning');
+            originalWarn.apply(console, args);
+        };
+        
+        // Test functions
+        async function testAPIConnection() {
+            const result = document.getElementById('apiResult');
+            try {
+                log('Testing API connection...');
+                const response = await axios.get(`${API_URL}/health`);
+                result.className = 'result success';
+                result.textContent = JSON.stringify(response.data, null, 2);
+                log('API connection successful', 'success');
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `Error: ${error.message}\n${error.response ? JSON.stringify(error.response.data, null, 2) : ''}`;
+                log(`API connection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAuthEndpoints() {
+            const result = document.getElementById('apiResult');
+            const endpoints = [
+                '/auth/login',
+                '/admin-enhanced/login',
+                '/admin/dashboard',
+                '/admin-enhanced/stats'
+            ];
+            
+            let output = 'Testing endpoints:\n\n';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await axios.options(`${API_URL}${endpoint}`);
+                    output += `✅ ${endpoint} - OK\n`;
+                } catch (error) {
+                    output += `❌ ${endpoint} - ${error.response?.status || 'FAILED'}\n`;
+                }
+            }
+            
+            result.className = 'result info';
+            result.textContent = output;
+        }
+        
+        async function testLogin() {
+            const result = document.getElementById('loginResult');
+            const email = document.getElementById('debugEmail').value;
+            const password = document.getElementById('debugPassword').value;
+            
+            try {
+                log(`Attempting login with: ${email}`);
+                
+                const response = await axios.post(`${API_URL}/auth/login`, {
+                    login: email,
+                    password: password
+                });
+                
+                if (response.data.success) {
+                    debugToken = response.data.data.token;
+                    localStorage.setItem('adminToken', debugToken);
+                    
+                    result.className = 'result success';
+                    result.textContent = `✅ Login successful!\nToken: ${debugToken.substring(0, 50)}...\nUser: ${JSON.stringify(response.data.data.user, null, 2)}`;
+                    log('Login successful', 'success');
+                    
+                    // Set axios default header
+                    axios.defaults.headers.common['Authorization'] = `Bearer ${debugToken}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Login failed: ${error.response?.data?.message || error.message}`;
+                log(`Login failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkSession() {
+            const result = document.getElementById('loginResult');
+            
+            if (!debugToken) {
+                result.className = 'result warning';
+                result.textContent = '⚠️ No token found. Please login first.';
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`${API_URL}/users/me`, {
+                    headers: { Authorization: `Bearer ${debugToken}` }
+                });
+                
+                result.className = 'result success';
+                result.textContent = `✅ Session valid!\n${JSON.stringify(response.data, null, 2)}`;
+                log('Session is valid', 'success');
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Session invalid: ${error.response?.status} ${error.response?.data?.message || error.message}`;
+                log('Session check failed', 'error');
+            }
+        }
+        
+        async function testDashboardData() {
+            const result = document.getElementById('dataResult');
+            
+            if (!debugToken) {
+                result.className = 'result warning';
+                result.textContent = '⚠️ Please login first';
+                return;
+            }
+            
+            try {
+                log('Loading dashboard data...');
+                
+                // Try multiple endpoints
+                const endpoints = [
+                    { url: '/admin-enhanced/stats', name: 'Enhanced Stats' },
+                    { url: '/admin/dashboard', name: 'Admin Dashboard' },
+                    { url: '/dashboard/stats', name: 'Dashboard Stats' }
+                ];
+                
+                let output = '';
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await axios.get(`${API_URL}${endpoint.url}`, {
+                            headers: { Authorization: `Bearer ${debugToken}` }
+                        });
+                        output += `✅ ${endpoint.name}:\n${JSON.stringify(response.data, null, 2)}\n\n`;
+                    } catch (err) {
+                        output += `❌ ${endpoint.name}: ${err.response?.status || 'FAILED'}\n\n`;
+                    }
+                }
+                
+                result.className = 'result info';
+                result.textContent = output;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `Error: ${error.message}`;
+                log(`Dashboard data failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testOrdersData() {
+            await testEndpoint('/orders', 'Orders');
+        }
+        
+        async function testUsersData() {
+            await testEndpoint('/users', 'Users');
+        }
+        
+        async function testServicesData() {
+            await testEndpoint('/services', 'Services');
+        }
+        
+        async function testEndpoint(endpoint, name) {
+            const result = document.getElementById('dataResult');
+            
+            if (!debugToken) {
+                result.className = 'result warning';
+                result.textContent = '⚠️ Please login first';
+                return;
+            }
+            
+            try {
+                log(`Loading ${name} data...`);
+                const response = await axios.get(`${API_URL}${endpoint}`, {
+                    headers: { Authorization: `Bearer ${debugToken}` }
+                });
+                
+                result.className = 'result success';
+                result.textContent = `${name} Data:\n${JSON.stringify(response.data, null, 2)}`;
+                log(`${name} loaded successfully`, 'success');
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `Error loading ${name}: ${error.response?.status} ${error.response?.data?.message || error.message}`;
+                log(`${name} load failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkFunctions() {
+            const result = document.getElementById('functionResult');
+            
+            // Load admin.js
+            const script = document.createElement('script');
+            script.src = '/admin/js/admin.js';
+            script.onload = () => {
+                const functions = [
+                    'showSection', 'logout', 'refreshData', 'loadDashboardData',
+                    'loadOrders', 'loadUsers', 'loadServices', 'loadDeposits',
+                    'loadCoupons', 'loadLogs', 'viewOrderDetail', 'processOrder',
+                    'toggleUserStatus', 'toggleServiceStatus', 'confirmDeposit',
+                    'showNotification', 'showModal', 'closeModal'
+                ];
+                
+                let output = 'Function availability:\n\n';
+                let available = 0;
+                let missing = 0;
+                
+                functions.forEach(func => {
+                    if (typeof window[func] === 'function') {
+                        output += `✅ ${func}\n`;
+                        available++;
+                    } else {
+                        output += `❌ ${func}\n`;
+                        missing++;
+                    }
+                });
+                
+                output += `\nSummary: ${available} available, ${missing} missing`;
+                
+                result.className = missing > 0 ? 'result warning' : 'result success';
+                result.textContent = output;
+                
+                log(`Functions checked: ${available}/${functions.length} available`, 
+                    missing > 0 ? 'warning' : 'success');
+            };
+            
+            script.onerror = () => {
+                result.className = 'result error';
+                result.textContent = '❌ Failed to load admin.js';
+                log('Failed to load admin.js', 'error');
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        function clearConsole() {
+            document.getElementById('consoleOutput').innerHTML = '';
+            log('Console cleared');
+        }
+        
+        function runCustomCommand() {
+            const command = document.getElementById('customCommand').value;
+            if (!command) return;
+            
+            try {
+                log(`> ${command}`, 'info');
+                const result = eval(command);
+                log(`Result: ${JSON.stringify(result)}`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-run on load
+        window.onload = () => {
+            log('Debug console initialized');
+            log(`API URL: ${API_URL}`);
+            log(`Token exists: ${!!debugToken}`);
+            
+            // Check for admin.js errors
+            window.addEventListener('error', (e) => {
+                log(`JavaScript Error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+            });
+        };
+        
+        // Allow Enter key in command input
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('customCommand').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    runCustomCommand();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -365,6 +365,12 @@
         </div>
     </footer>
 
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- WebSocket Client -->
+    <script src="js/websocket-client.js"></script>
+    <!-- Balance Polling Fallback -->
+    <script src="js/balance-polling.js"></script>
     <script src="js/config.js"></script>
     <script>
         let selectedAmountValue = 0;
@@ -390,6 +396,28 @@
                     selectAmount(amount);
                 }
             });
+
+            // WebSocket 연결 및 실시간 업데이트 리스너 등록
+            if (window.wsClient) {
+                // 잔액 업데이트 리스너
+                window.wsClient.on('balanceUpdate', (data) => {
+                    document.getElementById('currentBalance').textContent = 
+                        (data.balance || 0).toLocaleString() + '원';
+                });
+
+                // 입금 완료 리스너
+                window.wsClient.on('depositComplete', (data) => {
+                    // 페이지가 대시보드로 이동하기 전에 알림 표시
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 2000);
+                });
+
+                // 초기 잔액 요청
+                if (window.wsClient.isConnected()) {
+                    window.wsClient.requestBalance();
+                }
+            }
         });
 
         // 현재 예치금 조회

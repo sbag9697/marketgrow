@@ -55,6 +55,27 @@ NAVER_CLIENT_ID=Cirw8aXNIq8wF518fNMZ
 NAVER_CLIENT_SECRET=x1lNqh6xcJ
 ```
 
+## 🏦 오픈뱅킹 설정 (자동 입금 확인)
+
+### 오픈뱅킹 API 설정 ⭐ (중요)
+```bash
+# 오픈뱅킹 API 기본 설정
+OPENBANKING_BASE_URL=https://testapi.openbanking.or.kr  # 테스트: testapi, 운영: openapi
+OPENBANKING_CLIENT_ID=YOUR_CLIENT_ID  # 오픈뱅킹에서 발급받은 Client ID
+OPENBANKING_CLIENT_SECRET=YOUR_CLIENT_SECRET  # 오픈뱅킹에서 발급받은 Client Secret
+OPENBANKING_CLIENT_USE_CODE=M202301234  # 기관코드 (9자리)
+OPENBANKING_REDIRECT_URI=https://marketgrow.kr/api/openbanking/callback  # OAuth 콜백 URL
+OPENBANKING_STATE=marketgrow_oauth_state  # CSRF 방지용 상태값
+
+# 농협 계좌 정보
+NH_ACCOUNT_NUMBER=3010373375401  # 하이픈 없이
+NH_ACCOUNT_HOLDER=박시현
+NH_FINTECH_USE_NUM=199005123456789012345678901234  # 농협에서 발급받은 핀테크이용번호 (34자리)
+
+# 관리자 설정
+ADMIN_SECRET=your_admin_secret_key_here  # 관리자 API 접근용 시크릿
+```
+
 ## 💼 비즈니스 설정
 
 ### SMM 패널 API
@@ -100,12 +121,21 @@ NODE_ENV=production
 # 관리자
 ADMIN_EMAIL=admin@marketgrow.com
 ADMIN_PASSWORD=admin123!@#
+ADMIN_SECRET=your_admin_secret_key_here
 
 # 이메일
 EMAIL_USER=marketgrow.kr@gmail.com
 EMAIL_APP_PASSWORD=nxlcjextenghopaz
 FROM_EMAIL=marketgrow.kr@gmail.com
 FROM_NAME=SNS그로우
+
+# 오픈뱅킹 (자동 입금 확인) ⭐ 중요
+OPENBANKING_BASE_URL=https://openapi.openbanking.or.kr
+OPENBANKING_CLIENT_ID=YOUR_CLIENT_ID
+OPENBANKING_CLIENT_SECRET=YOUR_CLIENT_SECRET
+OPENBANKING_CLIENT_USE_CODE=M202301234
+OPENBANKING_REDIRECT_URI=https://marketgrow.kr/api/openbanking/callback
+NH_FINTECH_USE_NUM=199005123456789012345678901234
 
 # SMM API
 SMM_API_URL=https://smmturk.org/api/v2
@@ -124,6 +154,9 @@ PRICE_MARGIN=90
 - `JWT_SECRET` - 토큰 생성 키
 - `EMAIL_APP_PASSWORD` - Gmail 앱 비밀번호
 - `SMM_API_KEY` - SMM 패널 API 키
+- `OPENBANKING_CLIENT_SECRET` - 오픈뱅킹 API 시크릿
+- `NH_FINTECH_USE_NUM` - 농협 핀테크이용번호
+- `ADMIN_SECRET` - 관리자 시크릿 키
 
 ### GitHub에 올리면 안 됨
 - `.env` 파일은 절대 커밋하지 마세요

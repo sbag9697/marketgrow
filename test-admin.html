@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 테스트 페이지</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 관리자 시스템 테스트</h1>
+    
+    <div class="test-section">
+        <h2>1. 서버 연결 테스트</h2>
+        <button onclick="testServerConnection()">서버 상태 확인</button>
+        <div id="serverResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 관리자 계정 생성</h2>
+        <button onclick="createAdminAccount()">관리자 계정 생성</button>
+        <div id="adminResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 관리자 로그인 테스트</h2>
+        <input type="email" id="testEmail" placeholder="admin@marketgrow.kr" value="admin@marketgrow.kr">
+        <input type="password" id="testPassword" placeholder="비밀번호" value="admin123!">
+        <button onclick="testAdminLogin()">로그인 테스트</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 관리자 API 테스트</h2>
+        <button onclick="testAdminAPI()">대시보드 데이터 가져오기</button>
+        <button onclick="testOrdersAPI()">주문 목록 가져오기</button>
+        <button onclick="testUsersAPI()">사용자 목록 가져오기</button>
+        <div id="apiResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. 페이지 접속 링크</h2>
+        <p>
+            <a href="/admin/" target="_blank">✅ 관리자 대시보드 (/admin/)</a><br>
+            <a href="/admin/#orders" target="_blank">📦 주문 관리</a><br>
+            <a href="/admin/#users" target="_blank">👥 사용자 관리</a><br>
+            <a href="/admin-dashboard.html" target="_blank">🔄 리다이렉트 페이지 (admin-dashboard.html)</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5002/api' 
+            : 'https://marketgrow-production.up.railway.app/api';
+        
+        let adminToken = localStorage.getItem('adminToken');
+        
+        // 서버 연결 테스트
+        async function testServerConnection() {
+            const resultDiv = document.getElementById('serverResult');
+            try {
+                const response = await axios.get(`${API_URL}/health`);
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 서버 연결 성공!\n${JSON.stringify(response.data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 서버 연결 실패: ${error.message}\nAPI URL: ${API_URL}`;
+            }
+        }
+        
+        // 관리자 계정 생성
+        async function createAdminAccount() {
+            const resultDiv = document.getElementById('adminResult');
+            try {
+                // 먼저 일반 회원가입
+                const signupResponse = await axios.post(`${API_URL}/auth/signup`, {
+                    name: '관리자',
+                    email: 'admin@marketgrow.kr',
+                    password: 'admin123!',
+                    phone: '010-1234-5678'
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 관리자 계정 생성 성공!\n이메일: admin@marketgrow.kr\n비밀번호: admin123!\n\n참고: 관리자 권한은 데이터베이스에서 직접 설정해야 합니다.`;
+            } catch (error) {
+                if (error.response?.data?.message?.includes('already exists')) {
+                    resultDiv.className = 'result info';
+                    resultDiv.textContent = `ℹ️ 관리자 계정이 이미 존재합니다.\n이메일: admin@marketgrow.kr`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ 계정 생성 실패: ${error.response?.data?.message || error.message}`;
+                }
+            }
+        }
+        
+        // 관리자 로그인 테스트
+        async function testAdminLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            
+            try {
+                // Enhanced admin login 시도
+                let response;
+                try {
+                    response = await axios.post(`${API_URL}/admin-enhanced/login`, {
+                        email,
+                        password
+                    });
+                } catch (e) {
+                    // Fallback to regular login
+                    response = await axios.post(`${API_URL}/auth/login`, {
+                        email,
+                        password
+                    });
+                }
+                
+                if (response.data.success) {
+                    adminToken = response.data.token;
+                    localStorage.setItem('adminToken', adminToken);
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ 로그인 성공!\n토큰: ${adminToken.substring(0, 50)}...\n사용자: ${JSON.stringify(response.data.user || response.data.admin, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ 로그인 실패: ${error.response?.data?.message || error.message}`;
+            }
+        }
+        
+        // 관리자 API 테스트
+        async function testAdminAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            
+            if (!adminToken) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ 먼저 로그인을 해주세요!';
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`${API_URL}/admin/dashboard`, {
+                    headers: { Authorization: `Bearer ${adminToken}` }
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 대시보드 데이터:\n${JSON.stringify(response.data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API 호출 실패: ${error.response?.data?.message || error.message}`;
+            }
+        }
+        
+        async function testOrdersAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            
+            if (!adminToken) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ 먼저 로그인을 해주세요!';
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`${API_URL}/orders?limit=5`, {
+                    headers: { Authorization: `Bearer ${adminToken}` }
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 주문 목록:\n${JSON.stringify(response.data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API 호출 실패: ${error.response?.data?.message || error.message}`;
+            }
+        }
+        
+        async function testUsersAPI() {
+            const resultDiv = document.getElementById('apiResult');
+            
+            if (!adminToken) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ 먼저 로그인을 해주세요!';
+                return;
+            }
+            
+            try {
+                const response = await axios.get(`${API_URL}/admin/users?limit=5`, {
+                    headers: { Authorization: `Bearer ${adminToken}` }
+                });
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ 사용자 목록:\n${JSON.stringify(response.data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API 호출 실패: ${error.response?.data?.message || error.message}`;
+            }
+        }
+        
+        // 페이지 로드시 자동으로 서버 상태 확인
+        window.onload = function() {
+            testServerConnection();
+        };
+    </script>
+</body>
+</html>

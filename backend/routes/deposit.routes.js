@@ -300,6 +300,59 @@ router.post('/admin/:depositId/cancel', auth, async (req, res) => {
 });
 
 /**
+ * 자동 입금 확인 서비스 상태
+ * GET /api/deposits/auto-confirm/status
+ */
+router.get('/auto-confirm/status', auth, async (req, res) => {
+    try {
+        const autoDepositService = require('../services/autoDeposit.service');
+        const status = autoDepositService.getStatus();
+        
+        res.json({
+            success: true,
+            data: status
+        });
+    } catch (error) {
+        logger.error('Get auto-confirm status error:', error);
+        res.status(500).json({
+            success: false,
+            message: '상태 조회 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+/**
+ * 테스트용 - 모든 대기 중인 입금 즉시 확인
+ * POST /api/deposits/auto-confirm/all
+ */
+router.post('/auto-confirm/all', auth, async (req, res) => {
+    try {
+        // 관리자 또는 테스트 모드에서만 허용
+        if (req.user.role !== 'admin' && process.env.NODE_ENV === 'production') {
+            return res.status(403).json({
+                success: false,
+                message: '권한이 없습니다.'
+            });
+        }
+
+        const autoDepositService = require('../services/autoDeposit.service');
+        const result = await autoDepositService.confirmAllPending();
+        
+        res.json({
+            success: true,
+            message: `${result.confirmed}개의 입금이 자동 확인되었습니다.`,
+            data: result
+        });
+    } catch (error) {
+        logger.error('Confirm all deposits error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || '처리 중 오류가 발생했습니다.'
+        });
+    }
+});
+
+/**
  * 테스트용 - 입금 시뮬레이션 (개발 환경에서만)
  * POST /api/deposits/:depositId/simulate
  */

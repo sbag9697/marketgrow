@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Deposit = require('../models/Deposit');
 const logger = require('../utils/logger');
+const websocketService = require('./websocket.service');
 
 class BankTransferService {
     constructor() {
@@ -154,10 +155,22 @@ class BankTransferService {
             // 사용자 예치금 증가
             const user = await User.findById(deposit.user);
             if (user) {
-                user.depositBalance = (user.depositBalance || 0) + deposit.finalAmount;
+                const oldBalance = user.depositBalance || 0;
+                user.depositBalance = oldBalance + deposit.finalAmount;
                 await user.save();
 
                 logger.info(`Deposit confirmed: ${deposit._id}, User: ${user.email}, Amount: ${deposit.finalAmount}`);
+
+                // WebSocket으로 실시간 알림
+                websocketService.notifyDepositComplete(user._id.toString(), {
+                    amount: deposit.amount,
+                    bonusAmount: deposit.bonusAmount,
+                    finalAmount: deposit.finalAmount,
+                    newBalance: user.depositBalance
+                });
+
+                // 잔액 업데이트 알림
+                websocketService.notifyBalanceUpdate(user._id.toString(), user.depositBalance);
 
                 // 알림 발송
                 await this.sendDepositNotification(user, deposit);

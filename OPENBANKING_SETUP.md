@@ -1,8 +1,14 @@
 # 농협 오픈뱅킹 API 자동 입금 확인 시스템 설정 가이드
 
-## 🏦 자동 입금 확인 시스템 구축 완료!
+## 🏦 자동 입금 확인 시스템 고도화 완료!
 
-이제 예치금이 **실시간으로 자동 확인**되어 즉시 반영됩니다.
+전문가 피드백을 반영하여 **안전하고 신뢰할 수 있는** 자동 입금 확인 시스템으로 업그레이드되었습니다.
+
+### ✨ 새로운 기능
+- **멱등성 보장**: 중복 처리 완전 방지
+- **고도화된 매칭**: 이름 유사도 검사, 편집거리 알고리즘
+- **보안 강화**: 감사 로그, 토큰 영구 저장
+- **안정성 향상**: 5분 폴링, 안전망 시스템
 
 ## 1. 농협 오픈뱅킹 API 신청
 
@@ -18,7 +24,7 @@
 3. 서비스 정보 입력:
    - 서비스명: MarketGrow
    - 서비스 URL: https://marketgrow.kr
-   - Webhook URL: https://marketgrow.onrender.com/api/webhook/openbanking
+   - Redirect URI: https://marketgrow.kr/api/openbanking/callback
 4. 권한 범위:
    - ✅ 계좌조회 (inquiry)
    - ✅ 거래내역조회 (inquiry)
@@ -31,68 +37,116 @@
 4. 핀테크이용번호 발급받기
 5. 이용기관: MarketGrow 선택
 
-## 2. Render 환경변수 설정
+## 2. 환경변수 설정 (업그레이드됨)
 
-https://dashboard.render.com 에서 다음 환경변수 추가:
+### 🔥 필수 환경변수 (전문가 피드백 반영)
 
 ```env
-# 오픈뱅킹 API 설정
-OPENBANKING_BASE_URL=https://openapi.openbanking.or.kr
+# 오픈뱅킹 API 설정 (업그레이드)
+OPENBANKING_BASE_URL=https://openapi.openbanking.or.kr  # 운영: openapi, 테스트: testapi
 OPENBANKING_CLIENT_ID=[발급받은 Client ID]
-OPENBANKING_CLIENT_SECRET=[발급받은 Client Secret]
-OPENBANKING_REDIRECT_URI=https://marketgrow.onrender.com/api/webhook/openbanking
+OPENBANKING_CLIENT_SECRET=[발급받은 Client Secret] 
+OPENBANKING_CLIENT_USE_CODE=[9자리 기관코드]  # 새로 추가
+OPENBANKING_REDIRECT_URI=https://marketgrow.kr/api/openbanking/callback  # 경로 변경
+OPENBANKING_STATE=marketgrow_oauth_state  # CSRF 방지용
 
 # 농협 계좌 정보
 NH_ACCOUNT_NUMBER=3010373375401
 NH_ACCOUNT_HOLDER=박시현
-NH_FINTECH_USE_NUM=[발급받은 핀테크이용번호]
+NH_FINTECH_USE_NUM=[34자리 핀테크이용번호]  # 정확한 자릿수
 
-# 관리자 설정
+# 관리자 설정 (보안 강화)
 ADMIN_EMAIL=admin@marketgrow.kr
-ADMIN_SECRET=[관리자 시크릿 키 설정]
+ADMIN_SECRET=[강력한 관리자 시크릿 키]  # 최소 20자 이상
+
+# 알림 설정 (선택)
+SMS_ENABLED=false  # SMS 알림 사용 여부
 ```
 
-## 3. 시스템 동작 방식
+### 📱 Railway/Render 배포 시
+위 환경변수를 각 플랫폼의 환경변수 설정에서 추가하세요.
 
-### 자동 확인 주기
-- **실시간**: 5분마다 자동 확인
-- **정기**: 매시 정각 확인
-- **일일 정산**: 매일 자정
+## 3. 시스템 동작 방식 (고도화됨)
 
-### 입금 처리 프로세스
+### 🔄 자동 확인 주기 (멱등성 보장)
+- **실시간**: 5분마다 자동 확인 (중복 처리 방지)
+- **안전망**: 매시 정각 보조 확인
+- **일일 정산**: 매일 자정 (미매칭 건 처리)
+
+### 🎯 입금 처리 프로세스 (업그레이드)
 1. 고객이 농협 301-0373-3754-01로 입금
-2. 5분 이내 자동 감지
-3. 입금자명 + 금액으로 매칭
-4. 예치금 잔액 즉시 반영
-5. 고객에게 알림 발송 (이메일/SMS)
+2. **5분 이내** 자동 감지 (API 실시간 조회)
+3. **고도화된 매칭** 알고리즘으로 정확한 연결
+4. 예치금 잔액 **즉시 반영** (트랜잭션 보장)
+5. 고객에게 **자동 알림** 발송 (이메일/SMS)
+6. **감사 로그** 기록 (보안 추적)
 
-### 매칭 규칙
-- **정확 매칭**: 입금자명 + 금액이 일치
-- **미매칭 시**: 관리자에게 알림 → 수동 확인
+### 🧠 고도화된 매칭 알고리즘
+1. **1차**: 정확 매칭 (입금자명 + 금액)
+2. **2차**: 유사 이름 매칭 (편집거리 80% 이상)
+3. **3차**: 금액 매칭 (최근 6시간 내)
+4. **실패 시**: 미매칭으로 분류 → 관리자 알림
 
-## 4. 관리자 기능
+### 🔒 보안 및 안정성
+- **멱등성**: 동일 거래 중복 처리 불가
+- **토큰 관리**: DB 영구 저장, 자동 갱신
+- **감사 로그**: 모든 API 호출 기록
+- **에러 복구**: 실패 시 자동 재시도
 
-### 수동 입금 확인 (긴급 시)
+## 4. 관리자 기능 (업그레이드됨)
+
+### 💼 새로운 API 엔드포인트
+- **기존**: `/api/webhook/*` → **변경**: `/api/openbanking/*`
+- **OAuth 콜백**: `/api/openbanking/callback`
+- **계좌 정보**: `/api/openbanking/account/info`
+- **거래 내역**: `/api/openbanking/transactions`
+
+### 🚨 수동 입금 확인 (긴급 시)
 ```bash
-curl -X POST https://marketgrow.onrender.com/api/webhook/check-deposits \
+curl -X POST https://marketgrow.kr/api/openbanking/check-deposits \
   -H "Authorization: Bearer [ADMIN_SECRET]"
 ```
 
-### 스케줄러 상태 확인
+### 📊 스케줄러 상태 확인 (상세 정보)
 ```bash
-curl https://marketgrow.onrender.com/api/webhook/scheduler-status
+curl https://marketgrow.kr/api/openbanking/scheduler-status
 ```
 
-응답:
+응답 (상세 통계):
 ```json
 {
   "success": true,
   "data": {
     "isRunning": true,
+    "isChecking": false,
     "tasks": 3,
-    "nextCheck": "5분 이내"
+    "lastCheckTime": "2024-01-15T10:30:00Z",
+    "nextCheck": "5분 이내",
+    "statistics": {
+      "totalChecks": 1440,
+      "successfulChecks": 1435,
+      "errors": 5,
+      "successRate": "99%",
+      "lastError": null
+    },
+    "health": {
+      "status": "healthy",
+      "lastActivity": "2 minutes ago"
+    }
   }
 }
+```
+
+### 🏦 계좌 정보 조회
+```bash
+curl https://marketgrow.kr/api/openbanking/account/info \
+  -H "Authorization: Bearer [ADMIN_SECRET]"
+```
+
+### 📈 거래 내역 조회
+```bash
+curl "https://marketgrow.kr/api/openbanking/transactions?fromDate=2024-01-01&toDate=2024-01-15" \
+  -H "Authorization: Bearer [ADMIN_SECRET]"
 ```
 
 ## 5. 테스트 방법
