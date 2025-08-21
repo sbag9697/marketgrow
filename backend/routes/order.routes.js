@@ -9,6 +9,7 @@ const {
     requestRefund,
     getOrderStatistics
 } = require('../controllers/order.controller');
+const { updateOrderStatus } = require('../controllers/order.status.controller');
 const { auth, adminAuth } = require('../middleware/auth');
 
 const router = express.Router();
@@ -65,5 +66,6 @@ router.post('/:id/refund', refundRequestValidation, requestRefund);
 
 // Admin routes
 router.put('/:id/progress', adminAuth, updateProgressValidation, updateOrderProgress);
+router.put('/:id/status', auth, updateOrderStatus);
 
 module.exports = router;

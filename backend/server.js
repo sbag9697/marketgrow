@@ -4,6 +4,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const http = require('http');
+const socketIO = require('socket.io');
 require('dotenv').config();
 
 // Import database connection
@@ -20,7 +22,7 @@ const keywordRoutes = require('./routes/keyword.routes');
 const adminRoutes = require('./routes/admin.routes');
 const consultationRoutes = require('./routes/consultation.routes');
 const emailRoutes = require('./routes/email.routes');
-const webhookRoutes = require('./routes/webhook.routes');
+const openbankingRoutes = require('./routes/openbanking.routes');
 const depositRoutes = require('./routes/deposit.routes');
 
 // Import middleware
@@ -29,6 +31,8 @@ const logger = require('./utils/logger');
 
 // Import services
 const OrderSyncService = require('./services/orderSync.service');
+const websocketService = require('./services/websocket.service');
+const autoDepositService = require('./services/autoDeposit.service');
 
 const app = express();
 
@@ -145,6 +149,8 @@ app.use(morgan('combined', { stream: { write: message => logger.info(message.tri
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve admin panel
+app.use('/admin', express.static(path.join(__dirname, '..', 'admin')));
 // Serve frontend static files from parent directory
 app.use(express.static(path.join(__dirname, '..')));
 
@@ -161,8 +167,11 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/deposits', depositRoutes);
 app.use('/api/keywords', keywordRoutes);
 app.use('/api/admin', adminRoutes);
+// Enhanced admin routes with additional features
+const adminEnhancedRoutes = require('./routes/admin.enhanced.routes');
+app.use('/api/admin-enhanced', adminEnhancedRoutes);
 app.use('/api/consultations', consultationRoutes);
-app.use('/api/webhook', webhookRoutes);
+app.use('/api/openbanking', openbankingRoutes);
 app.use('/api', require('./routes/dashboard.routes'));
 
 // Health check endpoint
@@ -223,11 +232,25 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
+// Create HTTP server and attach Socket.IO
+const server = http.createServer(app);
+const io = socketIO(server, {
+    cors: {
+        origin: process.env.CLIENT_URL || '*',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
+
+// Initialize WebSocket service
+websocketService.initialize(io);
+
 // Start server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, '0.0.0.0', () => {
+const PORT = process.env.PORT || 5002;
+server.listen(PORT, '0.0.0.0', () => {
     logger.info(`Server running on port ${PORT}`);
     console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`🔌 WebSocket server initialized`);
 
     // SMM 패널 주문 동기화 (DB 연결 필수)
     const ENABLE_ORDER_SYNC = process.env.SMM_ENABLED === 'true' && 
@@ -247,8 +270,12 @@ const server = app.listen(PORT, '0.0.0.0', () => {
         const { getInstance } = require('./services/depositScheduler');
         const depositScheduler = getInstance();
         depositScheduler.start();
-        console.log('💰 Deposit auto-check scheduler started');
+        console.log('💰 Deposit auto-check scheduler started (OpenBanking)');
+    } else if (dbReady && process.env.AUTO_CONFIRM_DEPOSITS === 'true') {
+        // 간단한 자동 확인 서비스 (테스트/개발용)
+        autoDepositService.start();
+        console.log('💰 Auto deposit confirmation service started (Test Mode)');
     } else if (dbReady) {
-        console.log('💰 Deposit auto-check disabled (OpenBanking not configured)');
+        console.log('💰 Deposit auto-check disabled (Set AUTO_CONFIRM_DEPOSITS=true to enable)');
     }
 });

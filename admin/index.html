@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 대시보드 - MarketGrow</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="css/admin-style.css">
+</head>
+<body>
+    <!-- 로그인 화면 -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h1><i class="fas fa-lock"></i> 관리자 로그인</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminEmail">이메일</label>
+                    <input type="email" id="adminEmail" required placeholder="admin@marketgrow.kr">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">비밀번호</label>
+                    <input type="password" id="adminPassword" required placeholder="비밀번호를 입력하세요">
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> 로그인
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 대시보드 -->
+    <div class="dashboard" id="dashboardScreen">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>MarketGrow</h2>
+                <small>관리자 대시보드</small>
+                <a href="/" style="display: block; margin-top: 10px; color: rgba(255,255,255,0.7); font-size: 12px; text-decoration: none;">
+                    <i class="fas fa-home"></i> 메인 사이트로
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" onclick="showSection('overview')">
+                    <i class="fas fa-chart-line"></i> 대시보드
+                </a>
+                <a href="#orders" class="nav-item" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-cart"></i> 주문 관리
+                </a>
+                <a href="#users" class="nav-item" onclick="showSection('users')">
+                    <i class="fas fa-users"></i> 회원 관리
+                </a>
+                <a href="#services" class="nav-item" onclick="showSection('services')">
+                    <i class="fas fa-box"></i> 서비스 관리
+                </a>
+                <a href="#deposits" class="nav-item" onclick="showSection('deposits')">
+                    <i class="fas fa-wallet"></i> 예치금 관리
+                </a>
+                <a href="#coupons" class="nav-item" onclick="showSection('coupons')">
+                    <i class="fas fa-ticket-alt"></i> 쿠폰 관리
+                </a>
+                <a href="#logs" class="nav-item" onclick="showSection('logs')">
+                    <i class="fas fa-history"></i> 활동 로그
+                </a>
+                <a href="#settings" class="nav-item" onclick="showSection('settings')">
+                    <i class="fas fa-cog"></i> 설정
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <!-- 헤더 -->
+            <div class="header">
+                <h1 id="sectionTitle">대시보드</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <i class="fas fa-sync"></i> 새로고침
+                    </button>
+                    <button class="btn btn-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </button>
+                </div>
+            </div>
+
+            <!-- 대시보드 섹션 -->
+            <div id="overview" class="section" style="display: block;">
+                <!-- 통계 카드 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">총 매출</span>
+                            <div class="stat-card-icon" style="background: #e6f4ff; color: #1890ff;">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="totalRevenue">0원</div>
+                        <div class="stat-card-change">
+                            <i class="fas fa-arrow-up"></i> +12.5% 전일 대비
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">신규 주문</span>
+                            <div class="stat-card-icon" style="background: #f0f9ff; color: #52c41a;">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="newOrders">0</div>
+                        <div class="stat-card-change">
+                            <i class="fas fa-arrow-up"></i> +8.2% 전일 대비
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">활성 사용자</span>
+                            <div class="stat-card-icon" style="background: #fff7ed; color: #fa8c16;">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="activeUsers">0</div>
+                        <div class="stat-card-change">
+                            <i class="fas fa-arrow-up"></i> +5.4% 전주 대비
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">처리 대기</span>
+                            <div class="stat-card-icon" style="background: #fff1f0; color: #f5222d;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="pendingOrders">0</div>
+                        <div class="stat-card-change negative">
+                            <i class="fas fa-exclamation-triangle"></i> 즉시 처리 필요
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 최근 주문 -->
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">최근 주문</h2>
+                        <button class="btn btn-primary btn-sm" onclick="showSection('orders')">
+                            전체 보기 <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="recentOrdersTable">
+                            <thead>
+                                <tr>
+                                    <th>주문번호</th>
+                                    <th>고객</th>
+                                    <th>서비스</th>
+                                    <th>금액</th>
+                                    <th>상태</th>
+                                    <th>일시</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 주문 관리 섹션 -->
+            <div id="orders" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">전체 주문</h2>
+                        <div class="header-actions">
+                            <input type="search" placeholder="주문 검색..." class="form-control" id="orderSearch">
+                            <select class="form-control" id="orderFilter">
+                                <option value="">전체 상태</option>
+                                <option value="pending">대기중</option>
+                                <option value="processing">처리중</option>
+                                <option value="completed">완료</option>
+                                <option value="failed">실패</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>주문번호</th>
+                                    <th>고객</th>
+                                    <th>서비스</th>
+                                    <th>수량</th>
+                                    <th>금액</th>
+                                    <th>상태</th>
+                                    <th>결제방법</th>
+                                    <th>주문일시</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 회원 관리 섹션 -->
+            <div id="users" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">회원 목록</h2>
+                        <button class="btn btn-primary" onclick="showAddUserModal()">
+                            <i class="fas fa-user-plus"></i> 회원 추가
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>이메일</th>
+                                    <th>등급</th>
+                                    <th>포인트</th>
+                                    <th>예치금</th>
+                                    <th>가입일</th>
+                                    <th>상태</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 서비스 관리 섹션 -->
+            <div id="services" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">서비스 목록</h2>
+                        <button class="btn btn-primary" onclick="showAddServiceModal()">
+                            <i class="fas fa-plus"></i> 서비스 추가
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="servicesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>카테고리</th>
+                                    <th>서비스명</th>
+                                    <th>가격</th>
+                                    <th>최소수량</th>
+                                    <th>최대수량</th>
+                                    <th>상태</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 예치금 관리 섹션 -->
+            <div id="deposits" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">예치금 충전 요청</h2>
+                        <button class="btn btn-primary" onclick="checkAllDeposits()">
+                            <i class="fas fa-sync"></i> 전체 확인
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="depositsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>사용자</th>
+                                    <th>금액</th>
+                                    <th>보너스</th>
+                                    <th>입금자명</th>
+                                    <th>상태</th>
+                                    <th>요청일시</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 쿠폰 관리 섹션 -->
+            <div id="coupons" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">쿠폰 목록</h2>
+                        <button class="btn btn-primary" onclick="showAddCouponModal()">
+                            <i class="fas fa-plus"></i> 쿠폰 생성
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="couponsTable">
+                            <thead>
+                                <tr>
+                                    <th>코드</th>
+                                    <th>설명</th>
+                                    <th>할인</th>
+                                    <th>타입</th>
+                                    <th>사용횟수</th>
+                                    <th>만료일</th>
+                                    <th>상태</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 활동 로그 섹션 -->
+            <div id="logs" class="section" style="display: none;">
+                <div class="data-section">
+                    <div class="section-header">
+                        <h2 class="section-title">시스템 로그</h2>
+                        <select class="form-control" id="logFilter">
+                            <option value="">전체 로그</option>
+                            <option value="login">로그인</option>
+                            <option value="order">주문</option>
+                            <option value="payment">결제</option>
+                            <option value="admin">관리자</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>시간</th>
+                                    <th>레벨</th>
+                                    <th>카테고리</th>
+                                    <th>사용자</th>
+                                    <th>액션</th>
+                                    <th>메시지</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 데이터는 JavaScript로 채워집니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정 섹션 -->
+            <div id="settings" class="section" style="display: none;">
+                <div class="data-section">
+                    <h2 class="section-title">시스템 설정</h2>
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label>사이트 이름</label>
+                            <input type="text" class="form-control" id="siteName" value="MarketGrow">
+                        </div>
+                        <div class="form-group">
+                            <label>관리자 이메일</label>
+                            <input type="email" class="form-control" id="adminEmailSetting" value="admin@marketgrow.kr">
+                        </div>
+                        <div class="form-group">
+                            <label>자동 입금 확인</label>
+                            <select class="form-control" id="autoDepositConfirm">
+                                <option value="false">비활성화</option>
+                                <option value="true">활성화</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>포인트 적립률 (%)</label>
+                            <input type="number" class="form-control" id="pointRate" value="1" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>최소 주문 금액</label>
+                            <input type="number" class="form-control" id="minOrderAmount" value="1000">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 설정 저장
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 모달들 -->
+    <!-- 주문 상세 모달 -->
+    <div class="modal" id="orderDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">주문 상세</h2>
+                <button class="modal-close" onclick="closeModal('orderDetailModal')">&times;</button>
+            </div>
+            <div id="orderDetailContent">
+                <!-- 주문 상세 내용 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 사용자 편집 모달 -->
+    <div class="modal" id="userEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">회원 정보 수정</h2>
+                <button class="modal-close" onclick="closeModal('userEditModal')">&times;</button>
+            </div>
+            <form id="userEditForm">
+                <!-- 사용자 편집 폼 -->
+            </form>
+        </div>
+    </div>
+
+    <!-- 서비스 추가/편집 모달 -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">서비스 관리</h2>
+                <button class="modal-close" onclick="closeModal('serviceModal')">&times;</button>
+            </div>
+            <form id="serviceForm">
+                <!-- 서비스 폼 -->
+            </form>
+        </div>
+    </div>
+
+    <!-- 쿠폰 생성 모달 -->
+    <div class="modal" id="couponModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">쿠폰 생성</h2>
+                <button class="modal-close" onclick="closeModal('couponModal')">&times;</button>
+            </div>
+            <form id="couponForm">
+                <div class="form-group">
+                    <label>쿠폰 코드</label>
+                    <input type="text" class="form-control" id="couponCode" required>
+                </div>
+                <div class="form-group">
+                    <label>설명</label>
+                    <input type="text" class="form-control" id="couponDescription" required>
+                </div>
+                <div class="form-group">
+                    <label>할인 타입</label>
+                    <select class="form-control" id="couponType" required>
+                        <option value="percentage">퍼센트</option>
+                        <option value="fixed">정액</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>할인 금액/비율</label>
+                    <input type="number" class="form-control" id="couponValue" required>
+                </div>
+                <div class="form-group">
+                    <label>최대 사용 횟수</label>
+                    <input type="number" class="form-control" id="couponMaxUses" value="100">
+                </div>
+                <div class="form-group">
+                    <label>만료일</label>
+                    <input type="datetime-local" class="form-control" id="couponExpiry" required>
+                </div>
+                <button type="submit" class="btn btn-primary">쿠폰 생성</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Admin JS -->
+    <script src="js/admin-core.js"></script>
+</body>
+</html>
