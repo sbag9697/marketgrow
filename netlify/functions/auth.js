@@ -30,7 +30,36 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const body = JSON.parse(event.body || '{}');
+        // 필수 환경변수 검증 (500 방지)
+        const requiredEnvs = ['MONGODB_URI', 'JWT_SECRET'];
+        for (const envName of requiredEnvs) {
+            if (!process.env[envName]) {
+                console.error(`Missing required environment variable: ${envName}`);
+                return {
+                    statusCode: 500,
+                    headers,
+                    body: JSON.stringify({
+                        success: false,
+                        error: `Configuration error: Missing ${envName}`
+                    })
+                };
+            }
+        }
+
+        // 안전한 JSON 파싱
+        let body = {};
+        try {
+            body = JSON.parse(event.body || '{}');
+        } catch (parseError) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({
+                    success: false,
+                    error: 'Invalid JSON in request body'
+                })
+            };
+        }
         
         // 레거시 경로 지원 - /auth/login으로 오는 요청 처리
         let action = body.action;
@@ -188,8 +217,6 @@ async function handleLogin(event, headers, bodyData = null) {
     const { username, email, password } = bodyData || JSON.parse(event.body);
 
     try {
-        const db = await getDb();
-        
         // 로그인 식별자 (username 또는 email)
         const loginId = username || email;
         if (!loginId || !password) {
@@ -198,16 +225,32 @@ async function handleLogin(event, headers, bodyData = null) {
                 headers,
                 body: JSON.stringify({ 
                     success: false,
-                    error: '사용자명/이메일과 비밀번호를 입력하세요.' 
+                    error: 'missing_credentials'
                 })
             };
         }
 
-        // 사용자 찾기
+        // MongoDB 연결
+        let db;
+        try {
+            db = await getDb();
+        } catch (dbError) {
+            console.error('MongoDB connection error:', dbError);
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: 'database_connection_error'
+                })
+            };
+        }
+
+        // 사용자 찾기 - username이 이메일일 수도 있음
         const user = await db.collection('users').findOne({
             $or: [
-                { email: loginId.toLowerCase() },
-                { username: loginId.toLowerCase() }
+                { email: loginId.toLowerCase().trim() },
+                { username: loginId.trim() }
             ],
             isActive: { $ne: false }
         });
@@ -218,20 +261,20 @@ async function handleLogin(event, headers, bodyData = null) {
                 headers,
                 body: JSON.stringify({ 
                     success: false,
-                    error: '사용자를 찾을 수 없습니다.' 
+                    error: 'invalid_user'
                 })
             };
         }
 
         // 비밀번호 확인
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await bcrypt.compare(password, user.password || '');
         if (!isValidPassword) {
             return {
                 statusCode: 401,
                 headers,
                 body: JSON.stringify({ 
                     success: false,
-                    error: '비밀번호가 일치하지 않습니다.' 
+                    error: 'invalid_password'
                 })
             };
         }

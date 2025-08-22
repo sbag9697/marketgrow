@@ -1,6 +1,7 @@
 // 실시간 알림 시스템
-const API_URL = 'https://marketgrow-production.up.railway.app/api';
-const WS_URL = 'wss://marketgrow-production.up.railway.app';
+const API_URL = window.API_BASE || '/api';
+const WS_URL = window.NOTI_WS_URL || ''; // 환경변수로 주입, 없으면 비활성화
+const ENABLE_WS = !!WS_URL && WS_URL !== 'disabled'; // WebSocket 활성화 플래그
 
 class NotificationSystem {
     constructor() {
@@ -45,6 +46,12 @@ class NotificationSystem {
 
     // WebSocket 연결
     connectWebSocket() {
+        // WebSocket 비활성화 시 조용히 종료
+        if (!ENABLE_WS) {
+            console.info('[Notification] WebSocket disabled - using polling mode');
+            return;
+        }
+
         const token = localStorage.getItem('authToken');
         if (!token) return;
 
@@ -69,16 +76,20 @@ class NotificationSystem {
             };
 
             this.socket.onerror = (error) => {
-                console.error('WebSocket 오류:', error);
+                // 조용히 실패 처리
+                console.warn('[Notification] WebSocket error (non-critical)');
             };
 
             this.socket.onclose = () => {
-                console.log('알림 서버 연결 종료');
+                console.info('[Notification] WebSocket closed');
                 this.isConnected = false;
-                this.attemptReconnect();
+                // 재연결 시도 비활성화 (운영 환경)
+                if (window.location.hostname === 'localhost') {
+                    this.attemptReconnect();
+                }
             };
         } catch (error) {
-            console.error('WebSocket 연결 실패:', error);
+            console.warn('[Notification] WebSocket init failed - continuing without realtime updates');
         }
     }
 
