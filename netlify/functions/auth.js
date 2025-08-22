@@ -69,6 +69,12 @@ exports.handler = async (event, context) => {
             else if (event.path.includes('/verify')) action = 'verify';
         }
         
+        // action이 없지만 자격증명이 있으면 login으로 간주
+        if (!action && (body.username || body.email || body.login) && body.password) {
+            console.log('Auto-detecting action as login due to credentials present');
+            action = 'login';
+        }
+        
         // 로그인 데이터 정규화 (login 필드를 username으로 변환)
         if (body.login && !body.username) {
             body.username = body.login;
@@ -91,7 +97,9 @@ exports.handler = async (event, context) => {
                     headers,
                     body: JSON.stringify({ 
                         success: false,
-                        error: 'Invalid action' 
+                        error: 'invalid_action',
+                        message: `Unknown action: ${action || 'undefined'}. Valid actions: login, register, verify, update-profile`,
+                        receivedBody: process.env.NODE_ENV === 'development' ? body : undefined
                     })
                 };
         }

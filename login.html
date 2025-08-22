@@ -294,44 +294,70 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const id = document.getElementById('username').value?.trim();
+            const pwd = document.getElementById('password').value;
             
-            if (!username || !password) {
+            if (!id || !pwd) {
                 alert('아이디와 비밀번호를 입력하세요');
                 return;
             }
             
-            console.log('로그인 시도:', username);
+            console.log('로그인 시도:', id);
             
             try {
-                // Netlify Functions 엔드포인트 사용
+                // API 엔드포인트
                 const url = '/api/auth';
                 console.log('Login URL:', url);
                 
-                const loginData = {
-                    action: 'login',  // Netlify Functions 형식
-                    username: username,  // username 또는 email 모두 가능
-                    password: password
+                // 서버가 username/email/login 중 아무거나 받을 수 있도록 모두 전송
+                const payload = {
+                    action: 'login',     // 반드시 포함
+                    username: id,        // username으로 전송
+                    email: id,           // email로도 전송 (서버가 OR 매칭)
+                    login: id,           // 레거시 호환용
+                    password: pwd
                 };
-                console.log('Login data:', { username });
+                console.log('Login payload:', { action: payload.action, id });
                 
-                // fetch 사용
+                // fetch 요청
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
+                    headers: { 
+                        'Content-Type': 'application/json' 
                     },
-                    body: JSON.stringify(loginData)
+                    body: JSON.stringify(payload)
                 });
                 
                 console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
                 
-                const data = await response.json();
-                console.log('응답:', data);
+                // JSON이 아닐 때 디버깅 도움
+                const contentType = response.headers.get('content-type') || '';
+                const rawText = await response.text();
+                console.log('Raw response:', rawText);
+                
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (parseError) {
+                    console.error('JSON 파싱 실패:', parseError);
+                    data = { 
+                        success: false, 
+                        error: 'non_json_response', 
+                        raw: rawText.substring(0, 500) 
+                    };
+                }
+                
+                console.log('Parsed data:', data);
+                
+                if (!response.ok) {
+                    console.error(`HTTP ${response.status} 에러:`, data);
+                    alert(data?.error || data?.message || `로그인 실패 (${response.status})`);
+                    return;
+                }
                 
                 if (data.success) {
-                    // 성공 - MongoDB 버전은 token이 바로 응답에 있음
+                    // 성공 - 토큰 저장
                     const token = data.token || data.data?.token;
                     const user = data.user || data.data?.user;
                     
@@ -344,19 +370,17 @@
                         alert('로그인 성공!');
                         window.location.href = 'dashboard.html';
                     } else {
+                        console.error('토큰 없음:', data);
                         alert('로그인 응답에 토큰이 없습니다.');
                     }
                 } else {
                     // 실패
+                    console.error('로그인 실패:', data);
                     alert(data.error || data.message || '로그인 실패. 아이디와 비밀번호를 확인하세요.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                let errorMessage = '서버 연결에 실패했습니다.';
-                if (error.message) {
-                    errorMessage = error.message;
-                }
-                alert(errorMessage);
+                alert(`서버 연결 실패: ${error.message}`);
             }
         });
         
