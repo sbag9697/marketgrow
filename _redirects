@@ -1,0 +1,7 @@
+# Netlify Functions 리다이렉트
+/api/auth/*  /.netlify/functions/auth/:splat  200
+/api/orders/*  /.netlify/functions/orders/:splat  200
+/api/smmturk/*  /.netlify/functions/smmturk/:splat  200
+
+# SPA 라우팅
+/*  /index.html  200

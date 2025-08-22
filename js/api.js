@@ -129,16 +129,30 @@ class API {
 
     // 인증 관련 API
     async login(credentials) {
-        const response = await this.post('/auth/login', credentials, { auth: false });
-        if (response.success && response.data.token) {
+        // Netlify Functions 형식에 맞게 action 파라미터 추가
+        const response = await this.post('/auth', { 
+            action: 'login',
+            ...credentials 
+        }, { auth: false });
+        
+        if (response.success && response.token) {
+            this.setToken(response.token);
+        } else if (response.success && response.data?.token) {
             this.setToken(response.data.token);
         }
         return response;
     }
 
     async register(userData) {
-        const response = await this.post('/auth/register', userData, { auth: false });
-        if (response.success && response.data.token) {
+        // Netlify Functions 형식에 맞게 action 파라미터 추가
+        const response = await this.post('/auth', { 
+            action: 'register',
+            ...userData 
+        }, { auth: false });
+        
+        if (response.success && response.token) {
+            this.setToken(response.token);
+        } else if (response.success && response.data?.token) {
             this.setToken(response.data.token);
         }
         return response;
