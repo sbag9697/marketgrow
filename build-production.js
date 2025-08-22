@@ -145,8 +145,19 @@ try {
 
     // 8. _redirects 파일 생성
     console.log('🔄 _redirects 파일 생성 중...');
-    const redirectsContent = `/api/*  ${BACKEND_URL}/api/:splat  200
-/*    /index.html   200`;
+    // Netlify Functions 리다이렉트 설정
+    const redirectsContent = `# Netlify Functions 리다이렉트
+/api/auth  /.netlify/functions/auth  200
+/api/orders  /.netlify/functions/orders  200
+/api/smmturk  /.netlify/functions/smmturk  200
+
+# Legacy 경로 지원
+/api/auth/login  /.netlify/functions/auth  200
+/api/auth/register  /.netlify/functions/auth  200
+/api/auth/verify  /.netlify/functions/auth  200
+
+# SPA 라우팅
+/*  /index.html  200`;
     fs.writeFileSync(path.join(buildDir, '_redirects'), redirectsContent);
 
     // 9. _headers 파일 생성

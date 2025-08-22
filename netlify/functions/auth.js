@@ -12,10 +12,16 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
 exports.handler = async (event, context) => {
+    // CORS 설정 - 프로덕션에서는 marketgrow.kr만 허용
+    const origin = event.headers.origin || event.headers.Origin || '';
+    const allowedOrigins = ['https://marketgrow.kr', 'https://www.marketgrow.kr', 'http://localhost:3000'];
+    const corsOrigin = allowedOrigins.includes(origin) ? origin : 'https://marketgrow.kr';
+    
     const headers = {
-        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
+        'Access-Control-Allow-Origin': corsOrigin,
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+        'Access-Control-Allow-Credentials': 'true',
         'Content-Type': 'application/json'
     };
 
