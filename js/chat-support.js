@@ -1,6 +1,7 @@
 // 실시간 채팅 상담 시스템
-const API_URL = 'https://marketgrow-production.up.railway.app/api';
-const WS_URL = 'wss://marketgrow-production.up.railway.app';
+const API_URL = window.API_BASE || '/api';
+const WS_URL = window.NOTI_WS_URL || '';
+const ENABLE_WS = window.ENABLE_WS !== false;
 
 class ChatSupport {
     constructor() {
@@ -28,8 +29,12 @@ class ChatSupport {
         // 채팅 위젯 생성
         this.createChatWidget();
 
-        // WebSocket 연결
-        this.connectWebSocket();
+        // WebSocket 연결 (활성화된 경우만)
+        if (ENABLE_WS) {
+            this.connectWebSocket();
+        } else {
+            console.info('[Chat] WebSocket disabled');
+        }
 
         // 이벤트 리스너 설정
         this.setupEventListeners();

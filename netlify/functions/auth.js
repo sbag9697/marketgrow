@@ -75,6 +75,8 @@ exports.handler = async (event, context) => {
         }
 
         switch (action) {
+            case 'diagnose':
+                return await handleDiagnose(event, headers);
             case 'register':
                 return await handleRegister(event, headers, body);
             case 'login':
@@ -106,6 +108,41 @@ exports.handler = async (event, context) => {
         };
     }
 };
+
+// 임시 진단용 (운영 반영 후 삭제 권장)
+async function handleDiagnose(event, headers) {
+    const has = (k) => !!process.env[k];
+    let dbOK = false, dbErr = null;
+    
+    try {
+        const db = await getDb();
+        await db.admin().ping();
+        dbOK = true;
+    } catch (e) {
+        dbErr = e.message || 'Unknown error';
+    }
+    
+    return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+            success: true,
+            env: {
+                MONGODB_URI: has('MONGODB_URI'),
+                MONGODB_DB: process.env.MONGODB_DB || 'marketgrow',
+                JWT_SECRET: has('JWT_SECRET'),
+                JWT_SECRET_ADMIN: has('JWT_SECRET_ADMIN'),
+                ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'not set'
+            },
+            db: { 
+                ok: dbOK, 
+                error: dbErr 
+            },
+            path: event.path || 'unknown',
+            httpMethod: event.httpMethod
+        })
+    };
+}
 
 async function handleRegister(event, headers, bodyData = null) {
     const { username, email, password, phone, name } = bodyData || JSON.parse(event.body);
