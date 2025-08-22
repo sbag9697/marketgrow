@@ -1,4 +1,5 @@
 # MarketGrow - Netlify 배포 설정
+# MongoDB 전환 완료 - Neon 플러그인 제거됨
 [build]
   publish = "dist"
   command = "npm install && node build-production.js"
