@@ -47,9 +47,9 @@
     window.API_ENDPOINTS = {
         // 인증 관련
         AUTH: {
-            LOGIN: `${API_BASE_URL}/auth/login`,
-            REGISTER: `${API_BASE_URL}/auth/register`,
-            CHECK_USERNAME: `${API_BASE_URL}/auth/check-username`,
+            LOGIN: `/api/auth`,
+            REGISTER: `/api/auth`,
+            CHECK_USERNAME: `/api/auth`,
             SEND_EMAIL_VERIFICATION: `${API_BASE_URL}/email/send-code`,  // send-code로 통일
             VERIFY_EMAIL: `${API_BASE_URL}/email/verify-code`,
             SEND_PHONE_VERIFICATION: `${API_BASE_URL}/auth/send-sms`,

@@ -148,12 +148,12 @@ const ADMIN_CONFIG = {
 const API_ENDPOINTS = {
     // 인증
     AUTH: {
-        LOGIN: '/auth/login',
-        REGISTER: '/auth/register',
-        LOGOUT: '/auth/logout',
-        REFRESH: '/auth/refresh',
-        VERIFY_EMAIL: '/auth/verify-email',
-        RESET_PASSWORD: '/auth/reset-password'
+        LOGIN: '/api/auth',
+        REGISTER: '/api/auth',
+        LOGOUT: '/api/auth',
+        REFRESH: '/api/auth',
+        VERIFY_EMAIL: '/api/auth',
+        RESET_PASSWORD: '/api/auth'
     },
     // 사용자
     USER: {

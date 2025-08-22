@@ -30,13 +30,26 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const { action } = JSON.parse(event.body || '{}');
+        const body = JSON.parse(event.body || '{}');
+        
+        // 레거시 경로 지원 - /auth/login으로 오는 요청 처리
+        let action = body.action;
+        if (!action && event.path) {
+            if (event.path.includes('/login')) action = 'login';
+            else if (event.path.includes('/register')) action = 'register';
+            else if (event.path.includes('/verify')) action = 'verify';
+        }
+        
+        // 로그인 데이터 정규화 (login 필드를 username으로 변환)
+        if (body.login && !body.username) {
+            body.username = body.login;
+        }
 
         switch (action) {
             case 'register':
-                return await handleRegister(event, headers);
+                return await handleRegister(event, headers, body);
             case 'login':
-                return await handleLogin(event, headers);
+                return await handleLogin(event, headers, body);
             case 'verify':
                 return await handleVerifyToken(event, headers);
             case 'update-profile':
@@ -65,8 +78,8 @@ exports.handler = async (event, context) => {
     }
 };
 
-async function handleRegister(event, headers) {
-    const { username, email, password, phone, name } = JSON.parse(event.body);
+async function handleRegister(event, headers, bodyData = null) {
+    const { username, email, password, phone, name } = bodyData || JSON.parse(event.body);
 
     try {
         const db = await getDb();
@@ -171,8 +184,8 @@ async function handleRegister(event, headers) {
     }
 }
 
-async function handleLogin(event, headers) {
-    const { username, email, password } = JSON.parse(event.body);
+async function handleLogin(event, headers, bodyData = null) {
+    const { username, email, password } = bodyData || JSON.parse(event.body);
 
     try {
         const db = await getDb();
