@@ -1,15 +1,21 @@
-const { neon } = require('@netlify/neon');
+/**
+ * 인증 API (MongoDB 버전)
+ * 회원가입, 로그인, 토큰 검증, 프로필 업데이트
+ */
+
+const { getDb } = require('./_lib/mongo');
+const { generateUserToken } = require('./_lib/auth');
+const { ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const sql = neon(process.env.NETLIFY_DATABASE_URL);
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-key';
 
 exports.handler = async (event, context) => {
     const headers = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
         'Content-Type': 'application/json'
     };
 
@@ -33,159 +39,269 @@ exports.handler = async (event, context) => {
                 return {
                     statusCode: 400,
                     headers,
-                    body: JSON.stringify({ error: 'Invalid action' })
+                    body: JSON.stringify({ 
+                        success: false,
+                        error: 'Invalid action' 
+                    })
                 };
         }
     } catch (error) {
+        console.error('Auth API error:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Internal server error', details: error.message })
+            body: JSON.stringify({ 
+                success: false,
+                error: 'Internal server error', 
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            })
         };
     }
 };
 
 async function handleRegister(event, headers) {
-    const { username, email, password, phone } = JSON.parse(event.body);
+    const { username, email, password, phone, name } = JSON.parse(event.body);
 
-    // 기존 사용자 확인
-    const existingUser = await sql`
-        SELECT id FROM users WHERE username = ${username} OR email = ${email}
-    `;
+    try {
+        const db = await getDb();
+        
+        // 필수 필드 검증
+        if (!email || !password) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '이메일과 비밀번호는 필수입니다.' 
+                })
+            };
+        }
 
-    if (existingUser.length > 0) {
-        return {
-            statusCode: 400,
-            headers,
-            body: JSON.stringify({ error: '이미 존재하는 사용자명 또는 이메일입니다.' })
+        // 기존 사용자 확인
+        const existingUser = await db.collection('users').findOne({
+            $or: [
+                { email: email.toLowerCase() },
+                { username: username ? username.toLowerCase() : null }
+            ]
+        });
+
+        if (existingUser) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '이미 존재하는 사용자명 또는 이메일입니다.' 
+                })
+            };
+        }
+
+        // 비밀번호 해시화
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 사용자 문서 생성
+        const now = new Date();
+        const userDoc = {
+            _id: new ObjectId(),
+            email: email.toLowerCase(),
+            username: username ? username.toLowerCase() : email.split('@')[0],
+            password: hashedPassword,
+            name: name || username || email.split('@')[0],
+            phone: phone || null,
+            role: 'user',
+            membershipLevel: 'bronze',
+            points: 0,
+            depositBalance: 0,
+            isActive: true,
+            isEmailVerified: false,
+            isPhoneVerified: false,
+            createdAt: now,
+            updatedAt: now
         };
+
+        // 사용자 저장
+        await db.collection('users').insertOne(userDoc);
+
+        // 비밀번호 제거한 사용자 정보
+        const { password: _, ...userWithoutPassword } = userDoc;
+
+        // JWT 토큰 생성
+        const token = jwt.sign(
+            { 
+                userId: userDoc._id.toString(), 
+                email: userDoc.email,
+                role: userDoc.role 
+            },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        return {
+            statusCode: 201,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                user: userWithoutPassword,
+                token
+            })
+        };
+
+    } catch (error) {
+        console.error('Register error:', error);
+        
+        // MongoDB 중복 키 에러 처리
+        if (error.code === 11000) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '이미 존재하는 사용자명 또는 이메일입니다.' 
+                })
+            };
+        }
+        
+        throw error;
     }
-
-    // 비밀번호 해시화
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 사용자 생성
-    const result = await sql`
-        INSERT INTO users (username, email, password_hash, phone)
-        VALUES (${username}, ${email}, ${hashedPassword}, ${phone})
-        RETURNING id, username, email, points, membership_level, created_at
-    `;
-
-    const user = result[0];
-
-    // JWT 토큰 생성
-    const token = jwt.sign(
-        { userId: user.id, username: user.username },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-    );
-
-    return {
-        statusCode: 201,
-        headers,
-        body: JSON.stringify({
-            success: true,
-            user,
-            token
-        })
-    };
 }
 
 async function handleLogin(event, headers) {
-    const { username, password } = JSON.parse(event.body);
+    const { username, email, password } = JSON.parse(event.body);
 
-    // 사용자 찾기
-    const users = await sql`
-        SELECT id, username, email, password_hash, points, membership_level, is_active
-        FROM users 
-        WHERE username = ${username} OR email = ${username}
-    `;
+    try {
+        const db = await getDb();
+        
+        // 로그인 식별자 (username 또는 email)
+        const loginId = username || email;
+        if (!loginId || !password) {
+            return {
+                statusCode: 400,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '사용자명/이메일과 비밀번호를 입력하세요.' 
+                })
+            };
+        }
 
-    if (users.length === 0) {
+        // 사용자 찾기
+        const user = await db.collection('users').findOne({
+            $or: [
+                { email: loginId.toLowerCase() },
+                { username: loginId.toLowerCase() }
+            ],
+            isActive: { $ne: false }
+        });
+
+        if (!user) {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '사용자를 찾을 수 없습니다.' 
+                })
+            };
+        }
+
+        // 비밀번호 확인
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '비밀번호가 일치하지 않습니다.' 
+                })
+            };
+        }
+
+        // 마지막 로그인 시간 업데이트
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            { 
+                $set: { 
+                    lastLoginAt: new Date(),
+                    updatedAt: new Date()
+                }
+            }
+        );
+
+        // 비밀번호 제거한 사용자 정보
+        const { password: _, ...userWithoutPassword } = user;
+
+        // JWT 토큰 생성
+        const token = jwt.sign(
+            { 
+                userId: user._id.toString(), 
+                email: user.email,
+                role: user.role 
+            },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
         return {
-            statusCode: 401,
+            statusCode: 200,
             headers,
-            body: JSON.stringify({ error: '사용자를 찾을 수 없습니다.' })
+            body: JSON.stringify({
+                success: true,
+                user: userWithoutPassword,
+                token
+            })
         };
+
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
     }
-
-    const user = users[0];
-
-    if (!user.is_active) {
-        return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: '비활성화된 계정입니다.' })
-        };
-    }
-
-    // 비밀번호 확인
-    const isValidPassword = await bcrypt.compare(password, user.password_hash);
-
-    if (!isValidPassword) {
-        return {
-            statusCode: 401,
-            headers,
-            body: JSON.stringify({ error: '잘못된 비밀번호입니다.' })
-        };
-    }
-
-    // 마지막 로그인 시간 업데이트
-    await sql`
-        UPDATE users 
-        SET last_login = CURRENT_TIMESTAMP 
-        WHERE id = ${user.id}
-    `;
-
-    // JWT 토큰 생성
-    const token = jwt.sign(
-        { userId: user.id, username: user.username },
-        JWT_SECRET,
-        { expiresIn: '7d' }
-    );
-
-    // 비밀번호 제거
-    delete user.password_hash;
-
-    return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-            success: true,
-            user,
-            token
-        })
-    };
 }
 
 async function handleVerifyToken(event, headers) {
-    const authHeader = event.headers.authorization;
-
+    const authHeader = event.headers.authorization || event.headers.Authorization;
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return {
             statusCode: 401,
             headers,
-            body: JSON.stringify({ error: '토큰이 없습니다.' })
+            body: JSON.stringify({ 
+                success: false,
+                error: '토큰이 없습니다.' 
+            })
         };
     }
 
-    const token = authHeader.substring(7);
+    const token = authHeader.slice(7);
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        // JWT 검증
+        const payload = jwt.verify(token, JWT_SECRET);
+        
+        // 사용자 정보 조회
+        const db = await getDb();
+        const userId = ObjectId.isValid(payload.userId) 
+            ? new ObjectId(payload.userId) 
+            : payload.userId;
+            
+        const user = await db.collection('users').findOne(
+            { 
+                _id: userId,
+                isActive: { $ne: false }
+            },
+            { 
+                projection: { password: 0 } 
+            }
+        );
 
-        // 사용자 정보 가져오기
-        const users = await sql`
-            SELECT id, username, email, points, membership_level, is_active
-            FROM users 
-            WHERE id = ${decoded.userId}
-        `;
-
-        if (users.length === 0 || !users[0].is_active) {
+        if (!user) {
             return {
                 statusCode: 401,
                 headers,
-                body: JSON.stringify({ error: '유효하지 않은 사용자입니다.' })
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '유효하지 않은 토큰입니다.' 
+                })
             };
         }
 
@@ -194,14 +310,136 @@ async function handleVerifyToken(event, headers) {
             headers,
             body: JSON.stringify({
                 success: true,
-                user: users[0]
+                user
             })
         };
+
     } catch (error) {
+        console.error('Token verification error:', error);
         return {
             statusCode: 401,
             headers,
-            body: JSON.stringify({ error: '유효하지 않은 토큰입니다.' })
+            body: JSON.stringify({ 
+                success: false,
+                error: '토큰 검증 실패' 
+            })
         };
+    }
+}
+
+async function handleUpdateProfile(event, headers) {
+    const authHeader = event.headers.authorization || event.headers.Authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return {
+            statusCode: 401,
+            headers,
+            body: JSON.stringify({ 
+                success: false,
+                error: '인증이 필요합니다.' 
+            })
+        };
+    }
+
+    const token = authHeader.slice(7);
+    const { phone, name, currentPassword, newPassword } = JSON.parse(event.body);
+
+    try {
+        // JWT 검증
+        const payload = jwt.verify(token, JWT_SECRET);
+        const db = await getDb();
+        
+        const userId = ObjectId.isValid(payload.userId) 
+            ? new ObjectId(payload.userId) 
+            : payload.userId;
+
+        // 현재 사용자 정보 조회
+        const user = await db.collection('users').findOne({ _id: userId });
+        
+        if (!user) {
+            return {
+                statusCode: 404,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '사용자를 찾을 수 없습니다.' 
+                })
+            };
+        }
+
+        // 업데이트 데이터 준비
+        const updateData = {
+            updatedAt: new Date()
+        };
+
+        if (phone !== undefined) updateData.phone = phone;
+        if (name !== undefined) updateData.name = name;
+
+        // 비밀번호 변경 요청인 경우
+        if (newPassword) {
+            if (!currentPassword) {
+                return {
+                    statusCode: 400,
+                    headers,
+                    body: JSON.stringify({ 
+                        success: false,
+                        error: '현재 비밀번호를 입력하세요.' 
+                    })
+                };
+            }
+
+            // 현재 비밀번호 확인
+            const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+            if (!isValidPassword) {
+                return {
+                    statusCode: 401,
+                    headers,
+                    body: JSON.stringify({ 
+                        success: false,
+                        error: '현재 비밀번호가 일치하지 않습니다.' 
+                    })
+                };
+            }
+
+            // 새 비밀번호 해시화
+            updateData.password = await bcrypt.hash(newPassword, 10);
+        }
+
+        // 프로필 업데이트
+        await db.collection('users').updateOne(
+            { _id: userId },
+            { $set: updateData }
+        );
+
+        // 업데이트된 사용자 정보 조회
+        const updatedUser = await db.collection('users').findOne(
+            { _id: userId },
+            { projection: { password: 0 } }
+        );
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                user: updatedUser
+            })
+        };
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+        
+        if (error.name === 'JsonWebTokenError') {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({ 
+                    success: false,
+                    error: '유효하지 않은 토큰입니다.' 
+                })
+            };
+        }
+        
+        throw error;
     }
 }
