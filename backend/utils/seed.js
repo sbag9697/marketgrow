@@ -43,7 +43,7 @@ const createAdminUser = async () => {
 
         await adminUser.save();
         console.log('Admin user created successfully:', adminEmail);
-        console.log('Admin password:', process.env.ADMIN_PASSWORD || 'Admin123!@#');
+        // 보안: 비밀번호는 로그에 출력하지 않음
     } catch (error) {
         console.error('Error creating admin user:', error);
     }

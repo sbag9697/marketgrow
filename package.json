@@ -18,7 +18,10 @@
     "start": "cd backend && npm install && node server.js",
     "start:backend": "cd backend && npm install --production && node server.js",
     "server:dev": "cd server && npm run dev",
-    "server:start": "cd server && npm start"
+    "server:start": "cd server && npm start",
+    "admin:init": "node scripts/init-admin.js",
+    "seed:postgres": "node backend/utils/seed.pg.js",
+    "seed:mongo": "node backend/utils/seed.js"
   },
   "keywords": [
     "sns",
