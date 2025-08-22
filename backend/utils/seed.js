@@ -9,20 +9,32 @@ const Service = require('../models/Service');
 // Create admin user
 const createAdminUser = async () => {
     try {
-        const adminExists = await User.findOne({ email: process.env.ADMIN_EMAIL || 'admin@marketgrow.com' });
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@marketgrow.kr';
+        const adminExists = await User.findOne({ email: adminEmail });
 
         if (adminExists) {
-            console.log('Admin user already exists');
+            // 기존 계정이 있지만 admin이 아닌 경우 업데이트
+            if (adminExists.role !== 'admin') {
+                adminExists.role = 'admin';
+                adminExists.membershipLevel = 'diamond';
+                adminExists.isEmailVerified = true;
+                adminExists.isPhoneVerified = true;
+                await adminExists.save();
+                console.log('Existing user upgraded to admin:', adminEmail);
+            } else {
+                console.log('Admin user already exists:', adminEmail);
+            }
             return;
         }
 
         const adminUser = new User({
             username: 'admin',
-            email: process.env.ADMIN_EMAIL || 'admin@marketgrow.com',
+            email: adminEmail,
             password: process.env.ADMIN_PASSWORD || 'Admin123!@#',
             name: '관리자',
             phone: '01012345678',
             role: 'admin',
+            membershipLevel: 'diamond',
             businessType: 'corporation',
             isEmailVerified: true,
             isPhoneVerified: true,
@@ -30,7 +42,8 @@ const createAdminUser = async () => {
         });
 
         await adminUser.save();
-        console.log('Admin user created successfully');
+        console.log('Admin user created successfully:', adminEmail);
+        console.log('Admin password:', process.env.ADMIN_PASSWORD || 'Admin123!@#');
     } catch (error) {
         console.error('Error creating admin user:', error);
     }
