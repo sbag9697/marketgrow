@@ -785,32 +785,59 @@
 
         // 데이터 로드 함수
         async function loadDashboardData() {
-            // 임시 데이터로 표시
-            document.getElementById('totalRevenue').textContent = '₩1,234,567';
-            document.getElementById('newOrders').textContent = '12';
-            document.getElementById('activeUsers').textContent = '156';
-            document.getElementById('pendingOrders').textContent = '3';
+            try {
+                // 통계 데이터 로드
+                const statsResponse = await axios.get(`${API_URL}/admin/dashboard`);
+                if (statsResponse.data.success) {
+                    const stats = statsResponse.data.data.overview || statsResponse.data.data;
+                    document.getElementById('totalRevenue').textContent = `₩${(stats.totalRevenue || 0).toLocaleString()}`;
+                    document.getElementById('newOrders').textContent = stats.newOrders || 0;
+                    document.getElementById('activeUsers').textContent = stats.activeUsers || 0;
+                    document.getElementById('pendingOrders').textContent = stats.pendingOrders || 0;
+                }
+            } catch (error) {
+                console.log('Stats API error, using defaults');
+                document.getElementById('totalRevenue').textContent = '₩0';
+                document.getElementById('newOrders').textContent = '0';
+                document.getElementById('activeUsers').textContent = '0';
+                document.getElementById('pendingOrders').textContent = '0';
+            }
             
-            // 최근 주문 표시
-            const recentOrdersHTML = `
-                <tr>
-                    <td>ORD-001</td>
-                    <td>홍길동</td>
-                    <td>인스타그램 팔로워</td>
-                    <td>₩50,000</td>
-                    <td><span class="badge badge-success">완료</span></td>
-                    <td>2025-08-21</td>
-                </tr>
-                <tr>
-                    <td>ORD-002</td>
-                    <td>김철수</td>
-                    <td>유튜브 조회수</td>
-                    <td>₩30,000</td>
-                    <td><span class="badge badge-warning">처리중</span></td>
-                    <td>2025-08-21</td>
-                </tr>
-            `;
-            document.getElementById('recentOrdersTable').innerHTML = recentOrdersHTML;
+            try {
+                // 최근 주문 로드
+                const ordersResponse = await axios.get(`${API_URL}/orders?limit=5`);
+                const orders = ordersResponse.data.data?.orders || [];
+                
+                if (orders.length > 0) {
+                    const recentOrdersHTML = orders.map(order => `
+                        <tr>
+                            <td>${order.orderNumber || order._id?.substr(-6) || '-'}</td>
+                            <td>${order.user?.name || order.user?.email || '-'}</td>
+                            <td>${order.service?.name || '-'}</td>
+                            <td>₩${(order.finalAmount || 0).toLocaleString()}</td>
+                            <td><span class="badge badge-${getStatusColor(order.status)}">${order.status || '-'}</span></td>
+                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                    document.getElementById('recentOrdersTable').innerHTML = recentOrdersHTML;
+                } else {
+                    document.getElementById('recentOrdersTable').innerHTML = '<tr><td colspan="6" style="text-align: center;">주문이 없습니다</td></tr>';
+                }
+            } catch (error) {
+                console.log('Orders API error');
+                document.getElementById('recentOrdersTable').innerHTML = '<tr><td colspan="6" style="text-align: center;">데이터 로드 실패</td></tr>';
+            }
+        }
+        
+        function getStatusColor(status) {
+            const colors = {
+                'pending': 'warning',
+                'processing': 'info',
+                'completed': 'success',
+                'cancelled': 'danger',
+                'failed': 'danger'
+            };
+            return colors[status] || 'secondary';
         }
 
         async function loadSectionData(sectionName) {
@@ -830,91 +857,215 @@
             }
         }
 
-        function loadOrders() {
-            const ordersHTML = `
-                <tr>
-                    <td>ORD-001</td>
-                    <td>홍길동</td>
-                    <td>인스타그램 팔로워</td>
-                    <td>1000</td>
-                    <td>₩50,000</td>
-                    <td><span class="badge badge-success">완료</span></td>
-                    <td>카드</td>
-                    <td>2025-08-21</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary">상세</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('ordersTable').innerHTML = ordersHTML;
+        async function loadOrders() {
+            try {
+                const response = await axios.get(`${API_URL}/admin/orders`);
+                const orders = response.data.data?.orders || [];
+                
+                if (orders.length > 0) {
+                    const ordersHTML = orders.map(order => `
+                        <tr>
+                            <td>${order.orderNumber || order._id?.substr(-6) || '-'}</td>
+                            <td>${order.user?.name || order.user?.email || '-'}</td>
+                            <td>${order.service?.name || '-'}</td>
+                            <td>${order.quantity || 0}</td>
+                            <td>₩${(order.finalAmount || 0).toLocaleString()}</td>
+                            <td><span class="badge badge-${getStatusColor(order.status)}">${order.status || '-'}</span></td>
+                            <td>${order.paymentMethod || '-'}</td>
+                            <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order._id}', 'completed')">완료</button>
+                                <button class="btn btn-sm btn-danger" onclick="updateOrderStatus('${order._id}', 'cancelled')">취소</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    document.getElementById('ordersTable').innerHTML = ordersHTML;
+                } else {
+                    document.getElementById('ordersTable').innerHTML = '<tr><td colspan="9" style="text-align: center;">주문이 없습니다</td></tr>';
+                }
+            } catch (error) {
+                console.error('Orders load error:', error);
+                document.getElementById('ordersTable').innerHTML = '<tr><td colspan="9" style="text-align: center;">데이터 로드 실패</td></tr>';
+            }
         }
 
-        function loadUsers() {
-            const usersHTML = `
-                <tr>
-                    <td>USER-001</td>
-                    <td>홍길동</td>
-                    <td>hong@example.com</td>
-                    <td><span class="badge badge-warning">Gold</span></td>
-                    <td>1,500</td>
-                    <td>₩100,000</td>
-                    <td>2025-01-15</td>
-                    <td><span class="badge badge-success">활성</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-primary">수정</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('usersTable').innerHTML = usersHTML;
+        async function loadUsers() {
+            try {
+                const response = await axios.get(`${API_URL}/admin/users`);
+                const users = response.data.data?.users || [];
+                
+                if (users.length > 0) {
+                    const usersHTML = users.map(user => `
+                        <tr>
+                            <td>${user._id?.substr(-6) || '-'}</td>
+                            <td>${user.name || '-'}</td>
+                            <td>${user.email}</td>
+                            <td><span class="badge badge-${getMembershipColor(user.membershipLevel)}">${user.membershipLevel || 'bronze'}</span></td>
+                            <td>${(user.points || 0).toLocaleString()}</td>
+                            <td>₩${(user.depositBalance || 0).toLocaleString()}</td>
+                            <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                            <td><span class="badge badge-${user.isActive ? 'success' : 'danger'}">${user.isActive ? '활성' : '비활성'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editUser('${user._id}')">수정</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    document.getElementById('usersTable').innerHTML = usersHTML;
+                } else {
+                    document.getElementById('usersTable').innerHTML = '<tr><td colspan="9" style="text-align: center;">회원이 없습니다</td></tr>';
+                }
+            } catch (error) {
+                console.error('Users load error:', error);
+                document.getElementById('usersTable').innerHTML = '<tr><td colspan="9" style="text-align: center;">데이터 로드 실패</td></tr>';
+            }
+        }
+        
+        function getMembershipColor(level) {
+            const colors = {
+                'bronze': 'warning',
+                'silver': 'secondary',
+                'gold': 'warning',
+                'platinum': 'info',
+                'diamond': 'primary'
+            };
+            return colors[level] || 'secondary';
         }
 
-        function loadServices() {
-            const servicesHTML = `
-                <tr>
-                    <td>SVC-001</td>
-                    <td>Instagram</td>
-                    <td>팔로워 증가</td>
-                    <td>₩50</td>
-                    <td>100</td>
-                    <td>10000</td>
-                    <td><span class="badge badge-success">활성</span></td>
-                    <td>
-                        <button class="btn btn-sm btn-primary">수정</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('servicesTable').innerHTML = servicesHTML;
+        async function loadServices() {
+            try {
+                const response = await axios.get(`${API_URL}/admin/services`);
+                const services = response.data.data?.services || [];
+                
+                if (services.length > 0) {
+                    const servicesHTML = services.map(service => {
+                        const price = service.pricing?.[0]?.price || service.price || 0;
+                        return `
+                        <tr>
+                            <td>${service._id?.substr(-6) || '-'}</td>
+                            <td>${service.platform || '-'}</td>
+                            <td>${service.name || '-'}</td>
+                            <td>₩${price.toLocaleString()}</td>
+                            <td>${service.minQuantity || 0}</td>
+                            <td>${service.maxQuantity || 0}</td>
+                            <td><span class="badge badge-${service.isActive ? 'success' : 'danger'}">${service.isActive ? '활성' : '비활성'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editService('${service._id}')">수정</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteService('${service._id}')">삭제</button>
+                            </td>
+                        </tr>
+                    `}).join('');
+                    document.getElementById('servicesTable').innerHTML = servicesHTML;
+                } else {
+                    document.getElementById('servicesTable').innerHTML = '<tr><td colspan="8" style="text-align: center;">서비스가 없습니다</td></tr>';
+                }
+            } catch (error) {
+                console.error('Services load error:', error);
+                document.getElementById('servicesTable').innerHTML = '<tr><td colspan="8" style="text-align: center;">데이터 로드 실패</td></tr>';
+            }
         }
 
-        function loadDeposits() {
-            const depositsHTML = `
-                <tr>
-                    <td>DEP-001</td>
-                    <td>홍길동</td>
-                    <td>₩100,000</td>
-                    <td>₩10,000</td>
-                    <td>홍길동</td>
-                    <td><span class="badge badge-warning">대기중</span></td>
-                    <td>2025-08-21</td>
-                    <td>
-                        <button class="btn btn-sm btn-success">승인</button>
-                        <button class="btn btn-sm btn-danger">거절</button>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('depositsTable').innerHTML = depositsHTML;
+        async function loadDeposits() {
+            try {
+                const response = await axios.get(`${API_URL}/deposits`);
+                const deposits = response.data.data?.deposits || [];
+                
+                if (deposits.length > 0) {
+                    const depositsHTML = deposits.map(deposit => `
+                        <tr>
+                            <td>${deposit._id?.substr(-6) || '-'}</td>
+                            <td>${deposit.user?.name || deposit.user?.email || '-'}</td>
+                            <td>₩${(deposit.amount || 0).toLocaleString()}</td>
+                            <td>₩${(deposit.bonusAmount || 0).toLocaleString()}</td>
+                            <td>${deposit.depositorName || '-'}</td>
+                            <td><span class="badge badge-${getStatusColor(deposit.status)}">${deposit.status || '-'}</span></td>
+                            <td>${new Date(deposit.requestedAt || deposit.createdAt).toLocaleDateString()}</td>
+                            <td>
+                                ${deposit.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-success" onclick="confirmDeposit('${deposit._id}')">승인</button>
+                                    <button class="btn btn-sm btn-danger" onclick="rejectDeposit('${deposit._id}')">거절</button>
+                                ` : '-'}
+                            </td>
+                        </tr>
+                    `).join('');
+                    document.getElementById('depositsTable').innerHTML = depositsHTML;
+                } else {
+                    document.getElementById('depositsTable').innerHTML = '<tr><td colspan="8" style="text-align: center;">예치금 요청이 없습니다</td></tr>';
+                }
+            } catch (error) {
+                console.error('Deposits load error:', error);
+                document.getElementById('depositsTable').innerHTML = '<tr><td colspan="8" style="text-align: center;">데이터 로드 실패</td></tr>';
+            }
         }
 
         function refreshData() {
-            loadDashboardData();
+            const activeSection = document.querySelector('.section.active');
+            if (activeSection) {
+                const sectionId = activeSection.id;
+                if (sectionId === 'overview') {
+                    loadDashboardData();
+                } else {
+                    loadSectionData(sectionId);
+                }
+            }
+        }
+        
+        // 액션 함수들
+        async function updateOrderStatus(orderId, status) {
+            if (!confirm(`주문을 ${status === 'completed' ? '완료' : '취소'} 처리하시겠습니까?`)) return;
+            
+            try {
+                await axios.put(`${API_URL}/orders/${orderId}/status`, { status });
+                alert('주문 상태가 업데이트되었습니다');
+                loadOrders();
+            } catch (error) {
+                alert('주문 상태 업데이트 실패');
+            }
+        }
+        
+        async function confirmDeposit(depositId) {
+            if (!confirm('예치금을 승인하시겠습니까?')) return;
+            
+            try {
+                await axios.put(`${API_URL}/deposits/${depositId}/confirm`);
+                alert('예치금이 승인되었습니다');
+                loadDeposits();
+            } catch (error) {
+                alert('예치금 승인 실패');
+            }
+        }
+        
+        async function rejectDeposit(depositId) {
+            if (!confirm('예치금 요청을 거절하시겠습니까?')) return;
+            
+            try {
+                await axios.put(`${API_URL}/deposits/${depositId}/reject`);
+                alert('예치금 요청이 거절되었습니다');
+                loadDeposits();
+            } catch (error) {
+                alert('예치금 거절 실패');
+            }
+        }
+        
+        function editUser(userId) {
+            alert('회원 수정 기능: ' + userId);
+        }
+        
+        function editService(serviceId) {
+            alert('서비스 수정 기능: ' + serviceId);
+        }
+        
+        function deleteService(serviceId) {
+            if (confirm('서비스를 삭제하시겠습니까?')) {
+                alert('서비스 삭제 기능: ' + serviceId);
+            }
         }
 
         function showAddUserModal() {
-            alert('회원 추가 기능');
+            alert('회원 추가 기능 - 구현 예정');
         }
 
         function showAddServiceModal() {
-            alert('서비스 추가 기능');
+            alert('서비스 추가 기능 - 구현 예정');
         }
     </script>
 </body>
