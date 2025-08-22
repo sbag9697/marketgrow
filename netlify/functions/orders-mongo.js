@@ -188,40 +188,39 @@ exports.handler = async (event, context) => {
             };
             
             // 트랜잭션으로 처리 (MongoDB 4.0+)
-            const session = client.startSession();
-            
+            // Note: MongoDB Atlas Free Tier에서는 트랜잭션 미지원
+            // Railway MongoDB가 Replica Set을 지원하는 경우에만 사용 가능
             try {
-                await session.withTransaction(async () => {
-                    // 주문 생성
-                    await db.collection('orders').insertOne(orderDoc, { session });
-                    
-                    // 서비스 로그 생성
-                    await db.collection('service_logs').insertOne({
-                        _id: new ObjectId(),
+                // 트랜잭션 없이 처리 (대부분의 서버리스 MongoDB는 트랜잭션 미지원)
+                // 주문 생성
+                await db.collection('orders').insertOne(orderDoc);
+                
+                // 서비스 로그 생성
+                await db.collection('service_logs').insertOne({
+                    _id: new ObjectId(),
+                    orderId,
+                    userId: user._id,
+                    action: 'order_created',
+                    details: '주문이 생성되었습니다',
+                    metadata: {
+                        serviceType,
+                        quantity,
+                        totalPrice
+                    },
+                    progressBefore: 0,
+                    progressAfter: 0,
+                    createdAt: now
+                });
+                
+                // Idempotency key 저장
+                if (idempotencyKey) {
+                    await db.collection('idempotency_keys').insertOne({
+                        _id: idempotencyKey,
                         orderId,
                         userId: user._id,
-                        action: 'order_created',
-                        details: '주문이 생성되었습니다',
-                        metadata: {
-                            serviceType,
-                            quantity,
-                            totalPrice
-                        },
-                        progressBefore: 0,
-                        progressAfter: 0,
                         createdAt: now
-                    }, { session });
-                    
-                    // Idempotency key 저장
-                    if (idempotencyKey) {
-                        await db.collection('idempotency_keys').insertOne({
-                            _id: idempotencyKey,
-                            orderId,
-                            userId: user._id,
-                            createdAt: now
-                        }, { session });
-                    }
-                });
+                    });
+                }
                 
                 return {
                     statusCode: 201,
@@ -233,7 +232,7 @@ exports.handler = async (event, context) => {
                 };
                 
             } catch (error) {
-                console.error('Transaction error:', error);
+                console.error('Order creation error:', error);
                 
                 // 중복 키 에러 처리
                 if (error.code === 11000) {
@@ -248,9 +247,6 @@ exports.handler = async (event, context) => {
                 }
                 
                 throw error;
-                
-            } finally {
-                await session.endSession();
             }
         }
         
