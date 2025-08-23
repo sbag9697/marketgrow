@@ -2,6 +2,7 @@
 /api/auth      /.netlify/functions/auth      200
 /api/orders    /.netlify/functions/orders    200
 /api/smmturk   /.netlify/functions/smmturk   200
+/api/users/*   /.netlify/functions/users     200
 
 # 2) Legacy 호환 (여전히 /auth/login으로 치는 코드 커버)
 /auth/login    /.netlify/functions/auth      200

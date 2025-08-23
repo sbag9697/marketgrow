@@ -1,5 +1,6 @@
 // 대시보드 완성 기능
-const API_URL = 'https://marketgrow-production.up.railway.app/api';
+// API_URL은 global-config.js에서 정의됨, 상대 경로 사용
+const DASHBOARD_API_URL = '/api';
 
 // 대시보드 초기화
 document.addEventListener('DOMContentLoaded', () => {
@@ -84,7 +85,7 @@ async function loadDashboardData() {
 async function fetchUserStats() {
     try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_URL}/users/stats`, {
+        const response = await fetch(`${DASHBOARD_API_URL}/users/stats`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -112,7 +113,7 @@ async function fetchUserStats() {
 async function fetchRecentOrders() {
     try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_URL}/orders?limit=5`, {
+        const response = await fetch(`${DASHBOARD_API_URL}/orders?limit=5`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -132,7 +133,7 @@ async function fetchRecentOrders() {
 async function fetchUserProfile() {
     try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_URL}/users/profile`, {
+        const response = await fetch(`${DASHBOARD_API_URL}/users/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

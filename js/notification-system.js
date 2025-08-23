@@ -1,5 +1,6 @@
 // 실시간 알림 시스템
-const API_URL = window.API_BASE || '/api';
+// API_URL은 global-config.js에서 이미 정의됨
+const NOTIFICATION_API_URL = window.API_BASE || '/api';
 const WS_URL = window.NOTI_WS_URL || ''; // 환경변수로 주입, 없으면 비활성화
 const ENABLE_WS = !!WS_URL && WS_URL !== 'disabled'; // WebSocket 활성화 플래그
 
