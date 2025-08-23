@@ -28,9 +28,20 @@ async function doLogin(event) {
         const data = await response.json();
 
         if (data.success) {
+            // 양쪽 포맷 모두 지원
+            const token = data?.token ?? data?.data?.token;
+            const user = data?.user ?? data?.data?.user;
+            
+            if (!token) {
+                alert('로그인 응답에 토큰이 없습니다.');
+                return;
+            }
+            
             // 토큰 저장
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+            localStorage.setItem('authToken', token);
+            if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user));
+            }
 
             alert('로그인 성공!');
             window.location.href = '/dashboard.html';
@@ -87,10 +98,15 @@ async function doSignup(event) {
         if (data.success) {
             alert('회원가입 성공! 로그인 페이지로 이동합니다.');
 
-            // 자동 로그인
-            if (data.data && data.data.token) {
-                localStorage.setItem('authToken', data.data.token);
-                localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+            // 자동 로그인 - 양쪽 포맷 지원
+            const token = data?.token ?? data?.data?.token;
+            const user = data?.user ?? data?.data?.user;
+            
+            if (token) {
+                localStorage.setItem('authToken', token);
+                if (user) {
+                    localStorage.setItem('userInfo', JSON.stringify(user));
+                }
                 window.location.href = '/dashboard.html';
             } else {
                 window.location.href = '/login.html';
