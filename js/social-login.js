@@ -130,8 +130,19 @@ async function handleGoogleResponse(response) {
 
         if (data.success) {
             console.log('Google 로그인 성공');
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('user', JSON.stringify(data.data.user));
+            // 양쪽 포맷 지원
+            const token = data?.token ?? data?.data?.token;
+            const user = data?.user ?? data?.data?.user;
+            
+            if (!token) {
+                alert('로그인 응답에 토큰이 없습니다.');
+                return;
+            }
+            
+            localStorage.setItem('authToken', token);
+            if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user));
+            }
             alert('Google 로그인 성공!');
             window.location.href = '/dashboard.html';
         } else {
@@ -212,8 +223,19 @@ class SocialLogin {
 
                         if (data.success) {
                             console.log('Kakao 로그인 성공');
-                            localStorage.setItem('authToken', data.data.token);
-                            localStorage.setItem('user', JSON.stringify(data.data.user));
+                            // 양쪽 포맷 지원
+                            const token = data?.token ?? data?.data?.token;
+                            const user = data?.user ?? data?.data?.user;
+                            
+                            if (!token) {
+                                alert('로그인 응답에 토큰이 없습니다.');
+                                return;
+                            }
+                            
+                            localStorage.setItem('authToken', token);
+                            if (user) {
+                                localStorage.setItem('userInfo', JSON.stringify(user));
+                            }
                             alert('Kakao 로그인 성공!');
                             window.location.href = '/dashboard.html';
                         } else {

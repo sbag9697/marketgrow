@@ -226,6 +226,7 @@
     <!-- Global Config -->
     <script src="js/global-config.js"></script>
     <script src="js/api-utils.js"></script>
+    <script src="js/auth-utils.js"></script>
     
     <!-- 설정 파일 로드 -->
     <script src="js/config.js"></script>
@@ -350,38 +351,44 @@
                 
                 console.log('Parsed data:', data);
                 
-                // 양쪽 포맷 모두 지원 (data.token 또는 data.data.token)
-                const ok = data?.success ?? data?.status === 'success';
-                const token = data?.token ?? data?.data?.token;
-                const user = data?.user ?? data?.data?.user;
-                
-                console.log('Login response:', { ok, hasToken: !!token, hasUser: !!user });
-                
-                if (!response.ok || !ok) {
-                    console.error(`Login failed:`, { status: response.status, data });
-                    alert(data?.error || data?.message || `로그인 실패 (${response.status})`);
-                    return;
+                // auth-utils의 공통 함수 사용
+                if (window.authUtils) {
+                    const { ok, token, user } = window.authUtils.parseAuthResponse(data);
+                    
+                    if (!response.ok || !ok) {
+                        console.error(`Login failed:`, { status: response.status, data });
+                        alert(data?.error || data?.message || `로그인 실패 (${response.status})`);
+                        return;
+                    }
+                    
+                    if (!token) {
+                        console.error('Token missing in response:', data);
+                        alert('로그인 응답에 토큰이 없습니다.');
+                        return;
+                    }
+                    
+                    window.authUtils.saveAuthData(token, user);
+                    alert('로그인 성공!');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Fallback: auth-utils가 로드되지 않았을 때
+                    const token = data?.token ?? data?.data?.token;
+                    const user = data?.user ?? data?.data?.user;
+                    
+                    if (!response.ok || !data?.success) {
+                        alert(data?.error || '로그인 실패');
+                        return;
+                    }
+                    
+                    if (token) {
+                        localStorage.setItem('authToken', token);
+                        if (user) localStorage.setItem('userInfo', JSON.stringify(user));
+                        alert('로그인 성공!');
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alert('토큰이 없습니다.');
+                    }
                 }
-                
-                if (!token) {
-                    console.error('Token missing in response:', data);
-                    alert('로그인 응답에 토큰이 없습니다. 서버 응답을 확인해주세요.');
-                    return;
-                }
-                
-                // 토큰과 사용자 정보 저장
-                const KEY_TOKEN = window?.STORAGE_KEYS?.AUTH_TOKEN || 'authToken';
-                const KEY_USER = window?.STORAGE_KEYS?.USER_INFO || 'userInfo';
-                
-                localStorage.setItem(KEY_TOKEN, token);
-                if (user) {
-                    localStorage.setItem(KEY_USER, JSON.stringify(user));
-                }
-                
-                console.log('Login successful, saved to localStorage:', { KEY_TOKEN, KEY_USER });
-                
-                alert('로그인 성공!');
-                window.location.href = 'dashboard.html';
             } catch (error) {
                 console.error('Login error:', error);
                 alert(`서버 연결 실패: ${error.message}`);

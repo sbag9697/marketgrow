@@ -67,9 +67,20 @@ async function handleGoogleResponse(response) {
         const data = await result.json();
 
         if (data.success) {
-            // 토큰 저장 (api.js와 동일한 키 사용)
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+            // auth-utils 사용 (양쪽 포맷 지원)
+            const token = data?.token ?? data?.data?.token;
+            const user = data?.user ?? data?.data?.user;
+            
+            if (!token) {
+                NotificationManager.error('로그인 응답에 토큰이 없습니다.');
+                return;
+            }
+            
+            // 토큰 저장
+            localStorage.setItem('authToken', token);
+            if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user));
+            }
 
             NotificationManager.success('구글 로그인 성공!');
 
@@ -150,9 +161,19 @@ function loginWithKakao() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // 토큰 저장 (api.js와 동일한 키 사용)
-                    localStorage.setItem('authToken', data.data.token);
-                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    // auth-utils 사용 (양쪽 포맷 지원)
+                    const token = data?.token ?? data?.data?.token;
+                    const user = data?.user ?? data?.data?.user;
+                    
+                    if (!token) {
+                        NotificationManager.error('로그인 응답에 토큰이 없습니다.');
+                        return;
+                    }
+                    
+                    localStorage.setItem('authToken', token);
+                    if (user) {
+                        localStorage.setItem('userInfo', JSON.stringify(user));
+                    }
 
                     NotificationManager.success('카카오 로그인 성공!');
 
@@ -221,8 +242,19 @@ async function handleNaverLogin(token) {
         const data = await response.json();
 
         if (data.success) {
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+            // auth-utils 사용 (양쪽 포맷 지원)
+            const token = data?.token ?? data?.data?.token;
+            const user = data?.user ?? data?.data?.user;
+            
+            if (!token) {
+                NotificationManager.error('로그인 응답에 토큰이 없습니다.');
+                return;
+            }
+            
+            localStorage.setItem('authToken', token);
+            if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user));
+            }
 
             NotificationManager.success('네이버 로그인 성공!');
 
