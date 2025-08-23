@@ -117,38 +117,42 @@ exports.handler = async (event, context) => {
     }
 };
 
-// 임시 진단용 (운영 반영 후 삭제 권장)
+// 상세 진단용
 async function handleDiagnose(event, headers) {
-    const has = (k) => !!process.env[k];
-    let dbOK = false, dbErr = null;
+    const res = { success: true, env: {}, db: {} };
+    const req = ['MONGODB_URI', 'MONGODB_DB', 'JWT_SECRET'];
+    req.forEach(k => res.env[k] = !!process.env[k]);
+    
+    // 추가 환경 정보
+    res.env.MONGODB_DB_VALUE = process.env.MONGODB_DB || 'marketgrow';
+    res.env.NODE_ENV = process.env.NODE_ENV || 'production';
     
     try {
         const db = await getDb();
-        await db.admin().ping();
-        dbOK = true;
+        // 드라이버가 실제 서버를 고른 결과까지 강제로 확인
+        await db.command({ ping: 1 });
+        res.db.ok = true;
     } catch (e) {
-        dbErr = e.message || 'Unknown error';
+        res.db.ok = false;
+        res.db.error = e?.message;
+        res.db.code = e?.code;
+        res.db.name = e?.name;
+        res.db.info = {
+            uriEndsWithTLS: /\btls=true\b/i.test(process.env.MONGODB_URI || ''),
+            directConnection: /\bdirectConnection=true\b/i.test(process.env.MONGODB_URI || ''),
+            authSource: /\bauthSource=\w+\b/i.test(process.env.MONGODB_URI || ''),
+            timeout: /\bserverSelectionTimeoutMS=\d+\b/i.test(process.env.MONGODB_URI || '')
+        };
+        // 스택 정보 (개발 환경에서만)
+        if (process.env.NODE_ENV === 'development') {
+            res.db.stack = e?.stack;
+        }
     }
     
     return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({
-            success: true,
-            env: {
-                MONGODB_URI: has('MONGODB_URI'),
-                MONGODB_DB: process.env.MONGODB_DB || 'marketgrow',
-                JWT_SECRET: has('JWT_SECRET'),
-                JWT_SECRET_ADMIN: has('JWT_SECRET_ADMIN'),
-                ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'not set'
-            },
-            db: { 
-                ok: dbOK, 
-                error: dbErr 
-            },
-            path: event.path || 'unknown',
-            httpMethod: event.httpMethod
-        })
+        body: JSON.stringify(res)
     };
 }
 

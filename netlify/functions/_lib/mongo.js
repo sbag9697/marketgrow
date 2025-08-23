@@ -26,6 +26,7 @@ async function getDb() {
                 maxPoolSize: 5, // 서버리스 환경에 적합한 작은 풀 사이즈
                 serverSelectionTimeoutMS: 5000,
                 socketTimeoutMS: 10000,
+                directConnection: true, // Railway 프록시용
             });
             
             clientPromise = client.connect();
