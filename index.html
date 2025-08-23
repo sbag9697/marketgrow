@@ -498,25 +498,26 @@
                         
                         const data = await response.json();
                         
-                        if (data.success) {
-                            // 안전한 파싱 - 양쪽 포맷 모두 지원
-                            const token = data?.token ?? data?.data?.token;
-                            const user = data?.user ?? data?.data?.user;
-                            
-                            if (!token) {
-                                alert('로그인 응답에 토큰이 없습니다.');
-                                return;
-                            }
-                            
-                            localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, token);
-                            if (user) {
-                                localStorage.setItem(window.STORAGE_KEYS.USER_INFO, JSON.stringify(user));
-                            }
-                            alert('로그인 성공!');
-                            window.location.href = '/dashboard.html';
-                        } else {
-                            alert(data.message || '로그인 실패');
+                        // 서버 응답 파싱 (새/구 포맷 모두 대응)
+                        const ok = data?.success ?? data?.status === 'success';
+                        const token = data?.token ?? data?.data?.token;
+                        const user = data?.user ?? data?.data?.user;
+                        
+                        if (!ok || !token) {
+                            console.error('Login failed:', data);
+                            alert(data?.error || data?.message || '로그인 실패');
+                            return;
                         }
+                        
+                        // 저장 키(공용 상수 있으면 사용, 없으면 기본값)
+                        const KEY_TOKEN = window?.STORAGE_KEYS?.AUTH_TOKEN || 'authToken';
+                        const KEY_USER = window?.STORAGE_KEYS?.USER_INFO || 'userInfo';
+                        
+                        localStorage.setItem(KEY_TOKEN, token);
+                        if (user) localStorage.setItem(KEY_USER, JSON.stringify(user));
+                        
+                        alert('로그인 성공!');
+                        window.location.href = '/dashboard.html';
                     } catch (error) {
                         console.error('로그인 오류:', error);
                         alert('서버 연결 실패');
