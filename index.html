@@ -488,7 +488,10 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                login: username,
+                                action: 'login',  // 필수 파라미터
+                                username: username,
+                                email: username,  // 이메일로도 로그인 가능
+                                login: username,  // 레거시 호환
                                 password: password
                             })
                         });
@@ -496,8 +499,19 @@
                         const data = await response.json();
                         
                         if (data.success) {
-                            localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, data.data.token);
-                            localStorage.setItem(window.STORAGE_KEYS.USER_INFO, JSON.stringify(data.data.user));
+                            // 안전한 파싱 - 양쪽 포맷 모두 지원
+                            const token = data?.token ?? data?.data?.token;
+                            const user = data?.user ?? data?.data?.user;
+                            
+                            if (!token) {
+                                alert('로그인 응답에 토큰이 없습니다.');
+                                return;
+                            }
+                            
+                            localStorage.setItem(window.STORAGE_KEYS.AUTH_TOKEN, token);
+                            if (user) {
+                                localStorage.setItem(window.STORAGE_KEYS.USER_INFO, JSON.stringify(user));
+                            }
                             alert('로그인 성공!');
                             window.location.href = '/dashboard.html';
                         } else {

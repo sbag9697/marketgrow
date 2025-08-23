@@ -42,10 +42,19 @@ fetch('https://marketgrow-production.up.railway.app/api/auth/login', {
 .then(data => {
     if (data.success) {
         console.log('✅ 로그인 성공!');
-        console.log('토큰:', data.data.token);
-        localStorage.setItem('authToken', data.data.token);
-        localStorage.setItem('userInfo', JSON.stringify(data.data.user));
-        console.log('토큰이 저장되었습니다. 대시보드로 이동할 수 있습니다.');
+        // 안전한 파싱 - 양쪽 포맷 모두 지원
+        const token = data?.token ?? data?.data?.token;
+        const user = data?.user ?? data?.data?.user;
+        console.log('토큰:', token);
+        if (token) {
+            localStorage.setItem('authToken', token);
+            if (user) {
+                localStorage.setItem('userInfo', JSON.stringify(user));
+            }
+            console.log('토큰이 저장되었습니다. 대시보드로 이동할 수 있습니다.');
+        } else {
+            console.error('❌ 토큰이 없습니다!');
+        }
     } else {
         console.error('❌ 로그인 실패:', data.message);
     }
@@ -83,16 +92,28 @@ fetch('https://marketgrow-production.up.railway.app/api/auth/login', {
                 console.log('응답 데이터:', data);
                 
                 if (data.success) {
-                    // 토큰 저장
-                    localStorage.setItem('authToken', data.data.token);
-                    localStorage.setItem('userInfo', JSON.stringify(data.data.user));
+                    // 안전한 파싱 - 양쪽 포맷 모두 지원
+                    const token = data?.token ?? data?.data?.token;
+                    const user = data?.user ?? data?.data?.user;
                     
-                    resultDiv.innerHTML = `
-                        <h3 style="color: green;">✅ 로그인 성공!</h3>
-                        <p>사용자: ${data.data.user.name} (${data.data.user.email})</p>
-                        <p>토큰이 저장되었습니다.</p>
-                        <button onclick="window.location.href='/dashboard.html'">대시보드로 이동</button>
-                    `;
+                    if (token) {
+                        localStorage.setItem('authToken', token);
+                        if (user) {
+                            localStorage.setItem('userInfo', JSON.stringify(user));
+                        }
+                        
+                        resultDiv.innerHTML = `
+                            <h3 style="color: green;">✅ 로그인 성공!</h3>
+                            <p>사용자: ${user?.name || 'Unknown'} (${user?.email || 'Unknown'})</p>
+                            <p>토큰이 저장되었습니다.</p>
+                            <button onclick="window.location.href='/dashboard.html'">대시보드로 이동</button>
+                        `;
+                    } else {
+                        resultDiv.innerHTML = `
+                            <h3 style="color: red;">❌ 토큰 없음</h3>
+                            <p>로그인 응답에 토큰이 없습니다.</p>
+                        `;
+                    }
                 } else {
                     resultDiv.innerHTML = `
                         <h3 style="color: red;">❌ 로그인 실패</h3>
